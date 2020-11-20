@@ -67,7 +67,7 @@ success:
 
 $(DEPEND_C): $(OUT_DEPEND)/%.d : $(SOURCE_ROOT)/%.c
 	@echo -e "[DEP]     $@"
-	$(Q)set -e;$(CC) -MM $< $(CPPFLAGS) $(CFLAGS) > $@.$$$$; \
+	@set -e;$(CC) -MM $< $(CPPFLAGS) $(CFLAGS) > $@.$$$$; \
 	sed 's,.*\.o[ :]*,$(@:%.d=%.o) $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
 
@@ -81,7 +81,7 @@ $(OBJECT_C):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.c
 
 $(DEPEND_CXX) : $(OUT_DEPEND)/%.d : $(SOURCE_ROOT)/%.cpp
 	@echo -e "[DEP]     $@"
-	$(Q)set -e;$(CC) -MM $< $(CPPFLAGS) $(CXXFLAGS) > $@.$$$$; \
+	@set -e;$(CC) -MM $< $(CPPFLAGS) $(CXXFLAGS) > $@.$$$$; \
 	sed 's,.*\.o[ :]*,$(@:%.d=%.o) $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
 ifeq ($(MAKECMDGOALS),all)
