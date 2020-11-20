@@ -1,10 +1,11 @@
 /*
- * test.h - test
+ * add.h - add
  *
  * Date   : 2020/11/20
  */
-#ifndef TEST_H
-#define TEST_H
+#ifndef ADD_H
+#define ADD_H
 
 int my_add(int a, int b);
+
 #endif

@@ -3,9 +3,10 @@
  *
  * Date   : 2020/11/20
  */
-int my_add(int, int);
+#include "add.h"
 
 int my_add(int a, int b)
 {
+
     return a+b;
 }

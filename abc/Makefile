@@ -1,6 +1,6 @@
 include ../build/def.mk
 
-TARGET := test
+TARGET := abc
 
 include ../build/debug.mk
-include ../build/program.mk
+include ../build/library.mk

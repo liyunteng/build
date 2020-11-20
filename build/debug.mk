@@ -27,11 +27,14 @@ show:
 	@echo "OBJSIZE            = " $(OBJSIZE)
 	@echo ""
 
-	@echo "BUILD_AFLAGS       = " $(BUILD_AFLAGS)
-	@echo "BUILD_CPPFLAGS     = " $(BUILD_CPPFLAGS)
-	@echo "BUILD_CFLAGS       = " $(BUILD_CFLAGS)
-	@echo "BUILD_CXXFLAGS     = " $(BUILD_CXXFLAGS)
-	@echo "BUILD_LDFLAGS      = " $(BUILD_LDFLAGS)
+	@echo "CPPFLAGS           = " $(CPPFLAGS)
+	@echo "CFLAGS             = " $(CFLAGS)
+	@echo "CXXFLAGS           = " $(CXXFLAGS)
+	@echo "ASFLAGS            = " $(ASFLAGS)
+	@echo "LDFLAGS            = " $(LDFLAGS)
+	@echo "LOADLIBES          = " $(LOADLIBES)
+	@echo "LDLIBS             = " $(LDLIBS)
+	@echo "ARFLAGS            = " $(ARFLAGS)
 	@echo ""
 
 	@echo "CURDIR             = " $(CURDIR)
@@ -39,13 +42,12 @@ show:
 	@echo "MAKEFILE_LIST      = " $(MAKEFILE_LIST)
 	@echo "MAKECMDGOALS       = " $(MAKECMDGOALS)
 	@echo "MAKEOVERRIDES      = " $(MAKEOVERRIDES)
+	@echo "MAKELEVEL          = " $(MAKELEVEL)
+	@echo "VPATH              = " $(VPATH)
 	@echo ""
 
-	@echo "INCLUDEDIR         = " $(INCLUDE_DIR)
 	@echo "SOURCE_C           = " $(SOURCE_C)
 	@echo "OBJECT_C           = " $(OBJECT_C)
-	@echo "DEPEND_C           = " $(DEPEND_C)
 	@echo "SOURCE_CXX         = " $(SOURCE_CXX)
 	@echo "OBJECT_CXX         = " $(OBJECT_CXX)
-	@echo "DEPEND_CXX         = " $(DEPEND_CXX)
 	@echo ""
