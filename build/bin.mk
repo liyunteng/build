@@ -45,9 +45,9 @@ BIN   := $(OUT_BIN)/$(MODULE_NAME)
 OUT_OBJECT_DIRS := $(sort $(dir $(OBJECT_C)))
 OUT_OBJECT_DIRS += $(sort $(dir $(OBJECT_CXX)))
 CreateResult :=
-dummy := $(call CreateDirectory, $(OUT_ROOT))
-dummy += $(call CreateDirectory, $(OUT_OBJECT))
-dummy += $(call CreateDirectory, $(OUT_BIN))
+CreateResult := $(call CreateDirectory, $(OUT_ROOT))
+CreateResult += $(call CreateDirectory, $(OUT_OBJECT))
+CreateResult += $(call CreateDirectory, $(OUT_BIN))
 dummy += $(foreach dir, $(OUT_OBJECT_DIRS), CreateResult += $(call CreateDirectory, $(dir)))
 ifneq ($(strip $(CreateResult)),)
 	err = $(error create directory failed: $(CreateResult))
@@ -59,17 +59,15 @@ default: all
 all: before $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(BIN) after success
 
 before:
-	@echo -e "\033[31;32mBinary $(MODULE_ROOT) Begin\033[0m"
 
 after:
 
 success:
-	@echo -e "\033[31;32mBinary $(MODULE_ROOT) Done\033[0m"
-	@echo ""
 
 
 $(DEPEND_C): $(OUT_DEPEND)/%.d : $(SOURCE_ROOT)/%.c
-	@set -e;$(CC) -MM $< $(CPPFLAGS) $(CFLAGS) > $@.$$$$; \
+	@echo -e "[DEP]     $@"
+	$(Q)set -e;$(CC) -MM $< $(CPPFLAGS) $(CFLAGS) > $@.$$$$; \
 	sed 's,.*\.o[ :]*,$(@:%.d=%.o) $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
 
@@ -82,7 +80,8 @@ $(OBJECT_C):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.c
 	$(Q) $(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
 
 $(DEPEND_CXX) : $(OUT_DEPEND)/%.d : $(SOURCE_ROOT)/%.cpp
-	@set -e;$(CC) -MM $< $(CPPFLAGS) $(CXXFLAGS) > $@.$$$$; \
+	@echo -e "[DEP]     $@"
+	$(Q)set -e;$(CC) -MM $< $(CPPFLAGS) $(CXXFLAGS) > $@.$$$$; \
 	sed 's,.*\.o[ :]*,$(@:%.d=%.o) $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
 ifeq ($(MAKECMDGOALS),all)
@@ -131,3 +130,6 @@ clean:
 # $(Q)[ -n $(OUT_BIN) ] && rm -rf $(OUT_BIN)
 # $(Q)[ -n $(OUT_DEPEND) ] && rm -rf $(OUT_DEPEND)
 	$(Q)[ -n $(OUT_ROOT) ] && rm -rf $(OUT_ROOT)
+ifeq ($(MAKELEVEL),0)
+	@echo "clean done"
+endif

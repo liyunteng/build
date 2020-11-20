@@ -1,7 +1,7 @@
 # Create Directory
-CreateDirectory = $(shell [ -d $1 ] || mkdir -p $1  && echo "mkdir '$1'" || echo "mkdir '$1' failed")
+CreateDirectory = $(shell [ -d $1 ] || mkdir -p $1 || echo "mkdir '$1' failed")
 # Remove Directory
-RemoveDirectory = $(shell [ -d $1 ] && rm -rf $1  && echo "rmdir '$1'"|| echo "rm dir '$1' failed")
+RemoveDirectory = $(shell [ -d $1 ] && rm -rf $1 || echo "rm dir '$1' failed")
 
 BUILD_VERBOSE := 0
 ifeq ("$(origin V)", "command line")
@@ -19,13 +19,10 @@ ifeq ("$(origin O)", "command line")
 BUILD_OUTPUT = $(shell realpath $(O))
 endif
 
-ifeq ($(BUILD_OUTPUT),$(BUILD_PWD))
-	MAKEFLAGS += --no-print-directory
-endif
+MAKEFLAGS += --no-print-directory
 
 ifneq ($(BUILD_OUTPUT),$(BUILD_PWD))
-	MAKEFLAGS += --include-dir=$(BUILD_PWD)
-	need-sub-make := 1
+# MAKEFLAGS += --include-dir=$(BUILD_PWD)
 endif
 
 OUT_ROOT	:= $(BUILD_OUTPUT)/out

@@ -15,6 +15,9 @@ clean:
 	@for dir in $(SUBDIR); do \
 		$(MAKE) -C $$dir clean BUILD_OUTPUT=$(BUILD_OUTPUT) MAKEFLAGS= || exit 1;\
 	done
+ifeq ($(MAKELEVEL),0)
+	@echo "clean done"
+endif
 
 .PHONY: showall
 showall: show
