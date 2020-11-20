@@ -53,7 +53,7 @@ OBJSIZE		:= $(CROSS_COMPILE)size
 
 CPPFLAGS    := -I$(OUT_INCLUDE)
 CFLAGS      := -Wall -Wmissing-prototypes -Wstrict-prototypes -fstack-protector
-CXXFLAGS    := $(CFLAGS)
+CXXFLAGS    := -Wall -fstack-protector
 ASFLAGS     := -D__ASSEMBLY__ -fno-PIE
 LDFLAGS     :=
 LOADLIBES   :=

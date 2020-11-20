@@ -70,7 +70,7 @@ show:
 	@echo "MODULE_NAME        = " $(MODULE_NAME)
 	@echo "LIB_TYPE           = " $(LIB_TYPE)
 	@echo "SOURCE_ROOT        = " $(SOURCE_ROOT)
-	@echo "SOURCE_DIR         = " $(SOURCE_DIR)
+	@echo "SOURCE_DIRS        = " $(SOURCE_DIRS)
 	@echo "SOURCE_OMIT        = " $(SOURCE_OMIT)
 	@echo "SOURCE_C           = " $(SOURCE_C)
 	@echo "OBJECT_C           = " $(OBJECT_C)
@@ -78,7 +78,7 @@ show:
 	@echo "SOURCE_CXX         = " $(SOURCE_CXX)
 	@echo "OBJECT_CXX         = " $(OBJECT_CXX)
 	@echo "DEPEND_CXX         = " $(DEPEND_CXX)
-	@echo "INCLUDE_DIR        = " $(INCLUDE_DIR)
-	@echo "OUT_OBJECT_DIR     = " $(OUT_OBJECT_DIR)
+	@echo "INCLUDE_DIRS       = " $(INCLUDE_DIRS)
+	@echo "OUT_OBJECT_DIRS    = " $(OUT_OBJECT_DIRS)
 	@echo ""
 	@echo ""

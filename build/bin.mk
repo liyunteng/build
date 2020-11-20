@@ -1,9 +1,9 @@
 # MODULE_ROOT:     The root directory of this module
 # MODULE_NAME:     The name of this mudule
 # SOURCE_ROOT:     Source Root Directory (default MODULE_ROOT)
-# SOURCE_DIR:      Source directory (default src)
+# SOURCE_DIRS:      Source directories (default src)
 # SOURCE_OMIT:     Ignored files
-# INCLUDE_DIR:     Include directory (default include)
+# INCLUDE_DIRS:     Include directories (default include)
 # CFLAGS:          gcc -c Flags (Added -fPIC)
 # CPPFLAGS:        cpp Flags
 # CXXFLAGS:        g++ -c Flags
@@ -17,12 +17,12 @@ MODULE_ROOT ?= $(shell pwd)
 MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
 
 # Source FileList
-SOURCE_ROOT ?= $(MODULE_ROOT)
-SOURCE_DIR  ?= src
-SOURCE_OMIT ?=
+SOURCE_ROOT  ?= $(MODULE_ROOT)
+SOURCE_DIRS  ?= src
+SOURCE_OMIT  ?=
 
-SOURCE_C   := $(foreach dir, $(SOURCE_DIR), $(shell find $(SOURCE_ROOT)/$(dir) -name "*.c"))
-SOURCE_CXX := $(foreach dir, $(SOURCE_DIR), $(shell find $(SOURCE_ROOT)/$(dir) -name "*.cpp"))
+SOURCE_C   := $(foreach dir, $(SOURCE_DIRS), $(shell find $(SOURCE_ROOT)/$(dir) -name "*.c"))
+SOURCE_CXX := $(foreach dir, $(SOURCE_DIRS), $(shell find $(SOURCE_ROOT)/$(dir) -name "*.cpp"))
 ifneq ($(strip $(SOURCE_OMIT)),)
 SOURCE_C   := $(filter-out $(SOURCE_OMIT), $(SOURCE_C))
 SOURCE_CXX := $(filter-out $(SOURCE_OMIT), $(SOURCE_CXX))
@@ -34,21 +34,21 @@ DEPEND_C   := $(OBJECT_C:%.o=%.d)
 DEPEND_CXX := $(OBJECT_CXX:%.o=%.d)
 
 # Include Configure
-INCLUDE_DIR ?= $(SOURCE_ROOT)/include
-INCLUDE_PATH += $(foreach dir, $(INCLUDE_DIR), -I$(dir))
+INCLUDE_DIRS ?= $(SOURCE_ROOT)/include
+INCLUDE_PATH += $(foreach dir, $(INCLUDE_DIRS), -I$(dir))
 CPPFLAGS += $(INCLUDE_PATH)
 
 # Lib Name
 BIN   := $(OUT_BIN)/$(MODULE_NAME)
 
 # CreateDirectory
-OUT_OBJECT_DIR := $(sort $(dir $(OBJECT_C)))
-OUT_OBJECT_DIR += $(sort $(dir $(OBJECT_CXX)))
+OUT_OBJECT_DIRS := $(sort $(dir $(OBJECT_C)))
+OUT_OBJECT_DIRS += $(sort $(dir $(OBJECT_CXX)))
 CreateResult :=
 dummy := $(call CreateDirectory, $(OUT_ROOT))
 dummy += $(call CreateDirectory, $(OUT_OBJECT))
 dummy += $(call CreateDirectory, $(OUT_BIN))
-dummy += $(foreach dir, $(OUT_OBJECT_DIR), CreateResult += $(call CreateDirectory, $(dir)))
+dummy += $(foreach dir, $(OUT_OBJECT_DIRS), CreateResult += $(call CreateDirectory, $(dir)))
 ifneq ($(strip $(CreateResult)),)
 	err = $(error create directory failed: $(CreateResult))
 endif
@@ -59,10 +59,14 @@ default: all
 all: before $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(BIN) after success
 
 before:
+	@echo -e "\033[31;32mBinary $(MODULE_ROOT) Begin\033[0m"
 
 after:
 
 success:
+	@echo -e "\033[31;32mBinary $(MODULE_ROOT) Done\033[0m"
+	@echo ""
+
 
 $(DEPEND_C): $(OUT_DEPEND)/%.d : $(SOURCE_ROOT)/%.c
 	@set -e;$(CC) -MM $< $(CPPFLAGS) $(CFLAGS) > $@.$$$$; \
@@ -101,21 +105,21 @@ endif
 help:
 	@echo "library: Build Library"
 	@echo ""
-	@echo "    MODULE_ROOT:     The root directory of this module"
-	@echo "    MODULE_NAME:     The name of this mudule"
-	@echo "    SOURCE_ROOT:     Source Root Directory (default MODULE_ROOT)"
-	@echo "    SOURCE_DIR:      Source directory (default src)"
-	@echo "    SOURCE_OMIT:     Ignored files"
-	@echo "    INCLUDE_DIR:     Include directory (default include)"
+	@echo "    MODULE_ROOT         the root directory of this module"
+	@echo "    MODULE_NAME         the name of this mudule"
+	@echo "    SOURCE_ROOT         source root directory (default MODULE_ROOT)"
+	@echo "    SOURCE_DIRS         source directories (default src)"
+	@echo "    SOURCE_OMIT         ignored files"
+	@echo "    INCLUDE_DIRS        include directories (default include)"
 	@echo ""
-	@echo "    BUILD_VERBOSE:   Verbose output (MUST Before def.mk)"
-	@echo "    BUILD_OUTPUT:    Output dir (MUST Before def.mk)"
+	@echo "    BUILD_VERBOSE       verbose output (MUST before def.mk)"
+	@echo "    BUILD_OUTPUT        output dir (MUST before def.mk)"
 	@echo ""
-	@echo "    CFLAGS:          gcc -c Flags (Added -fPIC)"
-	@echo "    CPPFLAGS:        cpp Flags"
-	@echo "    CXXFLAGS:        g++ -c Flags"
-	@echo "    ARFLAGS:         ar Flags (Default rcs)"
-	@echo "    LDFLAGS:         ld Flags (Added -shared -fPIC for shared)"
+	@echo "    CFLAGS              gcc -c Flags"
+	@echo "    CPPFLAGS            cpp Flags"
+	@echo "    CXXFLAGS            g++ -c Flags"
+	@echo "    ARFLAGS             ar Flags (default rcs)"
+	@echo "    LDFLAGS             ld Flags (added -shared -fPIC for shared)"
 	@echo ""
 
 .PHONY: clean
