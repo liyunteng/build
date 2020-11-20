@@ -63,15 +63,17 @@ endif
 default:all
 
 ifeq ($(strip $(LIB_TYPE)),static)
-all: prepare header $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(LIB) success
+all: before header $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(LIB) after success
 else ifeq ($(strip $(LIB_TYPE)),dynamic)
-all: prepare header  $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(SOLIB) success
+all: before header  $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(SOLIB) after success
 else ifeq ($(strip $(LIB_TYPE)),all)
-all: prepare header $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(LIB) $(SOLIB) success
+all: before header $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(LIB) $(SOLIB) after success
 endif
 
 
-prepare:
+before:
+
+after:
 
 success:
 
@@ -82,19 +84,19 @@ $(DEPEND_C): $(OUT_DEPEND)/%.d : $(SOURCE_ROOT)/%.c
 	@set -e;$(CC) -MM $< $(CPPFLAGS) $(CFLAGS) > $@.$$$$; \
 	sed 's,.*\.o[ :]*,$(@:%.d=%.o) $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
-ifneq ($(MAKECMDGOALS),clean)
+ifeq ($(MAKECMDGOALS),all)
 sinclude $(DEPEND_C)
 endif
 
 $(OBJECT_C):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.c
-	@echo -e "[CC]      $@"
-	$(Q) $(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
+	@echo "[CC]      $@"
+	$(Q)$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
 
 $(DEPEND_CXX) : $(OUT_DEPEND)/%.d : $(SOURCE_ROOT)/%.cpp
 	@set -e;$(CC) -MM $< $(CPPFLAGS) $(CXXFLAGS) > $@.$$$$; \
 	sed 's,.*\.o[ :]*,$(@:%.d=%.o) $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
-ifneq ($(MAKECMDGOALS),clean)
+ifeq ($(MAKECMDGOALS),all)
 sinclude $(DEPEND_CXX)
 endif
 
@@ -105,14 +107,19 @@ $(OBJECT_CXX):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.cpp
 $(LIB): $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX)
 	@echo "[AR]      $@"
 	$(Q)$(AR) $(ARFLAGS) $@ $(OBJECT_C) $(OBJECT_CXX)
+ifeq ($(BUILD_ENV),release)
+	@echo "[STRIP]   $@"
+	$(Q)$(STRIP) $@
+endif
+
 
 $(SOLIB): $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX)
 	@echo "[SHARE]   $@"
 	$(Q)$(CC) -fPIC -shared $(LDFLAGS) -o $@ $(OBJECT_C) $(OBJECT_CXX)
-
-.PHONY: debug
-debug:
-	@$(MAKE) BUILD_ENV=debug all MAKEFLAGS=
+ifeq ($(BUILD_ENV),release)
+	@echo "[STRIP]   $@"
+	$(Q)$(STRIP) $@
+endif
 
 .PHONY: help
 help:

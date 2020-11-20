@@ -1,8 +1,20 @@
 MODE=debug
 
-.PHONY: show null
+.PHONY: show help-global
 
 all:
+
+help-global:
+	@echo "make <BUILD_ENV=[release|debug]> <CROSS_COMPILE=arm-linux-gnueabi-> <O=/opt/out> <V=[0|1]> <show> <help>"
+	@echo ""
+	@echo "    BUILD_ENV       release or debug, default is release"
+	@echo "    CROSS_COMPILE   cross compile toolchain"
+	@echo "    O               output"
+	@echo "    V               verbose"
+	@echo "    show            show current configuration"
+	@echo "    help            show this help"
+	@echo ""
+
 show:
 	@echo "=============== $(CURDIR) ==============="
 	@echo "BUILD_ENV          = " $(BUILD_ENV)
@@ -20,6 +32,7 @@ show:
 	@echo "OUT_CFG            = " $(OUT_CFG)
 	@echo ""
 
+	@echo "CROSS_COMPILE      = " $(CROSS_COMPILE)
 	@echo "CC                 = " $(CC)
 	@echo "CXX                = " $(CXX)
 	@echo "CPP                = " $(CPP)

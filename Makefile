@@ -1,6 +1,6 @@
 include build/def.mk
 
-SUBDIR = abc x
+SUBDIR = calc x
 
 include build/debug.mk
 include build/subdir.mk

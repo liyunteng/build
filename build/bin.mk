@@ -56,10 +56,11 @@ endif
 # Compiler
 .PHONY: all prepare success
 default: all
-all: prepare $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(BIN) success
+all: before $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(BIN) after success
 
+before:
 
-prepare:
+after:
 
 success:
 
@@ -68,7 +69,7 @@ $(DEPEND_C): $(OUT_DEPEND)/%.d : $(SOURCE_ROOT)/%.c
 	sed 's,.*\.o[ :]*,$(@:%.d=%.o) $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
 
-ifneq ($(MAKECMDGOALS),clean)
+ifeq ($(MAKECMDGOALS),all)
 sinclude $(DEPEND_C)
 endif
 
@@ -80,7 +81,7 @@ $(DEPEND_CXX) : $(OUT_DEPEND)/%.d : $(SOURCE_ROOT)/%.cpp
 	@set -e;$(CC) -MM $< $(CPPFLAGS) $(CXXFLAGS) > $@.$$$$; \
 	sed 's,.*\.o[ :]*,$(@:%.d=%.o) $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
-ifneq ($(MAKECMDGOALS),clean)
+ifeq ($(MAKECMDGOALS),all)
 sinclude $(DEPEND_CXX)
 endif
 
@@ -91,11 +92,10 @@ $(OBJECT_CXX):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.cpp
 $(BIN): $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX)
 	@echo "[LINK]    $@"
 	$(Q)$(CC) $(LDFLAGS) $(LOADLIBES) $(LDLIBS) $(OBJECT_C) $(OBJECT_CXX) -o $@
-
-.PHONY: debug
-debug:
-	@$(MAKE) BUILD_ENV=debug all MAKEFLAGS=
-
+ifeq ($(BUILD_ENV),release)
+	@echo "[STRIP]   $@"
+	$(Q)$(STRIP) $@
+endif
 
 .PHONY: help
 help:
