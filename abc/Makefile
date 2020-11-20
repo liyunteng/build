@@ -1,6 +1,6 @@
 include ../build/def.mk
 
-TARGET := abc
+SOURCE_DIR += src mul
 
 include ../build/debug.mk
 include ../build/library.mk

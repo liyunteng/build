@@ -6,6 +6,7 @@
 #ifndef ADD_H
 #define ADD_H
 
-int my_add(int a, int b);
+int my_add(int, int);
+
 
 #endif

@@ -1,6 +1,5 @@
 # MODULE_ROOT:     The root directory of this module
 # MODULE_NAME:     The name of this mudule
-# LIB_TYPE:        Library type [static/dynamic/all]
 # SOURCE_ROOT:     Source Root Directory (default MODULE_ROOT)
 # SOURCE_DIR:      Source directory (default src)
 # SOURCE_OMIT:     Ignored files
@@ -12,12 +11,9 @@
 # LDFLAGS:         ld Flags (Added -shared -fPIC for shared)
 # BUILD_VERBOSE:   Verbose output (MUST Before def.mk)
 # BUILD_OUTPUT:    Output dir (MUST Before def.mk)
-MODE=library
+MODE=bin
 MODULE_ROOT ?= $(shell pwd)
 MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
-
-# static/dynamic/all
-LIB_TYPE    ?= all
 
 # Source FileList
 SOURCE_ROOT ?= $(MODULE_ROOT)
@@ -42,8 +38,7 @@ INCLUDE_PATH += $(foreach dir, $(SOURCE_ROOT)/$(INCLUDE_DIR), -I$(dir))
 CPPFLAGS += $(INCLUDE_PATH)
 
 # Lib Name
-LIB   := $(OUT_LIB)/lib$(MODULE_NAME).a
-SOLIB := $(OUT_LIB)/lib$(MODULE_NAME).so
+BIN   := $(OUT_BIN)/$(MODULE_NAME)
 
 # CreateDirectory
 OUT_OBJECT_DIR := $(sort $(dir $(OBJECT_C)))
@@ -51,7 +46,7 @@ OUT_OBJECT_DIR += $(sort $(dir $(OBJECT_CXX)))
 CreateResult :=
 dummy := $(call CreateDirectory, $(OUT_ROOT))
 dummy += $(call CreateDirectory, $(OUT_OBJECT))
-dummy += $(call CreateDirectory, $(OUT_LIB))
+dummy += $(call CreateDirectory, $(OUT_BIN))
 dummy += $(foreach dir, $(OUT_OBJECT_DIR), CreateResult += $(call CreateDirectory, $(dir)))
 ifneq ($(strip CreateResult),)
 	err = $(error $(CreateResult))
@@ -60,13 +55,7 @@ endif
 # Compiler
 default:all
 
-ifeq ($(strip $(LIB_TYPE)),static)
-all: prepare $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(LIB) success
-else ifeq ($(strip $(LIB_TYPE)),dynamic)
-all: prepare $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(SOLIB) success
-else ifeq ($(strip $(LIB_TYPE)),all)
-all: prepare $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(LIB) $(SOLIB) success
-endif
+all: prepare $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(BIN) success
 
 
 prepare:
@@ -93,13 +82,9 @@ $(OBJECT_CXX):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.cpp
 	@echo "[CXX]     $@"
 	$(Q) $(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
-$(LIB): $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX)
-	@echo "[AR]      $@"
-	$(Q)$(AR) $(ARFLAGS) $@ $(OBJECT_C) $(OBJECT_CXX)
-
-$(SOLIB): $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX)
-	@echo "[SHARE]   $@"
-	$(Q)$(CC) -fPIC -shared $(LDFLAGS) -o $@ $(OBJECT_C) $(OBJECT_CXX)
+$(BIN): $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX)
+	@echo "[LINK]    $@"
+	$(Q)$(CC) $(LDFLAGS) $(LOADLIBES) $(LDLIBS) $(OBJECT_C) $(OBJECT_CXX) -o $@
 
 .PHONY: debug
 debug:
@@ -111,7 +96,6 @@ help:
 	@echo ""
 	@echo "    MODULE_ROOT:     The root directory of this module"
 	@echo "    MODULE_NAME:     The name of this mudule"
-	@echo "    LIB_TYPE:        Library type [static/dynamic/all]"
 	@echo "    SOURCE_ROOT:     Source Root Directory (default MODULE_ROOT)"
 	@echo "    SOURCE_DIR:      Source directory (default src)"
 	@echo "    SOURCE_OMIT:     Ignored files"
@@ -130,8 +114,8 @@ help:
 .PHONY: clean
 clean:
 	$(Q)$(RM) -rf $(OBJECT_C) $(OBJECT_CXX)
-	$(Q)$(RM) -rf $(LIB) $(SOLIB)
+	$(Q)$(RM) -rf $(BIN)
 	$(Q)$(RM) -rf $(DEPEND_C) $(DEPEND_CXX)
 	$(Q)[ -n $(OUT_OBJECT) ] && rm -rf $(OUT_OBJECT)
-	$(Q)[ -n $(OUT_LIB) ] && rm -rf $(OUT_LIB)
+	$(Q)[ -n $(OUT_BIN) ] && rm -rf $(OUT_BIN)
 	$(Q)[ -n $(OUT_DEPEND) ] && rm -rf $(OUT_DEPEND)
