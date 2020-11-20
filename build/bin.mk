@@ -33,8 +33,8 @@ DEPEND_C   := $(OBJECT_C:%.o=%.d)
 DEPEND_CXX := $(OBJECT_CXX:%.o=%.d)
 
 # Include Configure
-INCLUDE_DIR ?= include
-INCLUDE_PATH += $(foreach dir, $(SOURCE_ROOT)/$(INCLUDE_DIR), -I$(dir))
+INCLUDE_DIR ?= $(SOURCE_ROOT)/include
+INCLUDE_PATH += $(foreach dir, $(INCLUDE_DIR), -I$(dir))
 CPPFLAGS += $(INCLUDE_PATH)
 
 # Lib Name

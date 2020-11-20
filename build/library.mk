@@ -51,6 +51,7 @@ OUT_OBJECT_DIR := $(sort $(dir $(OBJECT_C)))
 OUT_OBJECT_DIR += $(sort $(dir $(OBJECT_CXX)))
 CreateResult :=
 dummy := $(call CreateDirectory, $(OUT_ROOT))
+dummy += $(call CreateDirectory, $(OUT_INCLUDE))
 dummy += $(call CreateDirectory, $(OUT_OBJECT))
 dummy += $(call CreateDirectory, $(OUT_LIB))
 dummy += $(foreach dir, $(OUT_OBJECT_DIR), CreateResult += $(call CreateDirectory, $(dir)))
@@ -62,17 +63,20 @@ endif
 default:all
 
 ifeq ($(strip $(LIB_TYPE)),static)
-all: prepare $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(LIB) success
+all: prepare header $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(LIB) success
 else ifeq ($(strip $(LIB_TYPE)),dynamic)
-all: prepare $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(SOLIB) success
+all: prepare header  $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(SOLIB) success
 else ifeq ($(strip $(LIB_TYPE)),all)
-all: prepare $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(LIB) $(SOLIB) success
+all: prepare header $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(LIB) $(SOLIB) success
 endif
 
 
 prepare:
 
 success:
+
+header:
+	$(Q)cp -r include/* $(OUT_INCLUDE)
 
 $(DEPEND_C): $(OUT_DEPEND)/%.d : $(SOURCE_ROOT)/%.c
 	@set -e;$(CC) -MM $< $(CPPFLAGS) $(CFLAGS) > $@.$$$$; \

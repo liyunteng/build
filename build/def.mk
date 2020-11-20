@@ -28,7 +28,7 @@ ifneq ($(BUILD_OUTPUT),$(BUILD_PWD))
 	need-sub-make := 1
 endif
 
-OUT_ROOT	:= $(BUILD_OUTPUT)
+OUT_ROOT	:= $(BUILD_OUTPUT)/out
 OUT_INCLUDE := $(OUT_ROOT)/include
 OUT_BIN     := $(OUT_ROOT)/bin
 OUT_LIB     := $(OUT_ROOT)/lib

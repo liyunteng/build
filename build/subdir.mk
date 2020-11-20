@@ -6,13 +6,13 @@ all: subdirs
 .PHONY: subdirs
 subdirs:
 	@for dir in $(SUBDIR); do \
-		$(MAKE) -C $$dir all MAKEFLAGS= || exit 1; \
+		$(MAKE) -C $$dir all BUILD_OUTPUT=$(BUILD_OUTPUT) MAKEFLAGS= || exit 1; \
 	done
 
 .PHONY: clean
 clean:
 	@for dir in $(SUBDIR); do \
-		$(MAKE) -C $$dir clean  MAKEFLAGS= || exit ?; \
+		$(MAKE) -C $$dir clean BUILD_OUTPUT=$(BUILD_OUTPUT) MAKEFLAGS= || exit ?; \
 	done
 
 .PHONY: debug
