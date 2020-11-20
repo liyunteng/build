@@ -5,13 +5,13 @@ all: subdirs
 .PHONY: subdirs
 subdirs:
 	@for dir in $(SUBDIR); do \
-		$(MAKE) -C $$dir all || exit ?; \
+		$(MAKE) -C $$dir all BUILD_OUTPUT=$(BUILD_OUTPUT) MAKEFLAGS= || exit ?; \
 	done
 
 .PHONY: clean
 clean:
 	@for dir in $(SUBDIR); do \
-		$(MAKE) -C $$dir clean || exit ?; \
+		$(MAKE) -C $$dir clean BUILD_OUTPUT=$(BUILD_OUTPUT) MAKEFLAGS= || exit ?; \
 	done
 
 .PHONY: debug
