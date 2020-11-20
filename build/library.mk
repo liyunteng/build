@@ -39,7 +39,8 @@ DEPEND_CXX := $(OBJECT_CXX:%.o=%.d)
 # Include Configure
 INCLUDE_DIR ?= include
 INCLUDE_PATH += $(foreach dir, $(SOURCE_ROOT)/$(INCLUDE_DIR), -I$(dir))
-CPPFLAGS += $(INCLUDE_PATH)
+export CPPFLAGS += $(INCLUDE_PATH)
+
 
 # Lib Name
 LIB   := $(OUT_LIB)/lib$(MODULE_NAME).a
@@ -53,8 +54,8 @@ dummy := $(call CreateDirectory, $(OUT_ROOT))
 dummy += $(call CreateDirectory, $(OUT_OBJECT))
 dummy += $(call CreateDirectory, $(OUT_LIB))
 dummy += $(foreach dir, $(OUT_OBJECT_DIR), CreateResult += $(call CreateDirectory, $(dir)))
-ifneq ($(strip CreateResult),)
-	err = $(error $(CreateResult))
+ifneq ($(strip $(CreateResult)),)
+	err = $(error create directory failed: $(CreateResult))
 endif
 
 # Compiler

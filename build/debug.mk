@@ -1,8 +1,11 @@
+MODE=debug
+
 all: show
 
 .PHONY: show
 
 show:
+	@echo "===============$(CURDIR)======================= "
 	@echo "BUILD_ENV          = " $(BUILD_ENV)
 	@echo "BUILD_VERBOSE      = " $(BUILD_VERBOSE)
 	@echo "BUILD_PWD          = " $(BUILD_PWD)
@@ -64,4 +67,5 @@ show:
 	@echo "OBJECT_CXX         = " $(OBJECT_CXX)
 	@echo "DEPEND_CXX         = " $(DEPEND_CXX)
 	@echo "INCLUDE_DIR        = " $(INCLUDE_DIR)
+	@echo "OUT_OBJECT_DIR     = " $(OUT_OBJECT_DIR)
 	@echo ""

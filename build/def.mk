@@ -1,7 +1,7 @@
 # Create Directory
 CreateDirectory = $(shell [ -d $1 ] || mkdir -p $1  && echo "mkdir '$1'" || echo "mkdir '$1' failed")
 # Remove Directory
-RemoveDirectory = $(shell [-d $1 ] && rm -rf $1  && echo "rmdir '$1'"|| echo "rm dir '$1' failed")
+RemoveDirectory = $(shell [ -d $1 ] && rm -rf $1  && echo "rmdir '$1'"|| echo "rm dir '$1' failed")
 
 BUILD_VERBOSE := 0
 ifeq ("$(origin V)", "command line")
@@ -51,9 +51,9 @@ OBJCOPY	    := $(CROSS_COMPILE)objcopy
 OBJDUMP	    := $(CROSS_COMPILE)objdump
 OBJSIZE		:= $(CROSS_COMPILE)size
 
-CPPFLAGS    :=
+CPPFLAGS    := -I$(OUT_INCLUDE)
 CFLAGS      := -Wall -Wmissing-prototypes -Wstrict-prototypes -fstack-protector
-CXXFLAGS    := $(BUILD_CFLAGS)
+CXXFLAGS    := $(CFLAGS)
 ASFLAGS     := -D__ASSEMBLY__ -fno-PIE
 LDFLAGS     :=
 LOADLIBES   :=
@@ -69,4 +69,4 @@ else
 	CXXFLAGS += -g -ggdb
 endif
 
-export BUILD_OUTPUT
+export

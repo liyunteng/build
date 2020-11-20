@@ -48,8 +48,8 @@ dummy := $(call CreateDirectory, $(OUT_ROOT))
 dummy += $(call CreateDirectory, $(OUT_OBJECT))
 dummy += $(call CreateDirectory, $(OUT_BIN))
 dummy += $(foreach dir, $(OUT_OBJECT_DIR), CreateResult += $(call CreateDirectory, $(dir)))
-ifneq ($(strip CreateResult),)
-	err = $(error $(CreateResult))
+ifneq ($(strip $(CreateResult)),)
+	err = $(error create directory failed: $(CreateResult))
 endif
 
 # Compiler
