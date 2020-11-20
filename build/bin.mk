@@ -11,6 +11,7 @@
 # LDFLAGS:         ld Flags (Added -shared -fPIC for shared)
 # BUILD_VERBOSE:   Verbose output (MUST Before def.mk)
 # BUILD_OUTPUT:    Output dir (MUST Before def.mk)
+
 MODE=bin
 MODULE_ROOT ?= $(shell pwd)
 MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
@@ -53,8 +54,8 @@ ifneq ($(strip $(CreateResult)),)
 endif
 
 # Compiler
-default:all
-
+.PHONY: all prepare success
+default: all
 all: prepare $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(BIN) success
 
 
@@ -66,7 +67,10 @@ $(DEPEND_C): $(OUT_DEPEND)/%.d : $(SOURCE_ROOT)/%.c
 	@set -e;$(CC) -MM $< $(CPPFLAGS) $(CFLAGS) > $@.$$$$; \
 	sed 's,.*\.o[ :]*,$(@:%.d=%.o) $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
--include $(DEPEND_C)
+
+ifneq ($(MAKECMDGOALS),clean)
+sinclude $(DEPEND_C)
+endif
 
 $(OBJECT_C):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.c
 	@echo -e "[CC]      $@"
@@ -76,7 +80,9 @@ $(DEPEND_CXX) : $(OUT_DEPEND)/%.d : $(SOURCE_ROOT)/%.cpp
 	@set -e;$(CC) -MM $< $(CPPFLAGS) $(CXXFLAGS) > $@.$$$$; \
 	sed 's,.*\.o[ :]*,$(@:%.d=%.o) $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
--include $(DEPEND_CXX)
+ifneq ($(MAKECMDGOALS),clean)
+sinclude $(DEPEND_CXX)
+endif
 
 $(OBJECT_CXX):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.cpp
 	@echo "[CXX]     $@"
@@ -89,6 +95,7 @@ $(BIN): $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX)
 .PHONY: debug
 debug:
 	@$(MAKE) BUILD_ENV=debug all MAKEFLAGS=
+
 
 .PHONY: help
 help:
@@ -113,9 +120,10 @@ help:
 
 .PHONY: clean
 clean:
-	$(Q)$(RM) -rf $(OBJECT_C) $(OBJECT_CXX)
-	$(Q)$(RM) -rf $(BIN)
-	$(Q)$(RM) -rf $(DEPEND_C) $(DEPEND_CXX)
-	$(Q)[ -n $(OUT_OBJECT) ] && rm -rf $(OUT_OBJECT)
-	$(Q)[ -n $(OUT_BIN) ] && rm -rf $(OUT_BIN)
-	$(Q)[ -n $(OUT_DEPEND) ] && rm -rf $(OUT_DEPEND)
+# $(Q)$(RM) -rf $(OBJECT_C) $(OBJECT_CXX)
+# $(Q)$(RM) -rf $(BIN)
+# $(Q)$(RM) -rf $(DEPEND_C) $(DEPEND_CXX)
+# $(Q)[ -n $(OUT_OBJECT) ] && rm -rf $(OUT_OBJECT)
+# $(Q)[ -n $(OUT_BIN) ] && rm -rf $(OUT_BIN)
+# $(Q)[ -n $(OUT_DEPEND) ] && rm -rf $(OUT_DEPEND)
+	$(Q)[ -n $(OUT_ROOT) ] && rm -rf $(OUT_ROOT)

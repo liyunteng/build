@@ -1,9 +1,10 @@
 # SUBDIR:          subdirs
 MODE=subdir
 
+default: all
+
 all: subdirs
 
-.PHONY: subdirs
 subdirs:
 	@for dir in $(SUBDIR); do \
 		$(MAKE) -C $$dir all BUILD_OUTPUT=$(BUILD_OUTPUT) MAKEFLAGS= || exit 1; \
@@ -12,13 +13,19 @@ subdirs:
 .PHONY: clean
 clean:
 	@for dir in $(SUBDIR); do \
-		$(MAKE) -C $$dir clean BUILD_OUTPUT=$(BUILD_OUTPUT) MAKEFLAGS= || exit ?; \
+		$(MAKE) -C $$dir clean BUILD_OUTPUT=$(BUILD_OUTPUT) MAKEFLAGS= || exit 1;\
 	done
 
 .PHONY: debug
 debug:
-	for dir in $(SUBDIR); do \
-		$(MAKE) -C $$dir debug || exit ?; \
+	@for dir in $(SUBDIR); do \
+		$(MAKE) -C $$dir debug BUILD_OUTPUT=$(BUILD_OUTPUT) MAKEFLAGS= || exit 1; \
+	done
+
+.PHONY: showall
+showall: show
+	@for dir in $(SUBDIR); do \
+		$(MAKE) -C $$dir show BUILD_OUTPUT=$(BUILD_OUTPUT) MAKEFLAGS= || exit 1; \
 	done
 
 .PHONY: help
