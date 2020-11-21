@@ -81,7 +81,7 @@ header:
 	$(Q)cp -r include/* $(OUT_INCLUDE)
 
 $(DEPEND_C): $(OUT_DEPEND)/%.d : $(SOURCE_ROOT)/%.c
-	@echo -e "[DEP]     $@"
+	@printf $(FORMAT) $(DEPENDMSG) $(MODULE_NAME) $@
 	@set -e;$(CC) -MM $< $(CPPFLAGS) $(CFLAGS) > $@.$$$$; \
 	sed 's,.*\.o[ :]*,$(@:%.d=%.o) $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
@@ -90,11 +90,11 @@ sinclude $(DEPEND_C)
 endif
 
 $(OBJECT_C):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.c
-	@echo "[CC]      $@"
+	@printf $(FORMAT) $(CCMSG) $(MODULE_NAME) $@
 	$(Q)$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
 
 $(DEPEND_CXX) : $(OUT_DEPEND)/%.d : $(SOURCE_ROOT)/%.cpp
-	@echo -e "[DEP]     $@"
+	@printf $(FORMAT) $(DEPENDMSG) $(MODULE_NAME) $@
 	@set -e;$(CC) -MM $< $(CPPFLAGS) $(CXXFLAGS) > $@.$$$$; \
 	sed 's,.*\.o[ :]*,$(@:%.d=%.o) $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
@@ -103,23 +103,23 @@ sinclude $(DEPEND_CXX)
 endif
 
 $(OBJECT_CXX):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.cpp
-	@echo "[CXX]     $@"
+	@printf $(FORMAT) $(CXXMSG) $(MODULE_NAME) $@
 	$(Q) $(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
 $(LIB): $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX)
-	@echo "[AR]      $@"
+	@printf $(FORMAT) $(DEPENDMSG) $(MODULE_NAME) $@
 	$(Q)$(AR) $(ARFLAGS) $@ $(OBJECT_C) $(OBJECT_CXX)
 ifeq ($(BUILD_ENV),release)
-	@echo "[STRIP]   $@"
+	@printf $(FORMAT) $(STRIPMSG) $(MODULE_NAME) $@
 	$(Q)$(STRIP) $@
 endif
 
 
 $(SOLIB): $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX)
-	@echo "[LINK]    $@"
+	@printf $(FORMAT) $(LDMSG) $(MODULE_NAME) $@
 	$(Q)$(CC) -fPIC -shared $(LDFLAGS) -o $@ $(OBJECT_C) $(OBJECT_CXX)
 ifeq ($(BUILD_ENV),release)
-	@echo "[STRIP]   $@"
+	@printf $(FORMAT) $(STRIPMSG) $(MODULE_NAME) $@
 	$(Q)$(STRIP) $@
 endif
 

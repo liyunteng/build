@@ -3,6 +3,14 @@ CreateDirectory = $(shell [ -d $1 ] || mkdir -p $1 || echo "mkdir '$1' failed")
 # Remove Directory
 RemoveDirectory = $(shell [ -d $1 ] && rm -rf $1 || echo "rm dir '$1' failed")
 
+CCMSG="CC"
+CXXMSG="CXX"
+DEPENDMSG="DEP"
+LDMSG="LD"
+ARMSG="AR"
+STRIPMSG="STRIP"
+FORMAT="%-6.6s [%s]  %s\n"
+
 BUILD_VERBOSE := 0
 ifeq ("$(origin V)", "command line")
 	BUILD_VERBOSE = $(V)
