@@ -2,16 +2,23 @@
 # MODULE_NAME:     The name of this mudule
 # LIB_TYPE:        Library type [static/dynamic/all]
 # SOURCE_ROOT:     Source Root Directory (default MODULE_ROOT)
-# SOURCE_DIRS:      Source directories (default src)
+# SOURCE_DIRS:     Source directories (default src)
 # SOURCE_OMIT:     Ignored files
-# INCLUDE_DIRS:     Include directories (default include)
-# CFLAGS:          gcc -c Flags (Added -fPIC)
+# INCLUDE_DIRS:    Include directories (default include)
+# CFLAGS:          gcc -c Flags (added -fPIC)
 # CPPFLAGS:        cpp Flags
 # CXXFLAGS:        g++ -c Flags
 # ARFLAGS:         ar Flags (Default rcs)
-# LDFLAGS:         ld Flags (Added -shared -fPIC for shared)
-# BUILD_VERBOSE:   Verbose output (MUST Before def.mk)
-# BUILD_OUTPUT:    Output dir (MUST Before def.mk)
+# LDFLAGS:         ld Flags (Added -shared for shared)
+# BUILD_VERBOSE:   verbose output (MUST Before def.mk)
+# BUILD_OUTPUT:    output dir (MUST Before def.mk)
+
+# Create Directory
+CreateDirectory = $(shell [ -d $1 ] || mkdir -p $1 || echo "mkdir '$1' failed")
+# Remove Directory
+RemoveDirectory = $(shell [ -d $1 ] && rm -rf $1 || echo "rm dir '$1' failed")
+
+
 MODE=library
 MODULE_ROOT ?= $(shell pwd)
 MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
@@ -39,8 +46,8 @@ DEPEND_CXX := $(OBJECT_CXX:%.o=%.d)
 # Include Configure
 INCLUDE_DIRS ?= include
 INCLUDE_PATH += $(foreach dir, $(SOURCE_ROOT)/$(INCLUDE_DIRS), -I$(dir))
-export CPPFLAGS += $(INCLUDE_PATH)
-
+CPPFLAGS += $(INCLUDE_PATH)
+CFLAGS += -fPIC
 
 # Lib Name
 LIB   := $(OUT_LIB)/lib$(MODULE_NAME).a
@@ -82,7 +89,7 @@ header:
 
 $(DEPEND_C): $(OUT_DEPEND)/%.d : $(SOURCE_ROOT)/%.c
 	@printf $(FORMAT) $(DEPENDMSG) $(MODULE_NAME) $@
-	@set -e;$(CC) -MM $< $(CPPFLAGS) $(CFLAGS) > $@.$$$$; \
+	@set -e;$(CC) -MM $(CPPFLAGS) $(CFLAGS) $< > $@.$$$$; \
 	sed 's,.*\.o[ :]*,$(@:%.d=%.o) $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
 ifeq ($(MAKECMDGOALS),all)
@@ -95,7 +102,7 @@ $(OBJECT_C):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.c
 
 $(DEPEND_CXX) : $(OUT_DEPEND)/%.d : $(SOURCE_ROOT)/%.cpp
 	@printf $(FORMAT) $(DEPENDMSG) $(MODULE_NAME) $@
-	@set -e;$(CC) -MM $< $(CPPFLAGS) $(CXXFLAGS) > $@.$$$$; \
+	@set -e;$(CC) -MM $(CPPFLAGS) $(CXXFLAGS) $< > $@.$$$$; \
 	sed 's,.*\.o[ :]*,$(@:%.d=%.o) $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
 ifeq ($(MAKECMDGOALS),all)
@@ -107,17 +114,16 @@ $(OBJECT_CXX):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.cpp
 	$(Q) $(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
 $(LIB): $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX)
-	@printf $(FORMAT) $(DEPENDMSG) $(MODULE_NAME) $@
+	@printf $(FORMAT) $(ARMSG) $(MODULE_NAME) $@
 	$(Q)$(AR) $(ARFLAGS) $@ $(OBJECT_C) $(OBJECT_CXX)
 ifeq ($(BUILD_ENV),release)
 	@printf $(FORMAT) $(STRIPMSG) $(MODULE_NAME) $@
 	$(Q)$(STRIP) $@
 endif
 
-
 $(SOLIB): $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX)
 	@printf $(FORMAT) $(LDMSG) $(MODULE_NAME) $@
-	$(Q)$(CC) -fPIC -shared $(LDFLAGS) -o $@ $(OBJECT_C) $(OBJECT_CXX)
+	$(Q)$(CC) -shared $(LDFLAGS) $(OBJECT_C) $(OBJECT_CXX) -o $@
 ifeq ($(BUILD_ENV),release)
 	@printf $(FORMAT) $(STRIPMSG) $(MODULE_NAME) $@
 	$(Q)$(STRIP) $@
@@ -138,11 +144,11 @@ help:
 	@echo "    BUILD_VERBOSE       verbose output (MUST Before def.mk)"
 	@echo "    BUILD_OUTPUT        output dir (MUST Before def.mk)"
 	@echo ""
-	@echo "    CFLAGS              gcc -c Flags"
+	@echo "    CFLAGS              gcc -c Flags (add -fPIC)"
 	@echo "    CPPFLAGS            cpp Flags"
 	@echo "    CXXFLAGS            g++ -c Flags"
 	@echo "    ARFLAGS             ar Flags (Default rcs)"
-	@echo "    LDFLAGS             ld Flags (Added -shared -fPIC for shared)"
+	@echo "    LDFLAGS             ld Flags (Added -shared for shared)"
 	@echo ""
 
 .PHONY: clean

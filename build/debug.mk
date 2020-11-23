@@ -80,5 +80,7 @@ show:
 	@echo "DEPEND_CXX         = " $(DEPEND_CXX)
 	@echo "INCLUDE_DIRS       = " $(INCLUDE_DIRS)
 	@echo "OUT_OBJECT_DIRS    = " $(OUT_OBJECT_DIRS)
+	@echo "SUBDIRS            = " $(SUBDIRS)
+	@echo "Q                  = " $(Q)
 	@echo ""
 	@echo ""

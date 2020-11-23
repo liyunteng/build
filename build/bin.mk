@@ -1,16 +1,20 @@
 # MODULE_ROOT:     The root directory of this module
 # MODULE_NAME:     The name of this mudule
 # SOURCE_ROOT:     Source Root Directory (default MODULE_ROOT)
-# SOURCE_DIRS:      Source directories (default src)
+# SOURCE_DIRS:     Source directories (default src)
 # SOURCE_OMIT:     Ignored files
-# INCLUDE_DIRS:     Include directories (default include)
-# CFLAGS:          gcc -c Flags (Added -fPIC)
+# INCLUDE_DIRS:    Include directories (default include)
+# CFLAGS:          gcc -c Flags
 # CPPFLAGS:        cpp Flags
 # CXXFLAGS:        g++ -c Flags
-# ARFLAGS:         ar Flags (Default rcs)
-# LDFLAGS:         ld Flags (Added -shared -fPIC for shared)
+# LDFLAGS:         ld Flags
 # BUILD_VERBOSE:   Verbose output (MUST Before def.mk)
 # BUILD_OUTPUT:    Output dir (MUST Before def.mk)
+
+# Create Directory
+CreateDirectory = $(shell [ -d $1 ] || mkdir -p $1 || echo "mkdir '$1' failed")
+# Remove Directory
+RemoveDirectory = $(shell [ -d $1 ] && rm -rf $1 || echo "rm dir '$1' failed")
 
 MODE=bin
 MODULE_ROOT ?= $(shell pwd)
@@ -66,7 +70,7 @@ success:
 
 $(DEPEND_C): $(OUT_DEPEND)/%.d : $(SOURCE_ROOT)/%.c
 	@printf $(FORMAT) $(DEPENDMSG) $(MODULE_NAME) $@
-	@set -e;$(CC) -MM $< $(CPPFLAGS) $(CFLAGS) > $@.$$$$; \
+	@set -e;$(CC) -MM $(CPPFLAGS) $(CFLAGS) $< > $@.$$$$; \
 	sed 's,.*\.o[ :]*,$(@:%.d=%.o) $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
 
@@ -80,7 +84,7 @@ $(OBJECT_C):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.c
 
 $(DEPEND_CXX) : $(OUT_DEPEND)/%.d : $(SOURCE_ROOT)/%.cpp
 	@printf $(FORMAT) $(DEPENDMSG) $(MODULE_NAME) $@
-	@set -e;$(CC) -MM $< $(CPPFLAGS) $(CXXFLAGS) > $@.$$$$; \
+	@set -e;$(CC) -MM $(CPPFLAGS) $(CXXFLAGS) $< > $@.$$$$; \
 	sed 's,.*\.o[ :]*,$(@:%.d=%.o) $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
 ifeq ($(MAKECMDGOALS),all)
@@ -101,7 +105,7 @@ endif
 
 .PHONY: help
 help:
-	@echo "library: Build Library"
+	@echo "bin: Build executable"
 	@echo ""
 	@echo "    MODULE_ROOT         the root directory of this module"
 	@echo "    MODULE_NAME         the name of this mudule"
@@ -116,8 +120,7 @@ help:
 	@echo "    CFLAGS              gcc -c Flags"
 	@echo "    CPPFLAGS            cpp Flags"
 	@echo "    CXXFLAGS            g++ -c Flags"
-	@echo "    ARFLAGS             ar Flags (default rcs)"
-	@echo "    LDFLAGS             ld Flags (added -shared -fPIC for shared)"
+	@echo "    LDFLAGS             ld Flags"
 	@echo ""
 
 .PHONY: clean

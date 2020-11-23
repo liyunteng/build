@@ -1,8 +1,4 @@
-# Create Directory
-CreateDirectory = $(shell [ -d $1 ] || mkdir -p $1 || echo "mkdir '$1' failed")
-# Remove Directory
-RemoveDirectory = $(shell [ -d $1 ] && rm -rf $1 || echo "rm dir '$1' failed")
-
+ifeq ($(MAKELEVEL),0)
 CCMSG="CC"
 CXXMSG="CXX"
 DEPENDMSG="DEP"
@@ -11,8 +7,9 @@ ARMSG="AR"
 STRIPMSG="STRIP"
 FORMAT="%-6.6s [%s]  %s\n"
 
-BUILD_VERBOSE := 0
+BUILD_VERBOSE ?= 0
 ifeq ("$(origin V)", "command line")
+    $(info "here V = $(V) $(origin V)")
 	BUILD_VERBOSE = $(V)
 endif
 ifeq ($(BUILD_VERBOSE),1)
@@ -22,9 +19,9 @@ else
 endif
 
 BUILD_PWD    := $(realpath $(CURDIR))
-BUILD_OUTPUT := $(realpath $(CURDIR))
+BUILD_OUTPUT ?= $(realpath $(CURDIR))
 ifeq ("$(origin O)", "command line")
-BUILD_OUTPUT = $(shell realpath $(O))
+    BUILD_OUTPUT = $(shell realpath $(O))
 endif
 
 MAKEFLAGS += --no-print-directory
@@ -56,16 +53,16 @@ OBJCOPY	    := $(CROSS_COMPILE)objcopy
 OBJDUMP	    := $(CROSS_COMPILE)objdump
 OBJSIZE		:= $(CROSS_COMPILE)size
 
-CPPFLAGS    := -I$(OUT_INCLUDE)
-CFLAGS      := -Wall -Wmissing-prototypes -Wstrict-prototypes -fstack-protector
+CPPFLAGS    ?= -I$(OUT_INCLUDE)
+CFLAGS      := -Wall -fstack-protector -Wmissing-prototypes -Wstrict-prototypes
 CXXFLAGS    := -Wall -fstack-protector
 ASFLAGS     := -D__ASSEMBLY__ -fno-PIE
 LDFLAGS     :=
-LOADLIBES   :=
-LDLIBS      :=
+LOADLIBES   ?=
+LDLIBS      ?=
 ARFLAGS     := rcs
 
-BUILD_ENV := release
+BUILD_ENV ?= release
 ifeq ($(BUILD_ENV), release)
 	CFLAGS += -O2 -DNDEBUG
 	CXXFLAGS += -O2 -DNDEBUG
@@ -75,3 +72,4 @@ else
 endif
 
 export
+endif

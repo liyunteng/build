@@ -1,6 +1,6 @@
 include ../build/def.mk
 
-SOURCE_DIRS = src mul
+SOURCE_DIRS = .
 
 include ../build/debug.mk
-include ../build/library.mk
+include ../build/bin.mk
