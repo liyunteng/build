@@ -5,6 +5,7 @@
 # SOURCE_DIRS:     Source directories (default src)
 # SOURCE_OMIT:     Ignored files
 # INCLUDE_DIRS:    Include directories (default include)
+# EXPORT_DIRS:     Export include directories (default include)
 # CFLAGS:          gcc -c Flags (added -fPIC)
 # CPPFLAGS:        cpp Flags
 # CXXFLAGS:        g++ -c Flags
@@ -34,14 +35,15 @@ SOURCE_OMIT  ?=
 SOURCE_C   := $(foreach dir, $(SOURCE_DIRS), $(shell find $(SOURCE_ROOT)/$(dir) -name "*.c"))
 SOURCE_CXX := $(foreach dir, $(SOURCE_DIRS), $(shell find $(SOURCE_ROOT)/$(dir) -name "*.cpp"))
 ifneq ($(strip $(SOURCE_OMIT)),)
+SOURCE_OMIT := $(addprefix $(SOURC_ROOT)/, $(SOURCE_OMIT))
 SOURCE_C   := $(filter-out $(SOURCE_OMIT), $(SOURCE_C))
 SOURCE_CXX := $(filter-out $(SOURCE_OMIT), $(SOURCE_CXX))
 endif
 # Object FileList
-OBJECT_C   := $(SOURCE_C:$(SOURCE_ROOT)%.c=$(OUT_OBJECT)%.o)
-OBJECT_CXX := $(SOURCE_CXX:$(SOURCE_ROOT)%.cpp=$(OUT_OBJECT)%.o)
-DEPEND_C   := $(OBJECT_C:%.o=%.d)
-DEPEND_CXX := $(OBJECT_CXX:%.o=%.d)
+OBJECT_C   := $(SOURCE_C:$(SOURCE_ROOT)/%.c=$(OUT_OBJECT)/%.o)
+OBJECT_CXX := $(SOURCE_CXX:$(SOURCE_ROOT)/%.cpp=$(OUT_OBJECT)/%.o)
+DEPEND_C   := $(OBJECT_C:$(OUT_OBJECT)/%.o=$(OUT_DEPEND)/%.d)
+DEPEND_CXX := $(OBJECT_CXX:$(OUT_OBJECT)/%.o=$(OUT_DEPEND)/%.d)
 
 # Include Configure
 INCLUDE_DIRS ?= include
@@ -49,11 +51,15 @@ INCLUDE_PATH += $(foreach dir, $(SOURCE_ROOT)/$(INCLUDE_DIRS), -I$(dir))
 CPPFLAGS += $(INCLUDE_PATH)
 CFLAGS += -fPIC
 
+# Export include dirs
+EXPORT_DIRS ?= include
+
 # Lib Name
 LIB   := $(OUT_LIB)/lib$(MODULE_NAME).a
 SOLIB := $(OUT_LIB)/lib$(MODULE_NAME).so
 
 # CreateDirectory
+ifeq ($(MAKECMDGOALS),all)
 OUT_OBJECT_DIRS := $(sort $(dir $(OBJECT_C)))
 OUT_OBJECT_DIRS += $(sort $(dir $(OBJECT_CXX)))
 CreateResult :=
@@ -65,33 +71,42 @@ dummy += $(foreach dir, $(OUT_OBJECT_DIRS), CreateResult += $(call CreateDirecto
 ifneq ($(strip $(CreateResult)),)
 	err = $(error create directory failed: $(CreateResult))
 endif
+endif
 
 # Compiler
 default:all
 
+all: library
+
 ifeq ($(strip $(LIB_TYPE)),static)
-all: before header $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(LIB) after success
+library: before header $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(LIB) after success
 else ifeq ($(strip $(LIB_TYPE)),dynamic)
-all: before header  $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(SOLIB) after success
+library: before header  $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(SOLIB) after success
 else ifeq ($(strip $(LIB_TYPE)),all)
-all: before header $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(LIB) $(SOLIB) after success
+library: before header $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(LIB) $(SOLIB) after success
 endif
 
 
 before:
+	$(call MKDIRS)
 
 after:
 
 success:
 
 header:
-	$(Q)cp -r include/* $(OUT_INCLUDE)
+	@for dir in $(EXPORT_DIRS); do \
+		if [ -d $$dir ]; then \
+			cp -r $(SOURCE_ROOT)/$$dir/ $(OUT_INCLUDE) ;\
+		fi \
+	done
 
 $(DEPEND_C): $(OUT_DEPEND)/%.d : $(SOURCE_ROOT)/%.c
 	@printf $(FORMAT) $(DEPENDMSG) $(MODULE_NAME) $@
 	@set -e;$(CC) -MM $(CPPFLAGS) $(CFLAGS) $< > $@.$$$$; \
 	sed 's,.*\.o[ :]*,$(@:%.d=%.o) $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
+
 ifeq ($(MAKECMDGOALS),all)
 sinclude $(DEPEND_C)
 endif
@@ -109,7 +124,7 @@ ifeq ($(MAKECMDGOALS),all)
 sinclude $(DEPEND_CXX)
 endif
 
-$(OBJECT_CXX):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.cpp
+$(OBJECT_CXX): $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.cpp
 	@printf $(FORMAT) $(CXXMSG) $(MODULE_NAME) $@
 	$(Q) $(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
@@ -140,6 +155,8 @@ help:
 	@echo "    SOURCE_DIRS         source directories (default src)"
 	@echo "    SOURCE_OMIT         ignored files"
 	@echo "    INCLUDE_DIRS        include directories (default include)"
+	@echo "    EXPORT_DIRS         Export include directories (default include)"
+
 	@echo ""
 	@echo "    BUILD_VERBOSE       verbose output (MUST Before def.mk)"
 	@echo "    BUILD_OUTPUT        output dir (MUST Before def.mk)"

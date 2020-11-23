@@ -7,10 +7,11 @@ SUBDIRS_CLEAN=$(addsuffix _clean, $(SUBDIRS))
 SUBDIRS_SHOW=$(addsuffix _show, $(SUBDIRS))
 unexport SUBDIRS SUBDIRS_BUILD SUBDIRS_CLEAN SUBDIRS_SHOW
 
-all: build
+default: all
+all: subdir
 
-.PHONY: build
-build: $(SUBDIRS_BUILD)
+.PHONY: subdir
+subdir: $(SUBDIRS_BUILD)
 
 .PHONY: $(SUBDIRS_BUILD)
 $(SUBDIRS_BUILD):

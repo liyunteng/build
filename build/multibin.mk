@@ -1,7 +1,5 @@
 # MODULE_ROOT:     The root directory of this module
-# MODULE_NAME:     The name of this mudule
 # SOURCE_ROOT:     Source Root Directory (default MODULE_ROOT)
-# SOURCE_DIRS:     Source directories (default src)
 # SOURCE_OMIT:     Ignored files
 # INCLUDE_DIRS:    Include directories (default include)
 # CFLAGS:          gcc -c Flags
@@ -16,27 +14,27 @@ CreateDirectory = $(shell [ -d $1 ] || mkdir -p $1 || echo "mkdir '$1' failed")
 # Remove Directory
 RemoveDirectory = $(shell [ -d $1 ] && rm -rf $1 || echo "rm dir '$1' failed")
 
-MODE=bin
+MODE=multibin
 MODULE_ROOT ?= $(shell pwd)
 MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
 
 # Source FileList
 SOURCE_ROOT  ?= $(MODULE_ROOT)
-SOURCE_DIRS  ?= src
 SOURCE_OMIT  ?=
 
-SOURCE_C   := $(foreach dir, $(SOURCE_DIRS), $(shell find $(SOURCE_ROOT)/$(dir) -name "*.c"))
-SOURCE_CXX := $(foreach dir, $(SOURCE_DIRS), $(shell find $(SOURCE_ROOT)/$(dir) -name "*.cpp"))
+SOURCE_C   ?=  $(shell find $(SOURCE_ROOT) -name "*.c")
+SOURCE_CXX ?=  $(shell find $(SOURCE_ROOT) -name "*.cpp")
 ifneq ($(strip $(SOURCE_OMIT)),)
-SOURCE_OMIT := $(addprefix $(SOURCE_ROOT)/, $(SOURCE_OMIT))
-SOURCE_C   := $(filter-out $(SOURCE_ROOT)/$(SOURCE_OMIT), $(SOURCE_C))
-SOURCE_CXX := $(filter-out $(SOURCE_ROOT)/$(SOURCE_OMIT), $(SOURCE_CXX))
+SOURCE_OMIT:=$(addprefix $(SOURCE_ROOT)/,$(SOURCE_OMIT))
+SOURCE_C   := $(filter-out $(SOURCE_OMIT), $(SOURCE_C))
+SOURCE_CXX := $(filter-out $(SOURCE_OMIT), $(SOURCE_CXX))
 endif
+
 # Object FileList
 OBJECT_C   := $(SOURCE_C:$(SOURCE_ROOT)/%.c=$(OUT_OBJECT)/%.o)
 OBJECT_CXX := $(SOURCE_CXX:$(SOURCE_ROOT)/%.cpp=$(OUT_OBJECT)/%.o)
 DEPEND_C   := $(OBJECT_C:$(OUT_OBJECT)/%.o=$(OUT_DEPEND)/%.d)
-DEPEND_CXX := $(OBJECT_CXX:$(OUT_OBJECT)/%.o=$(OUT_DEPEND)/%.d)
+DEPEND_CXX := $(OBJECT_CXX:$(OUT_DOBJECT)/%.o=$(OUT_DEPEND)/%.d)
 
 # Include Configure
 INCLUDE_DIRS ?= $(SOURCE_ROOT)/include
@@ -44,7 +42,8 @@ INCLUDE_PATH += $(foreach dir, $(INCLUDE_DIRS), -I$(dir))
 CPPFLAGS += $(INCLUDE_PATH)
 
 # BIN Name
-BIN   := $(OUT_BIN)/$(MODULE_NAME)
+BIN := $(addprefix $(OUT_BIN)/, $(notdir $(basename $(SOURCE_C))))
+BIN += $(addprefix $(OUT_BIN)/, $(notdir $(basename $(SOURCE_CXX))))
 
 # CreateDirectory
 ifeq ($(MAKECMDGOALS),all)
@@ -68,6 +67,7 @@ all: bin
 bin: before $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(BIN) after success
 
 before:
+
 
 after:
 
@@ -100,9 +100,9 @@ $(OBJECT_CXX):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.cpp
 	@printf $(FORMAT) $(CXXMSG) $(MODULE_NAME) $@
 	$(Q) $(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
-$(BIN): $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX)
+$(BIN): $(filter-out $(notdir $(@)).o, $(OBJECT_C))
 	@printf $(FORMAT) $(LDMSG) $(MODULE_NAME) $@
-	$(Q)$(CC) $(LDFLAGS) $(LOADLIBES) $(LDLIBS) $(OBJECT_C) $(OBJECT_CXX) -o $@
+	$(Q)$(CC) $(LDFLAGS) $(LOADLIBES) $(LDLIBS) $< -o $@
 ifeq ($(BUILD_ENV),release)
 	@printf $(FORMAT) $(STRIPMSG) $(MODULE_NAME) $@
 	$(Q)$(STRIP) $@
@@ -110,10 +110,9 @@ endif
 
 .PHONY: help
 help:
-	@echo "bin: Build executable"
+	@echo "multibin: Build executable for every file"
 	@echo ""
 	@echo "    MODULE_ROOT         the root directory of this module"
-	@echo "    MODULE_NAME         the name of this mudule"
 	@echo "    SOURCE_ROOT         source root directory (default MODULE_ROOT)"
 	@echo "    SOURCE_DIRS         source directories (default src)"
 	@echo "    SOURCE_OMIT         ignored files"
