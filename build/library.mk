@@ -97,7 +97,7 @@ success:
 header:
 	@for dir in $(EXPORT_DIRS); do \
 		if [ -d $$dir ]; then \
-			cp -r $(SOURCE_ROOT)/$$dir/ $(OUT_INCLUDE) ;\
+			cp -r $(SOURCE_ROOT)/$$dir/* $(OUT_INCLUDE) ;\
 		fi \
 	done
 
