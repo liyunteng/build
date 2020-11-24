@@ -36,7 +36,7 @@ OUT_BIN     := $(OUT_ROOT)/bin
 OUT_LIB     := $(OUT_ROOT)/lib
 OUT_OBJECT  := $(OUT_ROOT)/obj
 OUT_DEPEND  := $(OUT_ROOT)/obj
-OUT_CFG     := $(OUT_ROOT)/etc
+OUT_CONFIG  := $(OUT_ROOT)/etc
 
 # Compiler
 # ******************************
@@ -87,6 +87,8 @@ DEPENDMSG="DEP"
 LDMSG="LD"
 ARMSG="AR"
 STRIPMSG="STRIP"
+CONFMSG="CONF"
+ADDEDMSG="ADD"
 FORMAT="%-6.6s [%s]  %s\n"
 
 export

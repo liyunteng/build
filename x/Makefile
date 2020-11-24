@@ -1,5 +1,7 @@
 include ../build/def.mk
 
+CONFIG_FILES += abc.conf def.conf
+ADDED_FILES += ddd afile
 ifeq ($(MAKELEVEL),0)
 CALC=$(realpath ../calc/)
 INCLUDE_DIRS += $(CALC)/out/include
