@@ -52,8 +52,8 @@ $(SUBDIRS_DISTCLEAN):
 	$(Q3)$(MAKE) -C $(patsubst %_distclean,%,$@) distclean || exit 1
 
 
-.PHONY: show $(SUBDIRS_SHOW)
-show: $(SUBDIRS_SHOW)
+.PHONY: showall $(SUBDIRS_SHOW)
+showall: $(SUBDIRS_SHOW) show
 $(SUBDIRS_SHOW):
 	$(Q3)$(MAKE) -C $(patsubst %_show,%,$@) show || exit 1
 

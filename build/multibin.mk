@@ -150,6 +150,8 @@ install:
 .PHONY: uninstall
 uninstall:
 
+.PHONY: showall
+showall: show
 
 .PHONY: help
 help:
