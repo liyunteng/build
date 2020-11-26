@@ -11,5 +11,4 @@ else
 LOADLIBES += -L$(OUT_LIB) -Wl,-rpath $(OUT_LIB) -lcalc
 endif
 
-include $(PROJECT_ROOT)/build/debug.mk
 include $(PROJECT_ROOT)/build/bin.mk
