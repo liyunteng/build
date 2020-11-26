@@ -55,7 +55,7 @@ $(SUBDIRS_DISTCLEAN):
 .PHONY: showall $(SUBDIRS_SHOW)
 showall: $(SUBDIRS_SHOW) show
 $(SUBDIRS_SHOW):
-	$(Q3)$(MAKE) -C $(patsubst %_show,%,$@) show || exit 1
+	$(Q3)$(MAKE) -C $(patsubst %_show,%,$@) showall || exit 1
 
 show:
 	@echo "=============== $(CURDIR) ==============="
