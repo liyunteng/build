@@ -61,6 +61,11 @@ BIN += $(addprefix $(OUT_BIN)/, $(notdir $(basename $(SOURCE_CXX))))
 
 # CreateDirectory
 OUT_DIRS := $(sort $(OUT_ROOT) $(OUT_BIN) $(OUT_OBJECT) $(OUT_DPEND))
+ifeq ($(BUILD_ENV),debug-debuginfo)
+OUT_DIRS += $(OUT_DEBUGINFO)
+else ifeq ($(BUILD_ENV),debug-map)
+OUT_DIRS += $(OUT_MAP)
+endif
 OUT_DIRS += $(sort $(dir $(OBJECT_C) $(OBJECT_CXX) $(DEPEND_C) $(DPEND_CXX) $(OUT_CONFIG_FILES) $(OUT_ADDED_FILES)))
 CreateResult :=
 ifeq ($(MAKECMDGOALS),all)
@@ -124,6 +129,10 @@ $(BIN): $(filter-out $(notdir $(@)).o, $(OBJECT_C))
 ifeq ($(BUILD_ENV),release)
 	$(PRINT4) $(STRIPMSG) $(MODULE_NAME) $@ $@
 	$(Q)$(STRIP) $@
+else ifeq ($(BUILD_ENV),debug-debuginfo)
+	$(OBJCOPY) --only-keep-debug $@ $(OUT_DEBUGINFO)/$(@F).debuginfo
+	$(OBJCOPY) --strip-debug $(OUT_DEBUGINFO)/$(@F).debuginfo
+	$(OBJCOPY) --add-gnu-debuglink=$(OUT_DEBUGINFO)/$(@F).debuginfo $@
 endif
 
 $(OUT_CONFIG_FILES): $(OUT_CONFIG)/% : $(SOURCE_ROOT)/%

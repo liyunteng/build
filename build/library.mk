@@ -73,8 +73,16 @@ CPPFLAGS += -I$(EXPORT_DIR)
 LIB   := $(OUT_LIB)/lib$(MODULE_NAME).a
 SOLIB := $(OUT_LIB)/lib$(MODULE_NAME).so
 
+ifeq ($(BUILD_ENV),debug-map)
+LDFLAGS += -Wl,-Map,$(OUT_MAP)/$(@F).map
+endif
 # CreateDirectory
 OUT_DIRS := $(sort $(OUT_ROOT) $(OUT_LIB) $(OUT_OBJECT) $(OUT_DEPEND))
+ifeq ($(BUILD_ENV),debug-debuginfo)
+OUT_DIRS += $(OUT_DEBUGINFO)
+else ifeq ($(BUILD_ENV),debug-map)
+OUT_DIRS += $(OUT_MAP)
+endif
 OUT_DIRS += $(sort $(dir $(OBJECT_C) $(OBJECT_CXX) $(DEPEND_C) $(DEPEND_CXX) $(OUT_EXPORT_FILES) $(OUT_CONFIG_FILES) $(OUT_ADDED_FILES)))
 CreateResult :=
 ifeq ($(MAKECMDGOALS),all)
@@ -100,8 +108,8 @@ else ifeq ($(strip $(LIB_TYPE)),all)
 library: before header $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX) $(LIB) $(SOLIB) after success
 endif
 
-before: 
- 
+before:
+
 after: $(OUT_CONFIG_FILES) $(OUT_ADDED_FILES)
 
 success:
@@ -146,6 +154,10 @@ $(LIB): $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX)
 ifeq ($(BUILD_ENV),release)
 	$(PRINT4) $(STRIPMSG) $(MODULE_NAME) $@ $@
 	$(Q)$(STRIP) $@
+else ifeq ($(BUILD_ENV),debug-debuginfo)
+	$(OBJCOPY) --only-keep-debug $@ $(OUT_DEBUGINFO)/$(@F).debuginfo
+	$(OBJCOPY) --strip-debug $(OUT_DEBUGINFO)/$(@F).debuginfo
+	$(OBJCOPY) --add-gnu-debuglink=$(OUT_DEBUGINFO)/$(@F).debuginfo $@
 endif
 
 $(SOLIB): $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX)
@@ -154,6 +166,10 @@ $(SOLIB): $(DEPEND_C) $(OBJECT_C) $(DEPEND_CXX) $(OBJECT_CXX)
 ifeq ($(BUILD_ENV),release)
 	$(PRINT4) $(STRIPMSG) $(MODULE_NAME) $@ $@
 	$(Q)$(STRIP) $@
+else ifeq ($(BUILD_ENV),debug-debuginfo)
+	$(OBJCOPY) --only-keep-debug $@ $(OUT_DEBUGINFO)/$(@F).debuginfo
+	$(OBJCOPY) --strip-debug $(OUT_DEBUGINFO)/$(@F).debuginfo
+	$(OBJCOPY) --add-gnu-debuglink=$(OUT_DEBUGINFO)/$(@F).debuginfo $@
 endif
 
 $(OUT_EXPORT_FILES) : $(OUT_INCLUDE)/% : $(EXPORT_DIR)/%

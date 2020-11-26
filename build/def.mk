@@ -5,6 +5,10 @@ BUILD_ENV ?= release
 ifeq ("$(origin D)", "command line")
 ifeq ($(D),1)
 	BUILD_ENV = debug
+else ifeq ($(D),2)
+	BUILD_ENV = debug-debuginfo
+else ifeq ($(D),3)
+	BUILD_ENV = debug-map
 endif
 endif
 
@@ -30,13 +34,15 @@ ifneq ($(BUILD_OUTPUT),$(BUILD_PWD))
 # MAKEFLAGS += --include-dir=$(BUILD_PWD)
 endif
 
-OUT_ROOT	:= $(abspath $(BUILD_OUTPUT))
-OUT_INCLUDE := $(OUT_ROOT)/include
-OUT_BIN     := $(OUT_ROOT)/bin
-OUT_LIB     := $(OUT_ROOT)/lib
-OUT_OBJECT  := $(OUT_ROOT)/obj
-OUT_DEPEND  := $(OUT_ROOT)/obj
-OUT_CONFIG  := $(OUT_ROOT)/etc
+OUT_ROOT	  := $(abspath $(BUILD_OUTPUT))
+OUT_INCLUDE   := $(OUT_ROOT)/include
+OUT_BIN       := $(OUT_ROOT)/bin
+OUT_LIB       := $(OUT_ROOT)/lib
+OUT_OBJECT    := $(OUT_ROOT)/obj
+OUT_DEPEND    := $(OUT_ROOT)/obj
+OUT_CONFIG    := $(OUT_ROOT)/etc
+OUT_DEBUGINFO := $(OUT_ROOT)/debuginfo
+OUT_MAP       := $(OUT_ROOT)/map
 
 # Compiler
 # ******************************
@@ -48,7 +54,7 @@ LD		    := $(CROSS_COMPILE)ld
 AR		    := $(CROSS_COMPILE)ar
 NM		    := $(CROSS_COMPILE)nm
 STRIP	    := $(CROSS_COMPILE)strip
-OBJCOPY	    := $(CROSS_COMPILE)objcopy
+OBJCOPY	    := $(CROSS_COMPILE)llvm-objcopy
 OBJDUMP	    := $(CROSS_COMPILE)objdump
 OBJSIZE		:= $(CROSS_COMPILE)size
 
@@ -76,7 +82,13 @@ MKDIR       := mkdir -p
 ifeq ($(BUILD_ENV), release)
 	CFLAGS += -O2 -DNDEBUG
 	CXXFLAGS += -O2 -DNDEBUG
-else
+else ifeq ($(BUILD_ENV), debug)
+	CFLAGS += -g -ggdb
+	CXXFLAGS += -g -ggdb
+else ifeq ($(BUILD_ENV), debug-debuginfo)
+	CFLAGS += -g -ggdb
+	CXXFLAGS += -g -ggdb
+else ifeq ($(BUILD_ENV), debug-map)
 	CFLAGS += -g -ggdb
 	CXXFLAGS += -g -ggdb
 endif
