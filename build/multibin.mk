@@ -59,13 +59,11 @@ ADDED_FILES     := $(addprefix $(SOURCE_ROOT)/, $(ADDED_FILES))
 BIN := $(addprefix $(OUT_BIN)/, $(notdir $(basename $(SOURCE_C))))
 BIN += $(addprefix $(OUT_BIN)/, $(notdir $(basename $(SOURCE_CXX))))
 
+ifeq ($(BUILD_ENV),map)
+    LDFLAGS += -Wl,-Map,$@.map
+endif
 # CreateDirectory
 OUT_DIRS := $(sort $(OUT_ROOT) $(OUT_BIN) $(OUT_OBJECT) $(OUT_DPEND))
-ifeq ($(BUILD_ENV),debug-debuginfo)
-OUT_DIRS += $(OUT_DEBUGINFO)
-else ifeq ($(BUILD_ENV),debug-map)
-OUT_DIRS += $(OUT_MAP)
-endif
 OUT_DIRS += $(sort $(dir $(OBJECT_C) $(OBJECT_CXX) $(DEPEND_C) $(DPEND_CXX) $(OUT_CONFIG_FILES) $(OUT_ADDED_FILES)))
 CreateResult :=
 ifeq ($(MAKECMDGOALS),all)
@@ -92,7 +90,7 @@ success:
 
 $(DEPEND_C): $(OUT_DEPEND)/%.d : $(SOURCE_ROOT)/%.c
 	$(PRINT4) $(DEPENDMSG) $(MODULE_NAME) $< $@
-	$(Q)set -e; \
+	$(Q3)set -e; \
 	$(CC) -MM $(CPPFLAGS) $(CFLAGS) $< > $@.$$$$; \
 	sed 's,.*\.o[ :]*,$(@:%.d=%.o) $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
@@ -105,11 +103,11 @@ endif
 
 $(OBJECT_C):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.c
 	$(PRINT4) $(CCMSG) $(MODULE_NAME) $< $@
-	$(Q) $(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
+	$(Q1)$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
 
 $(DEPEND_CXX) : $(OUT_DEPEND)/%.d : $(SOURCE_ROOT)/%.cpp
 	$(PRINT4) $(DEPENDMSG) $(MODULE_NAME) $< $@
-	$(Q)set -e; \
+	$(Q3)set -e; \
 	$(CC) -MM $(CPPFLAGS) $(CXXFLAGS) $< > $@.$$$$; \
 	sed 's,.*\.o[ :]*,$(@:%.d=%.o) $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
@@ -121,27 +119,29 @@ endif
 
 $(OBJECT_CXX):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.cpp
 	$(PRINT4) $(CXXMSG) $(MODULE_NAME) $< $@
-	$(Q) $(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
+	$(Q1)$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
 $(BIN): $(filter-out $(notdir $(@)).o, $(OBJECT_C))
 	$(PRINT3) $(LDMSG) $(MODULE_NAME) $@
-	$(Q)$(CC) -o $@ $<  $(LDFLAGS) $(LOADLIBES) $(LDLIBS)
-ifeq ($(BUILD_ENV),release)
+	$(Q1)$(CC) -o $@ $<  $(LDFLAGS) $(LOADLIBES) $(LDLIBS)
+ifeq ($(BUILD_ENV),debuginfo)
+	$(PRINT4) $(DBGMSG) $@ $@.debuginfo
+	$(Q1)$(OBJCOPY) --only-keep-debug $@ $@.debuginfo
+	$(Q1)$(OBJCOPY) --strip-debug $@
+	$(Q1)$(OBJCOPY) --add-gnu-debuglink=$@.debuginfo $@
+endif
+ifneq ($(BUILD_ENV),debug)
 	$(PRINT4) $(STRIPMSG) $(MODULE_NAME) $@ $@
-	$(Q)$(STRIP) $@
-else ifeq ($(BUILD_ENV),debug-debuginfo)
-	$(OBJCOPY) --only-keep-debug $@ $(OUT_DEBUGINFO)/$(@F).debuginfo
-	$(OBJCOPY) --strip-debug $(OUT_DEBUGINFO)/$(@F).debuginfo
-	$(OBJCOPY) --add-gnu-debuglink=$(OUT_DEBUGINFO)/$(@F).debuginfo $@
+	$(Q2)$(STRIP) $@
 endif
 
 $(OUT_CONFIG_FILES): $(OUT_CONFIG)/% : $(SOURCE_ROOT)/%
 	$(PRINT4) $(CPMSG) $(MODULE_NAME) $< $@
-	$(Q)$(CP) $< $@
+	$(Q2)$(CP) $< $@
 
 $(OUT_ADDED_FILES): $(OUT_BIN)/% : $(SOURCE_ROOT)/%
 	$(PRINT4) $(CPMSG) $(MODULE_NAME) $< $@
-	$(Q)$(CP) $^ $@
+	$(Q2)$(CP) $^ $@
 
 .PHONY: install
 install:
@@ -178,14 +178,14 @@ help:
 
 .PHONY: clean
 clean:
-# $(Q)$(RM) $(OBJECT_C) $(OBJECT_CXX)
-# $(Q)$(RM) $(BIN)
-# $(Q)$(RM) $(DEPEND_C) $(DEPEND_CXX)
-# $(Q)[ "`ls $(OUT_OBJECT)`" ] || $(RM) $(OUT_OBJECT)
-# $(Q)[ "`ls $(OUT_BIN)`" ] || $(RM) $(OUT_BIN)
-# $(Q)[ "`ls $(OUT_DEPEND)`" ] || $(RM) $(OUT_DEPEND)
-# $(Q)[ "`ls $(OUT_ROOT)`" ] || $(RM) $(OUT_ROOT)
-	$(Q)$(RM) $(OUT_ROOT)
+# $(Q2)$(RM) $(OBJECT_C) $(OBJECT_CXX)
+# $(Q2)$(RM) $(BIN)
+# $(Q2)$(RM) $(DEPEND_C) $(DEPEND_CXX)
+# $(Q2)[ "`ls $(OUT_OBJECT)`" ] || $(RM) $(OUT_OBJECT)
+# $(Q2)[ "`ls $(OUT_BIN)`" ] || $(RM) $(OUT_BIN)
+# $(Q2)[ "`ls $(OUT_DEPEND)`" ] || $(RM) $(OUT_DEPEND)
+# $(Q2)[ "`ls $(OUT_ROOT)`" ] || $(RM) $(OUT_ROOT)
+	$(Q2)$(RM) $(OUT_ROOT)
 ifeq ($(MAKELEVEL),0)
 	@echo "clean done"
 endif

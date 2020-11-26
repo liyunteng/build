@@ -12,5 +12,6 @@
 int main(int argc, char *argv[])
 {
     printf("hello world: %d %d %d!\n", my_add(1, 2), my_sub(1, 2), my_add1(1, 2));
+    printf("my_add: %p\n", my_add);
     return 0;
 }
