@@ -59,6 +59,13 @@ OUT_LIB       := $(OUT_ROOT)/lib
 OUT_OBJECT    := $(OUT_ROOT)/obj
 OUT_CONFIG    := $(OUT_ROOT)/etc
 
+# Tools
+SHELL       := /bin/sh
+OS_TYPE     := $(shell uname)
+CP          := cp -rf
+RM          := rm -rf
+MKDIR       := mkdir -p
+
 # Compiler
 # ******************************
 ISCLANG := $(findstring clang,$(shell $(CC) --version))
@@ -90,18 +97,14 @@ CPPFLAGS    := -I$(OUT_INCLUDE)
 CFLAGS      := -Wall -fstack-protector -Wmissing-prototypes -Wstrict-prototypes
 CXXFLAGS    := -Wall -fstack-protector
 ASFLAGS     := -D__ASSEMBLY__ -fno-PIE
-LDFLAGS     := -Wl,--build-id
+LDFLAGS     :=
 LOADLIBES   :=
 LDLIBS      :=
 ARFLAGS     := rcs
 
-# Tools
-SHELL       := /bin/sh
-OS_TYPE     := $(shell uname)
-CP          := cp -rf
-RM          := rm -rf
-MKDIR       := mkdir -p
-
+ifeq ($(ISCLANG),)
+LDFLAGS += -Wl,--build-id
+endif
 ifeq ($(BUILD_ENV), release)
 	CFLAGS += -O2 -DNDEBUG
 	CXXFLAGS += -O2 -DNDEBUG

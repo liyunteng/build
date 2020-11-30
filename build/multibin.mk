@@ -42,7 +42,7 @@ ifeq ($(BUILD_ENV),debuginfo)
 define cmd_debuginfo
 	$(Q)$(PRINT4) $(DBGMSG) $(MODULE_NAME) $@ $@.debuginfo
 	$(Q1)$(OBJCOPY) --only-keep-debug $@ $@.debuginfo
-	$(Q1)$(OBJCOPY) --strip-debug --strip-all $@
+	$(Q1)$(OBJCOPY) --strip-debug $@
 	$(Q1)$(OBJCOPY) --add-gnu-debuglink=$@.debuginfo $@
 endef
 endif
@@ -103,7 +103,11 @@ BINS := $(addprefix $(OUT_BIN)/, $(SOURCE_C:$(SOURCE_ROOT)/%.c=%))
 BINS += $(addprefix $(OUT_BIN)/, $(SOURCE_CXX:$(SOURCE_ROOT)/%.cpp=%))
 
 ifeq ($(BUILD_ENV),map)
-    LDFLAGS += -Wl,-map,$@.map
+ifeq ($(ISCLANG),)
+	LDFLAGS += -Wl,-Map,$@.map
+else
+	LDFLAGS += -Wl,-map,$@.map
+endif
 endif
 
 # CreateDirectory
