@@ -61,17 +61,30 @@ OUT_CONFIG    := $(OUT_ROOT)/etc
 
 # Compiler
 # ******************************
+ISCLANG := $(findstring clang,$(shell $(CC) --version))
 CC		    := $(CROSS_COMPILE)gcc
 CXX         := $(CROSS_COMPILE)g++
 CPP		    := $(CC) -E
+
+ifneq ($(ISCLANG),)
+AS          := $(CROSS_COMPILE)llvm-as
+LD		    := $(CROSS_COMPILE)llvm-l
+AR		    := $(CROSS_COMPILE)llvm-ar
+NM		    := $(CROSS_COMPILE)llvm-nm
+STRIP	    := $(CROSS_COMPILE)llvm-strip
+OBJCOPY	    := $(CROSS_COMPILE)llvm-objcopy
+OBJDUMP	    := $(CROSS_COMPILE)llvm-objdump
+OBJSIZE		:= $(CROSS_COMPILE)llvm-size
+else
 AS		    := $(CROSS_COMPILE)as
 LD		    := $(CROSS_COMPILE)ld
 AR		    := $(CROSS_COMPILE)ar
 NM		    := $(CROSS_COMPILE)nm
 STRIP	    := $(CROSS_COMPILE)strip
-OBJCOPY	    := $(CROSS_COMPILE)llvm-objcopy
+OBJCOPY	    := $(CROSS_COMPILE)objcopy
 OBJDUMP	    := $(CROSS_COMPILE)objdump
 OBJSIZE		:= $(CROSS_COMPILE)size
+endif
 
 CPPFLAGS    := -I$(OUT_INCLUDE)
 CFLAGS      := -Wall -fstack-protector -Wmissing-prototypes -Wstrict-prototypes

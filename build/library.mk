@@ -45,12 +45,12 @@ ifeq ($(BUILD_ENV),debuginfo)
 define cmd_debuginfo
 	$(Q)$(PRINT4) $(DBGMSG) $(MODULE_NAME) $@ $@.debuginfo
 	$(Q1)$(OBJCOPY) --only-keep-debug $@ $@.debuginfo
-	$(Q1)$(OBJCOPY) --strip-debug $@
+	$(Q1)$(OBJCOPY) --strip-debug --strip-all $@
 	$(Q1)$(OBJCOPY) --add-gnu-debuglink=$@.debuginfo $@
 endef
 endif
 
-ifeq ($(BUILD_ENV),debug)
+ifneq ($(BUILD_ENV),debug)
 define cmd_debug
 	$(Q)$(PRINT4) $(STRIPMSG) $(MODULE_NAME) $@ $@
 	$(Q2)$(STRIP) $@
@@ -122,7 +122,7 @@ LIB   := $(OUT_LIB)/lib$(MODULE_NAME).a
 SOLIB := $(OUT_LIB)/lib$(MODULE_NAME).so
 
 ifeq ($(BUILD_ENV),map)
-    LDFLAGS += -Wl,-Map,$@.map
+    LDFLAGS += -Wl,-map,$@.map
 endif
 
 # CreateDirectory
