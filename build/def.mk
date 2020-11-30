@@ -90,7 +90,7 @@ CPPFLAGS    := -I$(OUT_INCLUDE)
 CFLAGS      := -Wall -fstack-protector -Wmissing-prototypes -Wstrict-prototypes
 CXXFLAGS    := -Wall -fstack-protector
 ASFLAGS     := -D__ASSEMBLY__ -fno-PIE
-LDFLAGS     :=
+LDFLAGS     := -Wl,--build-id
 LOADLIBES   :=
 LDLIBS      :=
 ARFLAGS     := rcs
@@ -109,7 +109,7 @@ else ifeq ($(BUILD_ENV), debug)
 	CFLAGS += -g -ggdb
 	CXXFLAGS += -g -ggdb
 else ifeq ($(BUILD_ENV), debuginfo)
-	CFLAGS += -g -ggdb
+	CFLAGS += -g -ggdb -gdwarf
 	CXXFLAGS += -g -ggdb
 else ifeq ($(BUILD_ENV), map)
 	CFLAGS += -g -ggdb

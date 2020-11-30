@@ -44,7 +44,7 @@ ifeq ($(BUILD_ENV),debuginfo)
 define cmd_debuginfo
 	$(Q)$(PRINT4) $(DBGMSG) $(MODULE_NAME) $@ $@.debuginfo
 	$(Q1)$(OBJCOPY) --only-keep-debug $@ $@.debuginfo
-	$(Q1)$(OBJCOPY) --strip-debug --strip-all $@
+	$(Q1)$(OBJCOPY) --strip-debug --strip-unneeded $@
 	$(Q1)$(OBJCOPY) --add-gnu-debuglink=$@.debuginfo $@
 endef
 endif
@@ -106,7 +106,7 @@ ADDED_FILES     := $(addprefix $(SOURCE_ROOT)/, $(ADDED_FILES))
 BIN   := $(OUT_BIN)/$(MODULE_NAME)
 
 ifeq ($(BUILD_ENV),map)
-    LDFLAGS += -Wl,-map,$@.map
+    LDFLAGS += -Wl,-Map,$@.map
 endif
 
 # CreateDirectory
