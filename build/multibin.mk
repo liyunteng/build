@@ -108,7 +108,7 @@ endif
 
 # CreateDirectory
 OUT_DIRS += $(sort $(patsubst %/,%, $(OUT_ROOT) $(OUT_BIN) $(OUT_OBJECT) \
-	$(dir $(BINS) $(OBJECT_C) $(OBJECT_CXX) $(OUT_CONFIG_FILES) $(OUT_ADDED_FILES)))
+	$(dir $(BINS) $(OBJECT_C) $(OBJECT_CXX) $(OUT_CONFIG_FILES) $(OUT_ADDED_FILES))))
 
 ##############################
 default: all
