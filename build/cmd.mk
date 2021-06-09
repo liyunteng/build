@@ -9,6 +9,7 @@ COLOR_NORMAL := \033[0;00m
 CCMSG     := "CC"
 CXXMSG    := "CXX"
 LDMSG     := "LD"
+CXXLDMSG  := "CXXLD"
 ARMSG     := "AR"
 STRIPMSG  := "STRIP"
 CPMSG     := "COPY"
@@ -62,6 +63,10 @@ cmd_bin = \
 	$(Q1)$(PRINT3) $(LDMSG) $(1) $(3); \
 	$(CC) -o $(3) $(2) $(LDFLAGS) $(LOADLIBES) $(LDLIBS)
 
+cmd_cxxbin = \
+	$(Q1)$(PRINT3) $(LDMSG) $(1) $(3); \
+	$(CXX) -o $(3) $(2) $(LDFLAGS) $(LOADLIBES) $(LDLIBS)
+
 cmd_lib = \
 	$(Q1)$(PRINT3) $(ARMSG) $(1) $(3); \
 	$(AR) $(ARFLAGS) $(3) $(2)
@@ -70,6 +75,14 @@ cmd_solib = \
 	$(Q1)$(PRINT3) $(LDMSG) $(1) $(3); \
 	$(CC) -o $(3) $(2) -shared $(LDFLAGS) $(LOADLIBES) $(LDLIBS)
 
+cmd_cxxsolib = \
+	$(Q)$(PRINT3) $(CXXLDMSG) $(1) $(3); \
+	$(CXX) -o $(3) $(2) -shared $(LDFLAGS) $(LOADLIBES) $(LDLIBS)
+
 cmd_bins = \
 	$(Q1)$(PRINT3) $(LDMSG) $(1) $(3);  \
 	$(CC) -o $(3) $(2) $(LDFLAGS) $(LOADLIBES) $(LDLIBS)
+
+cmd_cxxbins = \
+	$(Q1)$(PRINT3) $(CXXLDMSG) $(1) $(3); \
+	$(CXX) -o $(3) $(2) $(LDFLAGS) $(LOADLIBES) $(LDLIBS)

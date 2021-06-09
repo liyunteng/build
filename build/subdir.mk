@@ -27,34 +27,34 @@ all: subdir
 .PHONY: subdir $(SUBDIRS_BUILD)
 subdir: $(SUBDIRS_BUILD)
 $(SUBDIRS_BUILD):
-	$(Q)$(MAKE) -C $@ all OUT_OBJECT=$(OUT_OBJECT)/$@ || exit 1
+	$(Q1)$(MAKE) -C $@ all OUT_OBJECT=$(OUT_OBJECT)/$@ || exit 1
 
 .PHONY: install $(SUBDIRS_INSTALL)
 install: $(SUBDIRS_INSTALL)
 $(SUBDIRS_INSTALL):
-	$(Q)$(MAKE) -C $(patsubst %_install,%,$@) install || exit 1
+	$(Q1)$(MAKE) -C $(patsubst %_install,%,$@) install || exit 1
 
 .PHONY: uninstall $(SUBDIRS_UNINSTALL)
 uninstall: $(SUBDIRS_UNINSTALL)
 $(SUBDIRS_UNINSTALL):
-	$(Q)$(MAKE) -C $(patsubst %_uninstall,%,$@) uninstall || exit 1
+	$(Q1)$(MAKE) -C $(patsubst %_uninstall,%,$@) uninstall || exit 1
 
 .PHONY: clean $(SUBDIRS_CLEAN)
 clean: $(SUBDIRS_CLEAN)
 $(SUBDIRS_CLEAN):
-	$(Q)$(MAKE) -C $(patsubst %_clean,%,$@) clean OUT_OBJECT=$(OUT_OBJECT)/$(@:%_clean=%) || exit 1
+	$(Q1)$(MAKE) -C $(patsubst %_clean,%,$@) clean OUT_OBJECT=$(OUT_OBJECT)/$(@:%_clean=%) || exit 1
 
 
 .PHONY: distclean $(SUBDIRS_DISTCLEAN)
 distclean: $(SUBDIRS_DISTCLEAN) clean
 $(SUBDIRS_DISTCLEAN):
-	$(Q)$(MAKE) -C $(patsubst %_distclean,%,$@) distclean || exit 1
+	$(Q1)$(MAKE) -C $(patsubst %_distclean,%,$@) distclean || exit 1
 
 
 .PHONY: showall $(SUBDIRS_SHOW) show
 showall: $(SUBDIRS_SHOW) show
 $(SUBDIRS_SHOW):
-	$(Q)$(MAKE) -C $(patsubst %_show,%,$@) showall OUT_OBJECT=$(OUT_OBJECT)/$(@:%_show=%) || exit 1
+	$(Q1)$(MAKE) -C $(patsubst %_show,%,$@) showall OUT_OBJECT=$(OUT_OBJECT)/$(@:%_show=%) || exit 1
 
 show:
 	@echo "=============== $(CURDIR) ==============="
@@ -64,6 +64,10 @@ show:
 	@echo "BUILD_OUTPUT       = " $(BUILD_OUTPUT)
 	@echo "D                  = " $(D)
 	@echo "O                  = " $(O)
+	@echo "Q                  = " $(Q)
+	@echo "Q1                 = " $(Q1)
+	@echo "Q2                 = " $(Q2)
+	@echo "Q3                 = " $(Q3)
 	@echo ""
 
 	@echo "SHELL              = " $(SHELL)

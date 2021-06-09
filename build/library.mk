@@ -113,11 +113,19 @@ $(OBJECT_CXX): $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.cpp
 # -include $(DEPEND_CXX)
 
 $(LIB): $(OBJECT_C) $(OBJECT_CXX)
+ifeq ($(OBJECT_CXX),)
 	$(call cmd_lib,$(MODULE_NAME),$^,$@)
+else
+	$(call cmd_cxxlib,$(MODULE_NAME),$^,$@)
+endif
 	$(call cmd_strip,$(MODULE_NAME),$^,$@)
 
 $(SOLIB): $(OBJECT_C) $(OBJECT_CXX)
+ifeq ($(OBJECT_CXX),)
 	$(call cmd_solib,$(MODULE_NAME),$^,$@)
+else
+	$(call cmd_cxxsolib,$(MODULE_NAME),$^,$@)
+endif
 	$(call cmd_debuginfo,$(MODULE_NAME),$^,$@)
 	$(call cmd_strip,$(MODULE_NAME),$^,$@)
 
@@ -149,6 +157,10 @@ show:
 	@echo "BUILD_OUTPUT       = " $(BUILD_OUTPUT)
 	@echo "D                  = " $(D)
 	@echo "O                  = " $(O)
+	@echo "Q                  = " $(Q)
+	@echo "Q1                 = " $(Q1)
+	@echo "Q2                 = " $(Q2)
+	@echo "Q3                 = " $(Q3)
 	@echo ""
 
 	@echo "SHELL              = " $(SHELL)
