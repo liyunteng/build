@@ -15,63 +15,9 @@
 # LDFLAGS:         ld Flags (Added -shared for shared)
 # BUILD_VERBOSE:   verbose output (MUST Before def.mk)
 # BUILD_OUTPUT:    output dir (MUST Before def.mk)
-
-define cmd_cp
-	$(Q)$(PRINT4) $(CPMSG) $(MODULE_NAME) $< $@
-	$(Q2)$(CP) $< $@
-endef
-
-define cmd_mkdir
-	$(Q)$(PRINT3) $(MKDIRMSG) $(MODULE_NAME) $1
-	$(Q2)$(MKDIR) $1
-endef
-
-define cmd_rm
-	$(Q2)[ -d $1 ] && $(RM) $1 || exit 0; \
-	$(PRINT3) $(RMMSG) $(MODULE_NAME) $1
-endef
-
-define cmd_c
-	$(Q)$(PRINT4) $(CCMSG) $(MODULE_NAME) $< $@
-	$(Q1)$(CC) -MMD -c $(CPPFLAGS) $(CFLAGS) $< -o $@
-endef
-
-define cmd_cxx
-	$(Q)$(PRINT4) $(CXXMSG) $(MODULE_NAME) $< $@
-	$(Q1)$(CXX) -MMD -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
-endef
-
-ifeq ($(BUILD_ENV),debuginfo)
-define cmd_debuginfo
-	$(Q)$(PRINT4) $(DBGMSG) $(MODULE_NAME) $@ $@.debuginfo
-	$(Q1)$(OBJCOPY) --only-keep-debug $@ $@.debuginfo
-	$(Q1)$(OBJCOPY) --strip-debug $@
-	$(Q1)$(OBJCOPY) --add-gnu-debuglink=$@.debuginfo $@
-endef
-endif
-
-ifneq ($(BUILD_ENV),debug)
-define cmd_debug
-	$(Q)$(PRINT4) $(STRIPMSG) $(MODULE_NAME) $@ $@
-	$(Q2)$(STRIP) $@
-endef
-endif
-define cmd_lib
-	$(Q)$(PRINT3) $(ARMSG) $(MODULE_NAME) $@
-	$(Q1)$(AR) $(ARFLAGS) $@ $(OBJECT_C) $(OBJECT_CXX)
-	$(call cmd_debug)
-endef
-
-define cmd_solib
-	$(Q)$(PRINT3) $(LDMSG) $(MODULE_NAME) $@
-	$(Q1)$(CC) -o $@ $(OBJECT_C) $(OBJECT_CXX) -shared $(LDFLAGS)
-	$(call cmd_debuginfo)
-	$(call cmd_debug)
-endef
-
-##############################
-MODE=library
-MODULE_ROOT ?= $(shell pwd)
+######################################################################
+MODE := library
+MODULE_ROOT := $(shell pwd)
 MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
 
 # static/dynamic/all
@@ -90,6 +36,7 @@ SOURCE_C   := $(filter-out $(SOURCE_OMIT), $(SOURCE_C))
 SOURCE_CXX := $(filter-out $(SOURCE_OMIT), $(SOURCE_CXX))
 endif
 
+include $(PROJECT_ROOT)/build/cmd.mk
 # Object FileList
 OBJECT_C   := $(SOURCE_C:$(SOURCE_ROOT)/%.c=$(OUT_OBJECT)/%.o)
 OBJECT_CXX := $(SOURCE_CXX:$(SOURCE_ROOT)/%.cpp=$(OUT_OBJECT)/%.o)
@@ -133,7 +80,7 @@ endif
 OUT_DIRS += $(sort $(patsubst %/,%, $(OUT_ROOT) $(OUT_LIB) $(OUT_OBJECT) \
 	$(dir $(OBJECT_C) $(OBJECT_CXX) $(OUT_EXPORT_FILES) $(OUT_CONFIG_FILES) $(OUT_ADDED_FILES))))
 
-##############################
+######################################################################
 default:all
 
 all: library
@@ -157,30 +104,34 @@ header: $(OUT_EXPORT_FILES)
 
 
 $(OBJECT_C):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.c
-	$(call cmd_c)
--include $(DEPEND_C)
+	$(call cmd,c)
+	$(call cmd_c,$(MODULE_NAME),$<,$@)
+# -include $(DEPEND_C)
 
 $(OBJECT_CXX): $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.cpp
-	$(call cmd_cxx)
--include $(DEPEND_CXX)
+	$(call cmd_cxx,$(MODULE_NAME),$<,$@)
+# -include $(DEPEND_CXX)
 
 $(LIB): $(OBJECT_C) $(OBJECT_CXX)
-	$(call cmd_lib)
+	$(call cmd_lib,$(MODULE_NAME),$^,$@)
+	$(call cmd_strip,$(MODULE_NAME),$^,$@)
 
 $(SOLIB): $(OBJECT_C) $(OBJECT_CXX)
-	$(call cmd_solib)
+	$(call cmd_solib,$(MODULE_NAME),$^,$@)
+	$(call cmd_debuginfo,$(MODULE_NAME),$^,$@)
+	$(call cmd_strip,$(MODULE_NAME),$^,$@)
 
 $(OUT_DIRS):
-	$(call cmd_mkdir,$@)
+	$(call cmd_mkdir,$(MODULE_NAME),$@)
 
 $(OUT_EXPORT_FILES) : $(OUT_INCLUDE)/% : $(EXPORT_DIR)/%
-	$(call cmd_cp)
+	$(call cmd_cp,$(MODULE_NAME),$<,$@)
 
 $(OUT_CONFIG_FILES) : $(OUT_CONFIG)/% : $(SOURCE_ROOT)/%
-	$(call cmd_cp)
+	$(call cmd_cp,$(MODULE_NAME),$<,$@)
 
 $(OUT_ADDED_FILES) : $(OUT_BIN)/% : %(SOURCE_ROOT)/%
-	$(call cmd_cp)
+	$(call cmd_cp,$(MODULE_NAME),$<,$@)
 
 .PHONY: install
 install:
@@ -197,9 +148,6 @@ show:
 	@echo "BUILD_PWD          = " $(BUILD_PWD)
 	@echo "BUILD_OUTPUT       = " $(BUILD_OUTPUT)
 	@echo "D                  = " $(D)
-	@echo "Q1                 = " $(Q1)
-	@echo "Q2                 = " $(Q2)
-	@echo "Q3                 = " $(Q3)
 	@echo "O                  = " $(O)
 	@echo ""
 
@@ -317,7 +265,7 @@ help:
 
 .PHONY: clean
 clean:
-	$(call cmd_rm,$(OUT_ROOT))
+	$(call cmd_rm,$(MODULE_NAME),$(OUT_ROOT))
 
 .PHONY: distclean
-pdistclean: clean
+distclean: clean

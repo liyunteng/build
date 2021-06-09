@@ -3,43 +3,53 @@ ifeq ($(MAKELEVEL),0)
 # Env
 BUILD_ENV ?= release
 ifeq ("$(origin D)", "command line")
-ifeq ($(D),1)
-	BUILD_ENV = debug
+ifeq ($(D),0)
+	BUILD_ENV := release
+else ifeq ($(D), 1)
+	BUILD_ENV := debug
 else ifeq ($(D),2)
-	BUILD_ENV = debuginfo
+	BUILD_ENV := debuginfo
 else ifeq ($(D),3)
-	BUILD_ENV = map
+	BUILD_ENV := map
+else
+$(error Invalid D=$(D) D=[0|1|2|3])
 endif
 endif
 
 # Verbose
-BUILD_VERBOSE ?= 0
+V ?= 0
+BUILD_VERBOSE ?=0
 ifeq ("$(origin V)", "command line")
-    BUILD_VERBOSE = $(V)
+	BUILD_VERBOSE = $(V)
 endif
 ifeq ($(BUILD_VERBOSE),0)
-    Q1 = @
-    Q2 = @
-    Q3 = @
-	Q  = @
+    Q1 := @
+    Q2 := @
+    Q3 := @
+	Q  := @
     MAKEFLAGS += --no-print-directory -s
 else ifeq ($(BUILD_VERBOSE),1)
-    Q1 =
-    Q2 = @
-    Q3 = @
-	Q  = @
+    Q1 :=
+    Q2 := @
+    Q3 := @
+	Q  := @
     MAKEFLAGS += --no-print-directory
 else ifeq ($(BUILD_VERBOSE),2)
-    Q1 =
-    Q2 =
-    Q3 = @
-	Q  = @
+    Q1 :=
+    Q2 :=
+    Q3 := @
+	Q  := @
     MAKEFLAGS += --no-print-directory
 else ifeq ($(BUILD_VERBOSE),3)
-    Q1 =
-    Q2 =
-    Q3 =
-	Q  = @
+    Q1 :=
+    Q2 :=
+    Q3 :=
+	Q  := @
+else
+	Q1 :=
+	Q2 :=
+	Q3 :=
+	Q  :=
 endif
 
 # Output
@@ -52,7 +62,7 @@ ifneq ($(BUILD_OUTPUT),$(BUILD_PWD))
 # MAKEFLAGS += --include-dir=$(BUILD_PWD)
 endif
 
-OUT_ROOT	  := $(abspath $(BUILD_OUTPUT))
+OUT_ROOT	  := $(BUILD_OUTPUT)
 OUT_INCLUDE   := $(OUT_ROOT)/include
 OUT_BIN       := $(OUT_ROOT)/bin
 OUT_LIB       := $(OUT_ROOT)/lib
@@ -94,14 +104,14 @@ OBJDUMP	    := $(CROSS_COMPILE)objdump
 OBJSIZE		:= $(CROSS_COMPILE)size
 endif
 
-CPPFLAGS    := -I$(OUT_INCLUDE)
-CFLAGS      := -Wall -fstack-protector -Wmissing-prototypes -Wstrict-prototypes
-CXXFLAGS    := -Wall -fstack-protector
-ASFLAGS     := -D__ASSEMBLY__ -fno-PIE
-LDFLAGS     :=
-LOADLIBES   :=
-LDLIBS      :=
-ARFLAGS     := rcs
+CPPFLAGS    = -I$(OUT_INCLUDE)
+CFLAGS      = -Wall -fstack-protector -Wmissing-prototypes -Wstrict-prototypes
+CXXFLAGS    = -Wall -fstack-protector
+ASFLAGS     = -D__ASSEMBLY__ -fno-PIE
+LDFLAGS     =
+LOADLIBES   =
+LDLIBS      =
+ARFLAGS     = rcs
 
 ifeq ($(ISCLANG),)
 LDFLAGS += -Wl,--build-id
@@ -120,29 +130,7 @@ else ifeq ($(BUILD_ENV), map)
 	CXXFLAGS += -g -ggdb
 endif
 
-COLOR_RED    := \033[1;31m
-COLOR_GREEN  := \033[1;32m
-COLOR_YELLOW := \033[1;33m
-COLOR_BLUE   := \033[1;34m
-COLOR_PURPLE := \033[1;35m
-COLOR_CYAN   := \033[1;36m
-COLOR_NORMAL := \033[0m
-
-CCMSG     := "CC"
-CXXMSG    := "CXX"
-LDMSG     := "LD"
-ARMSG     := "AR"
-STRIPMSG  := "STRIP"
-CPMSG     := "COPY"
-RMMSG     := "RM"
-DBGMSG    := "DBG"
-MKDIRMSG  := "MKDIR"
-# PRINT4    := printf "$(COLOR_GREEN)%-6.6s$(COLOR_NORMAL) [%s]  %s  =>  %s\n"
-PRINT4    := printf "$(COLOR_GREEN)%-6.6s$(COLOR_NORMAL) [%s]  %0.0s%s\n"
-# PRINT4    := printf "$(COLOR_GREEN)%-6.6s$(COLOR_NORMAL) [%s]  %s%0.0s\n"
-PRINT3    := printf "$(COLOR_GREEN)%-6.6s$(COLOR_NORMAL) [%s]  %s\n"
-
 export
+endif
 
 .DELETE_ON_ERROR:
-endif
