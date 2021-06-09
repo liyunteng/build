@@ -21,30 +21,30 @@ PRINT4    := printf "$(COLOR_GREEN)%-6.6s$(COLOR_NORMAL) [%s]  %0.0s%s\n"
 PRINT3    := printf "$(COLOR_GREEN)%-6.6s$(COLOR_NORMAL) [%s]  %s\n"
 
 cmd_cp = \
-	$(Q)$(PRINT4) $(CPMSG) $(1) $(2) $(3) ; \
+	$(Q3)$(PRINT4) $(CPMSG) $(1) $(2) $(3); \
 	$(CP) $(2) $(3)
 
 cmd_mkdir = \
-	$(Q)$(PRINT3) $(MKDIRMSG) $(1) $(2); \
+	$(Q3)$(PRINT3) $(MKDIRMSG) $(1) $(2); \
 	$(MKDIR) $(2)
 
 cmd_rm = \
-	$(Q2)[ -d $(2) ] && $(RM) $(2) || exit 0; \
+	$(Q3)[ -d $(2) ] && $(RM) $(2) || exit 0; \
 	$(PRINT3) $(RMMSG) $(1) $(2)
 
 cmd_c = \
-	$(Q)$(PRINT4) $(CCMSG) $(1) $(2) $(3) ; \
+	$(Q1)$(PRINT4) $(CCMSG) $(1) $(2) $(3); \
 	$(CC) -MMD -c $(CPPFLAGS) $(CFLAGS) $(2) -o $(3)
 
 cmd_cxx = \
-	$(Q)$(PRINT4) $(CXXMSG) $(1) $(2) $(3) ; \
+	$(Q1)$(PRINT4) $(CXXMSG) $(1) $(2) $(3); \
 	$(CXX) -MMD -c $(CPPFLAGS) $(CXXFLAGS) $(2) -o $(3)
 
 ifeq ($(BUILD_ENV),debuginfo)
 cmd_debuginfo = \
-	$(PRINT4) $(DBGMSG) $(1) $(3) $(3).debuginfo ; \
-	$(OBJCOPY) --only-keep-debug $(3) $(3).debuginfo ; \
-	$(OBJCOPY) --strip-debug $(3) ; \
+	$(Q2)$(PRINT4) $(DBGMSG) $(1) $(3) $(3).debuginfo; \
+	$(OBJCOPY) --only-keep-debug $(3) $(3).debuginfo; \
+	$(OBJCOPY) --strip-debug $(3); \
 	$(OBJCOPY) --add-gnu-debuglink=$(3).debuginfo $(3)
 else
 cmd_debuginfo =
@@ -52,24 +52,24 @@ endif
 
 ifneq ($(BUILD_ENV),debug)
 cmd_strip = \
-	$(PRINT4) $(STRIPMSG) $(1) $(3) $(3) ; \
+	$(Q2)$(PRINT4) $(STRIPMSG) $(1) $(3) $(3); \
 	$(STRIP) $(3)
 else
 cmd_strip =
 endif
 
 cmd_bin = \
-	$(Q)$(PRINT3) $(LDMSG) $(1) $(3) ; \
+	$(Q1)$(PRINT3) $(LDMSG) $(1) $(3); \
 	$(CC) -o $(3) $(2) $(LDFLAGS) $(LOADLIBES) $(LDLIBS)
 
 cmd_lib = \
-	$(Q)$(PRINT3) $(ARMSG) $(1) $(3) ; \
+	$(Q1)$(PRINT3) $(ARMSG) $(1) $(3); \
 	$(AR) $(ARFLAGS) $(3) $(2)
 
 cmd_solib = \
-	$(Q)$(PRINT3) $(LDMSG) $(1) $(3) ; \
+	$(Q1)$(PRINT3) $(LDMSG) $(1) $(3); \
 	$(CC) -o $(3) $(2) -shared $(LDFLAGS) $(LOADLIBES) $(LDLIBS)
 
 cmd_bins = \
-	$(Q)$(PRINT3) $(LDMSG) $(1) $(3) ;  \
+	$(Q1)$(PRINT3) $(LDMSG) $(1) $(3);  \
 	$(CC) -o $(3) $(2) $(LDFLAGS) $(LOADLIBES) $(LDLIBS)
