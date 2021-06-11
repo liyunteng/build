@@ -68,14 +68,6 @@ CPPFLAGS += -I$(EXPORT_DIR)
 LIB   := $(OUT_LIB)/lib$(MODULE_NAME).a
 SOLIB := $(OUT_LIB)/lib$(MODULE_NAME).so
 
-ifeq ($(BUILD_ENV),map)
-ifeq ($(ISCLANG),)
-	LDFLAGS += -Wl,-Map,$@.map
-else
-	LDFLAGS += -Wl,-map,$@.map
-endif
-endif
-
 # CreateDirectory
 OUT_DIRS += $(sort $(patsubst %/,%, $(OUT_ROOT) $(OUT_LIB) $(OUT_OBJECT) \
 	$(dir $(OBJECT_C) $(OBJECT_CXX) $(OUT_EXPORT_FILES) $(OUT_CONFIG_FILES) $(OUT_ADDED_FILES))))

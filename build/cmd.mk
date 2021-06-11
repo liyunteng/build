@@ -11,6 +11,7 @@ CXXMSG    := "CXX"
 LDMSG     := "LD"
 CXXLDMSG  := "CXXLD"
 ARMSG     := "AR"
+CXXARMSG  := "CXXAR"
 STRIPMSG  := "STRIP"
 CPMSG     := "COPY"
 RMMSG     := "RM"
@@ -64,7 +65,7 @@ cmd_bin = \
 	$(CC) -o $(3) $(2) $(LDFLAGS) $(LOADLIBES) $(LDLIBS)
 
 cmd_cxxbin = \
-	$(Q1)$(PRINT3) $(LDMSG) $(1) $(3); \
+	$(Q1)$(PRINT3) $(CXXLDMSG) $(1) $(3); \
 	$(CXX) -o $(3) $(2) $(LDFLAGS) $(LOADLIBES) $(LDLIBS)
 
 cmd_lib = \
@@ -72,7 +73,7 @@ cmd_lib = \
 	$(AR) $(ARFLAGS) $(3) $(2)
 
 cmd_cxxlib = \
-	$(Q1)$(PRINT3) $(ARMSG) $(1) $(3); \
+	$(Q1)$(PRINT3) $(CXXARMSG) $(1) $(3); \
 	$(AR) $(ARFLAGS) $(3) $(2)
 
 cmd_solib = \

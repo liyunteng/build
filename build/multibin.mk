@@ -54,14 +54,6 @@ ADDED_FILES     := $(addprefix $(SOURCE_ROOT)/, $(ADDED_FILES))
 BINS := $(addprefix $(OUT_BIN)/, $(SOURCE_C:$(SOURCE_ROOT)/%.c=%))
 BINS += $(addprefix $(OUT_BIN)/, $(SOURCE_CXX:$(SOURCE_ROOT)/%.cpp=%))
 
-ifeq ($(BUILD_ENV),map)
-ifeq ($(ISCLANG),)
-	LDFLAGS += -Wl,-Map,$@.map
-else
-	LDFLAGS += -Wl,-map,$@.map
-endif
-endif
-
 # CreateDirectory
 OUT_DIRS += $(sort $(patsubst %/,%, $(OUT_ROOT) $(OUT_BIN) $(OUT_OBJECT) \
 	$(dir $(BINS) $(OBJECT_C) $(OBJECT_CXX) $(OUT_CONFIG_FILES) $(OUT_ADDED_FILES))))

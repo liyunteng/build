@@ -1,6 +1,7 @@
 ifeq ($(MAKELEVEL),0)
 
 # Env
+D ?= 0
 BUILD_ENV ?= release
 ifeq ("$(origin D)", "command line")
 ifeq ($(D),0)
@@ -78,8 +79,8 @@ MKDIR       := mkdir -p
 
 # Compiler
 # ******************************
-CC		    := $(CROSS_COMPILE)gcc
-CXX         := $(CROSS_COMPILE)g++
+CC		    := $(CROSS_COMPILE)cc
+CXX         := $(CROSS_COMPILE)c++
 CPP		    := $(CC) -E
 
 ISCLANG := $(findstring clang,$(shell $(CC) --version))
@@ -128,6 +129,14 @@ else ifeq ($(BUILD_ENV), debuginfo)
 else ifeq ($(BUILD_ENV), map)
 	CFLAGS += -g -ggdb
 	CXXFLAGS += -g -ggdb
+endif
+
+ifeq ($(BUILD_ENV),map)
+ifeq ($(ISCLANG),)
+	LDFLAGS += -Wl,-Map,$@.map
+else
+	LDFLAGS += -Wl,-map,$@.map
+endif
 endif
 
 export
