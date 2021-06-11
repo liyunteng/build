@@ -106,11 +106,11 @@ header: $(OUT_EXPORT_FILES)
 $(OBJECT_C):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.c
 	$(call cmd,c)
 	$(call cmd_c,$(MODULE_NAME),$<,$@)
-# -include $(DEPEND_C)
+-include $(DEPEND_C)
 
 $(OBJECT_CXX): $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.cpp
 	$(call cmd_cxx,$(MODULE_NAME),$<,$@)
-# -include $(DEPEND_CXX)
+-include $(DEPEND_CXX)
 
 $(LIB): $(OBJECT_C) $(OBJECT_CXX)
 ifeq ($(OBJECT_CXX),)

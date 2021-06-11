@@ -71,6 +71,10 @@ cmd_lib = \
 	$(Q1)$(PRINT3) $(ARMSG) $(1) $(3); \
 	$(AR) $(ARFLAGS) $(3) $(2)
 
+cmd_cxxlib = \
+	$(Q1)$(PRINT3) $(ARMSG) $(1) $(3); \
+	$(AR) $(ARFLAGS) $(3) $(2)
+
 cmd_solib = \
 	$(Q1)$(PRINT3) $(LDMSG) $(1) $(3); \
 	$(CC) -o $(3) $(2) -shared $(LDFLAGS) $(LOADLIBES) $(LDLIBS)
