@@ -63,12 +63,12 @@ ifneq ($(BUILD_OUTPUT),$(BUILD_PWD))
 # MAKEFLAGS += --include-dir=$(BUILD_PWD)
 endif
 
-OUT_ROOT	  := $(BUILD_OUTPUT)
-OUT_INCLUDE   := $(OUT_ROOT)/include
-OUT_BIN       := $(OUT_ROOT)/bin
-OUT_LIB       := $(OUT_ROOT)/lib
-OUT_OBJECT    := $(OUT_ROOT)/obj
-OUT_CONFIG    := $(OUT_ROOT)/etc
+OUT_ROOT	  ?= $(BUILD_OUTPUT)
+OUT_INCLUDE   ?= $(OUT_ROOT)/include
+OUT_BIN       ?= $(OUT_ROOT)/bin
+OUT_LIB       ?= $(OUT_ROOT)/lib
+OUT_OBJECT    ?= $(OUT_ROOT)/obj
+OUT_CONFIG    ?= $(OUT_ROOT)/etc
 
 # Tools
 SHELL       := /bin/sh
@@ -105,14 +105,14 @@ OBJDUMP	    := $(CROSS_COMPILE)objdump
 OBJSIZE		:= $(CROSS_COMPILE)size
 endif
 
-CPPFLAGS    = -I$(OUT_INCLUDE)
-CFLAGS      = -Wall -fstack-protector -Wmissing-prototypes -Wstrict-prototypes
-CXXFLAGS    = -Wall -fstack-protector
-ASFLAGS     = -D__ASSEMBLY__ -fno-PIE
-LDFLAGS     =
-LOADLIBES   =
-LDLIBS      =
-ARFLAGS     = rcs
+CPPFLAGS    ?= -I$(OUT_INCLUDE)
+CFLAGS      ?= -Wall -fstack-protector -Wmissing-prototypes -Wstrict-prototypes
+CXXFLAGS    ?= -Wall -fstack-protector
+ASFLAGS     ?= -D__ASSEMBLY__ -fno-PIE
+LDFLAGS     ?=
+LOADLIBES   ?=
+LDLIBS      ?=
+ARFLAGS     := rcs
 
 ifeq ($(ISCLANG),)
 LDFLAGS += -Wl,--build-id
