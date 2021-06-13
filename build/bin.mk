@@ -15,8 +15,8 @@
 # BUILD_VERBOSE:   Verbose output (MUST Before def.mk)
 # BUILD_OUTPUT:    Output dir (MUST Before def.mk)
 ######################################################################
-MODE=bin
-MODULE_ROOT ?= $(shell pwd)
+MODE := bin
+MODULE_ROOT := $(shell pwd)
 MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
 
 # Source FileList
@@ -24,14 +24,15 @@ SOURCE_ROOT  ?= $(MODULE_ROOT)
 SOURCE_DIRS  ?= src
 SOURCE_OMIT  ?=
 
-SOURCE_C   := $(foreach dir, $(SOURCE_DIRS), $(shell find $(abspath $(dir)) -name "*.c"))
-SOURCE_CXX := $(foreach dir, $(SOURCE_DIRS), $(shell find $(abspath $(dir)) -name "*.cpp"))
+SOURCE_C   ?= $(foreach dir, $(SOURCE_DIRS), $(shell find $(abspath $(dir)) -name "*.c"))
+SOURCE_CXX ?= $(foreach dir, $(SOURCE_DIRS), $(shell find $(abspath $(dir)) -name "*.cpp"))
 ifneq ($(strip $(SOURCE_OMIT)),)
 SOURCE_OMIT := $(addprefix $(SOURCE_ROOT)/, $(SOURCE_OMIT))
 SOURCE_C   := $(filter-out $(SOURCE_ROOT)/$(SOURCE_OMIT), $(SOURCE_C))
 SOURCE_CXX := $(filter-out $(SOURCE_ROOT)/$(SOURCE_OMIT), $(SOURCE_CXX))
 endif
 
+include $(PROJECT_ROOT)/build/def.mk
 include $(PROJECT_ROOT)/build/cmd.mk
 # Object FileList
 OBJECT_C   := $(SOURCE_C:$(SOURCE_ROOT)/%.c=$(OUT_OBJECT)/%.o)
@@ -62,18 +63,14 @@ OUT_DIRS += $(sort $(patsubst %/,%, $(OUT_ROOT) $(OUT_BIN) $(OUT_OBJECT) \
 	$(dir $(OBJECT_C) $(OBJECT_CXX) $(OUT_CONFIG_FILES) $(OUT_ADDED_FILES))))
 
 ######################################################################
-default: all
 all: bin
 
 .PHONY: before success
-bin: before $(OBJECT_C) $(OBJECT_CXX) $(BIN) after success
+bin: before $(OUT_DIRS) $(OBJECT_C) $(OBJECT_CXX) $(BIN) after
 
-before: $(OUT_DIRS)
+before:
 
 after: $(OUT_CONFIG_FILES) $(OUT_ADDED_FILES)
-
-success:
-
 
 $(OBJECT_C):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.c
 	$(call cmd_c,$(MODULE_NAME),$<,$@)
@@ -108,71 +105,8 @@ install:
 .PHONY: uninstall
 uninstall:
 
-.PHONY: showall show
-showall: show
-
-show:
-	@echo "=============== $(CURDIR) ==============="
-	@echo "BUILD_ENV          = " $(BUILD_ENV)
-	@echo "BUILD_VERBOSE      = " $(BUILD_VERBOSE)
-	@echo "BUILD_PWD          = " $(BUILD_PWD)
-	@echo "BUILD_OUTPUT       = " $(BUILD_OUTPUT)
-	@echo "D                  = " $(D)
-	@echo "O                  = " $(O)
-	@echo "Q                  = " $(Q)
-	@echo "Q1                 = " $(Q1)
-	@echo "Q2                 = " $(Q2)
-	@echo "Q3                 = " $(Q3)
-	@echo ""
-
-	@echo "SHELL              = " $(SHELL)
-	@echo "OS_TYPE            = " $(OS_TYPE)
-	@echo "CP                 = " $(CP)
-	@echo "RM                 = " $(RM)
-	@echo "MKDIR              = " $(MKDIR)
-	@echo ""
-
-	@echo "CURDIR             = " $(CURDIR)
-	@echo "MAKEFLAGS          = " $(MAKEFLAGS)
-	@echo "MAKEFILE_LIST      = " $(MAKEFILE_LIST)
-	@echo "MAKECMDGOALS       = " $(MAKECMDGOALS)
-	@echo "MAKEOVERRIDES      = " $(MAKEOVERRIDES)
-	@echo "MAKELEVEL          = " $(MAKELEVEL)
-	@echo "VPATH              = " $(VPATH)
-	@echo ""
-
-	@echo "OUT_ROOT           = " $(OUT_ROOT)
-	@echo "OUT_INCLUDE        = " $(OUT_INCLUDE)
-	@echo "OUT_BIN            = " $(OUT_BIN)
-	@echo "OUT_LIB            = " $(OUT_LIB)
-	@echo "OUT_OBJECT         = " $(OUT_OBJECT)
-	@echo "OUT_CONFIG         = " $(OUT_CONFIG)
-	@echo ""
-
-	@echo "CROSS_COMPILE      = " $(CROSS_COMPILE)
-	@echo "CC                 = " $(CC)
-	@echo "CXX                = " $(CXX)
-	@echo "CPP                = " $(CPP)
-	@echo "AS                 = " $(AS)
-	@echo "LD                 = " $(LD)
-	@echo "AR                 = " $(AR)
-	@echo "NM                 = " $(NM)
-	@echo "STRIP              = " $(STRIP)
-	@echo "OBJCOPY            = " $(OBJCOPY)
-	@echo "OBJDUMP            = " $(OBJDUMP)
-	@echo "OBJSIZE            = " $(OBJSIZE)
-	@echo ""
-
-	@echo "CPPFLAGS           = " $(CPPFLAGS)
-	@echo "CFLAGS             = " $(CFLAGS)
-	@echo "CXXFLAGS           = " $(CXXFLAGS)
-	@echo "ASFLAGS            = " $(ASFLAGS)
-	@echo "LDFLAGS            = " $(LDFLAGS)
-	@echo "LOADLIBES          = " $(LOADLIBES)
-	@echo "LDLIBS             = " $(LDLIBS)
-	@echo "ARFLAGS            = " $(ARFLAGS)
-	@echo ""
-
+.PHONY: show help
+show: show-common
 	@echo "MODE               = " $(MODE)
 	@echo "MODULE_ROOT        = " $(MODULE_ROOT)
 	@echo "MODULE_NAME        = " $(MODULE_NAME)
@@ -196,20 +130,7 @@ show:
 	@echo "CreateResult       = " $(CreateResult)
 	@echo ""
 
-.PHONY: help
-help:
-	@echo "make <BUILD_ENV=[release|debug|debuginfo|map]> <CROSS_COMPILE=arm-linux-gnueabi-> <O=/opt/out> <V=[0|1|2|3]> <D=[0|1|2|3]> <show> <help>"
-	@echo ""
-	@echo "    BUILD_ENV           [release|debug|debuginfo|map] default is release"
-	@echo "    CROSS_COMPILE       cross compile toolchain"
-	@echo "    O                   output"
-	@echo "    V                   [0|1|2|3] verbose"
-	@echo "    D                   0 release | 1 debug | 2 gen debuginfo | 3 gen map"
-	@echo "    show                show current configuration"
-	@echo "    help                show this help"
-	@echo ""
-	@echo ""
-
+help: help-common
 	@echo "bin.mk : Build executable"
 	@echo ""
 	@echo "    MODULE_ROOT         the root directory of this module"

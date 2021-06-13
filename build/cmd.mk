@@ -36,11 +36,11 @@ cmd_rm = \
 
 cmd_c = \
 	$(Q1)$(PRINT4) $(CCMSG) $(1) $(2) $(3); \
-	$(CC) -MMD -c $(CPPFLAGS) $(CFLAGS) $(2) -o $(3)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -MMD -c $(2) -o $(3)
 
 cmd_cxx = \
 	$(Q1)$(PRINT4) $(CXXMSG) $(1) $(2) $(3); \
-	$(CXX) -MMD -c $(CPPFLAGS) $(CXXFLAGS) $(2) -o $(3)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -MMD -c $(2) -o $(3)
 
 ifeq ($(BUILD_ENV),debuginfo)
 cmd_debuginfo = \
@@ -62,11 +62,11 @@ endif
 
 cmd_bin = \
 	$(Q1)$(PRINT3) $(LDMSG) $(1) $(3); \
-	$(CC) -o $(3) $(2) $(LDFLAGS) $(LOADLIBES) $(LDLIBS)
+	$(CC) $(LDFLAGS) $(LOADLIBES) $(LDLIBS) $(2) -o $(3)
 
 cmd_cxxbin = \
 	$(Q1)$(PRINT3) $(CXXLDMSG) $(1) $(3); \
-	$(CXX) -o $(3) $(2) $(LDFLAGS) $(LOADLIBES) $(LDLIBS)
+	$(CXX) $(LDFLAGS) $(LOADLIBES) $(LDLIBS) $(2) -o $(3)
 
 cmd_lib = \
 	$(Q1)$(PRINT3) $(ARMSG) $(1) $(3); \
@@ -78,16 +78,16 @@ cmd_cxxlib = \
 
 cmd_solib = \
 	$(Q1)$(PRINT3) $(LDMSG) $(1) $(3); \
-	$(CC) -o $(3) $(2) -shared $(LDFLAGS) $(LOADLIBES) $(LDLIBS)
+	$(CC) $(LDFLAGS) $(LOADLIBES) $(LDLIBS) -shared $(2) -o $(3)
 
 cmd_cxxsolib = \
 	$(Q)$(PRINT3) $(CXXLDMSG) $(1) $(3); \
-	$(CXX) -o $(3) $(2) -shared $(LDFLAGS) $(LOADLIBES) $(LDLIBS)
+	$(CXX) $(LDFLAGS) $(LOADLIBES) $(LDLIBS) -shared $(2) -o $(3)
 
 cmd_bins = \
 	$(Q1)$(PRINT3) $(LDMSG) $(1) $(3);  \
-	$(CC) -o $(3) $(2) $(LDFLAGS) $(LOADLIBES) $(LDLIBS)
+	$(CC) $(LDFLAGS) $(LOADLIBES) $(LDLIBS) $(2) -o $(3)
 
 cmd_cxxbins = \
 	$(Q1)$(PRINT3) $(CXXLDMSG) $(1) $(3); \
-	$(CXX) -o $(3) $(2) $(LDFLAGS) $(LOADLIBES) $(LDLIBS)
+	$(CXX) $(LDFLAGS) $(LOADLIBES) $(LDLIBS) $(2) -o $(3)

@@ -1,5 +1,4 @@
 PROJECT_ROOT := $(abspath ..)
-include $(PROJECT_ROOT)/build/def.mk
 
 CONFIG_FILES += abc.conf def.conf
 ADDED_FILES += ddd afile
