@@ -36,11 +36,11 @@ cmd_rm = \
 
 cmd_c = \
 	$(Q1)$(PRINT4) $(CCMSG) $(1) $(2) $(3); \
-	$(CC) $(CPPFLAGS) $(CFLAGS) -MMD -c $(2) -o $(3)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -MD -MQ $(3) -MF $(3).d -c $(2) -o $(3)
 
 cmd_cxx = \
 	$(Q1)$(PRINT4) $(CXXMSG) $(1) $(2) $(3); \
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -MMD -c $(2) -o $(3)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -MD -MQ $(3) -MF $(3).d -c $(2) -o $(3)
 
 ifeq ($(BUILD_ENV),debuginfo)
 cmd_debuginfo = \

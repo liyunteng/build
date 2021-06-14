@@ -37,8 +37,8 @@ include $(PROJECT_ROOT)/build/cmd.mk
 # Object FileList
 OBJECT_C   := $(SOURCE_C:$(SOURCE_ROOT)/%.c=$(OUT_OBJECT)/%.o)
 OBJECT_CXX := $(SOURCE_CXX:$(SOURCE_ROOT)/%.cpp=$(OUT_OBJECT)/%.o)
-DEPEND_C   := $(SOURCE_C:$(SOURCE_ROOT)/%.c=$(OUT_OBJECT)/%.d)
-DEPEND_CXX := $(SOURCE_CXX:$(SOURCE_ROOT)/%.cpp=$(OUT_OBJECT)/%.d)
+DEPEND_C   := $(OBJECT_C:%.o=%.o.d)
+DEPEND_CXX := $(OBJECT_CXX:%.o=%.o.d)
 
 # Include FileList
 INCLUDE_DIRS ?= $(SOURCE_ROOT)/include
