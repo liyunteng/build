@@ -17,7 +17,7 @@
 # BUILD_OUTPUT:    output dir (MUST Before def.mk)
 ######################################################################
 MODE := library
-MODULE_ROOT := $(shell pwd)
+MODULE_ROOT ?= $(shell pwd)
 MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
 
 # static/dynamic/all

@@ -4,7 +4,7 @@
 ######################################################################
 
 MODE := subdir
-MODULE_ROOT := $(shell pwd)
+MODULE_ROOT ?= $(shell pwd)
 MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
 
 SUBDIRS ?=

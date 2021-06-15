@@ -16,20 +16,20 @@
 # BUILD_OUTPUT:    Output dir (MUST Before def.mk)
 ######################################################################
 MODE := bin
-MODULE_ROOT := $(shell pwd)
-MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
+MODULE_ROOT  ?= $(shell pwd)
+MODULE_NAME  ?= $(shell basename $(MODULE_ROOT))
 
 # Source FileList
 SOURCE_ROOT  ?= $(MODULE_ROOT)
 SOURCE_DIRS  ?= src
 SOURCE_OMIT  ?=
 
-SOURCE_C   ?= $(foreach dir, $(SOURCE_DIRS), $(shell find $(abspath $(dir)) -name "*.c"))
-SOURCE_CXX ?= $(foreach dir, $(SOURCE_DIRS), $(shell find $(abspath $(dir)) -name "*.cpp"))
+SOURCE_C     ?= $(foreach dir, $(SOURCE_DIRS), $(shell find $(abspath $(dir)) -name "*.c"))
+SOURCE_CXX   ?= $(foreach dir, $(SOURCE_DIRS), $(shell find $(abspath $(dir)) -name "*.cpp"))
 ifneq ($(strip $(SOURCE_OMIT)),)
-SOURCE_OMIT := $(addprefix $(SOURCE_ROOT)/, $(SOURCE_OMIT))
-SOURCE_C   := $(filter-out $(SOURCE_ROOT)/$(SOURCE_OMIT), $(SOURCE_C))
-SOURCE_CXX := $(filter-out $(SOURCE_ROOT)/$(SOURCE_OMIT), $(SOURCE_CXX))
+SOURCE_OMIT  := $(addprefix $(SOURCE_ROOT)/, $(SOURCE_OMIT))
+SOURCE_C     := $(filter-out $(SOURCE_ROOT)/$(SOURCE_OMIT), $(SOURCE_C))
+SOURCE_CXX   := $(filter-out $(SOURCE_ROOT)/$(SOURCE_OMIT), $(SOURCE_CXX))
 endif
 
 include $(PROJECT_ROOT)/build/def.mk

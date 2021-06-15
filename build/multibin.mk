@@ -21,12 +21,12 @@ MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
 SOURCE_ROOT  ?= $(MODULE_ROOT)
 SOURCE_OMIT  ?=
 
-SOURCE_C   ?=  $(shell find $(SOURCE_ROOT) -name "*.c")
-SOURCE_CXX ?=  $(shell find $(SOURCE_ROOT) -name "*.cpp")
+SOURCE_C     ?=  $(shell find $(SOURCE_ROOT) -name "*.c")
+SOURCE_CXX   ?=  $(shell find $(SOURCE_ROOT) -name "*.cpp")
 ifneq ($(strip $(SOURCE_OMIT)),)
-SOURCE_OMIT:=$(addprefix $(SOURCE_ROOT)/,$(SOURCE_OMIT))
-SOURCE_C   := $(filter-out $(SOURCE_OMIT), $(SOURCE_C))
-SOURCE_CXX := $(filter-out $(SOURCE_OMIT), $(SOURCE_CXX))
+SOURCE_OMIT  :=$(addprefix $(SOURCE_ROOT)/,$(SOURCE_OMIT))
+SOURCE_C     := $(filter-out $(SOURCE_OMIT), $(SOURCE_C))
+SOURCE_CXX   := $(filter-out $(SOURCE_OMIT), $(SOURCE_CXX))
 endif
 
 include $(PROJECT_ROOT)/build/def.mk
