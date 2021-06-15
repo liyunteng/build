@@ -17,6 +17,7 @@ CPMSG     := "COPY"
 RMMSG     := "RM"
 DBGMSG    := "DBG"
 MKDIRMSG  := "MKDIR"
+ASMSG     := "AS"
 # PRINT4    := printf "$(COLOR_GREEN)%-6.6s$(COLOR_NORMAL) [%s]  %s  =>  %s\n"
 PRINT4    := printf "$(COLOR_GREEN)%-6.6s$(COLOR_NORMAL) [%s]  %0.0s%s\n"
 # PRINT4    := printf "$(COLOR_GREEN)%-6.6s$(COLOR_NORMAL) [%s]  %s%0.0s\n"
@@ -41,6 +42,10 @@ cmd_c = \
 cmd_cxx = \
 	$(Q1)$(PRINT4) $(CXXMSG) $(1) $(2) $(3); \
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -MD -MQ $(3) -MF $(3).d -c $(2) -o $(3)
+
+cmd_as = \
+	$(Q1)$(PRINT4) $(ASMSG) $(1) $(2) $(3); \
+	$(AS) $(ASFLAGS) -c $(2) -o $(3)
 
 ifeq ($(BUILD_ENV),debuginfo)
 cmd_debuginfo = \
