@@ -1,5 +1,7 @@
 # MODULE_ROOT:     The root directory of this module
+# MODULE_NAME:     The name of this mudule
 # SOURCE_ROOT:     Source Root Directory (default MODULE_ROOT)
+# SOURCE_DIRS:     Source directories (default src)
 # SOURCE_OMIT:     Ignored files
 # INCLUDE_DIRS:    Include directories (default include)
 # CONFIG_FILES:    Files copy to OUT_CONFIG
@@ -13,64 +15,61 @@
 # BUILD_VERBOSE:   Verbose output (MUST Before def.mk)
 # BUILD_OUTPUT:    Output dir (MUST Before def.mk)
 ######################################################################
-MODE := multibin
-MODULE_ROOT ?= $(shell pwd)
-MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
+MODE := bin
+MODULE_ROOT  ?= $(shell pwd)
+MODULE_NAME  ?= $(shell basename $(MODULE_ROOT))
 
 # Source FileList
 SOURCE_ROOT  ?= $(MODULE_ROOT)
+SOURCE_DIRS  ?= src
 SOURCE_OMIT  ?=
 
-SOURCE_C     ?=  $(shell find $(SOURCE_ROOT) -name "*.c")
-SOURCE_CXX   ?=  $(shell find $(SOURCE_ROOT) -name "*.cpp")
+SOURCE_C     ?= $(foreach dir, $(SOURCE_DIRS), $(shell find $(abspath $(dir)) -name "*.c"))
+SOURCE_CXX   ?= $(foreach dir, $(SOURCE_DIRS), $(shell find $(abspath $(dir)) -name "*.cpp"))
 ifneq ($(strip $(SOURCE_OMIT)),)
-SOURCE_OMIT  :=$(addprefix $(SOURCE_ROOT)/,$(SOURCE_OMIT))
-SOURCE_C     := $(filter-out $(SOURCE_OMIT), $(SOURCE_C))
-SOURCE_CXX   := $(filter-out $(SOURCE_OMIT), $(SOURCE_CXX))
+SOURCE_OMIT  := $(addprefix $(SOURCE_ROOT)/, $(SOURCE_OMIT))
+SOURCE_C     := $(filter-out $(SOURCE_ROOT)/$(SOURCE_OMIT), $(SOURCE_C))
+SOURCE_CXX   := $(filter-out $(SOURCE_ROOT)/$(SOURCE_OMIT), $(SOURCE_CXX))
 endif
 
-include $(PROJECT_ROOT)/build/def.mk
-include $(PROJECT_ROOT)/build/cmd.mk
+include $(PROJECT_ROOT)/scripts/def.mk
+include $(PROJECT_ROOT)/scripts/cmd.mk
 # Object FileList
 OBJECT_C   := $(SOURCE_C:$(SOURCE_ROOT)/%.c=$(OUT_OBJECT)/%.o)
 OBJECT_CXX := $(SOURCE_CXX:$(SOURCE_ROOT)/%.cpp=$(OUT_OBJECT)/%.o)
 DEPEND_C   := $(OBJECT_C:%.o=%.o.d)
-DEPEND_CXX := $(OBJEECT_CXX:%.o=%.o.d)
+DEPEND_CXX := $(OBJECT_CXX:%.o=%.o.d)
 
 # Include FileList
 INCLUDE_DIRS ?= $(SOURCE_ROOT)/include
 CPPFLAGS += $(foreach dir, $(INCLUDE_DIRS), -I$(dir))
 
 # Config FileList
-CONFIG_FILES ?=
+CONFIG_FILES   ?=
 OUT_CONFIG_FILES := $(addprefix $(OUT_CONFIG)/, $(CONFIG_FILES))
 CONFIG_FILES     := $(addprefix $(SOURCE_ROOT)/, $(CONFIG_FILES))
 
 # Added FileList
-ADDED_FILES ?=
+ADDED_FILES    ?=
 OUT_ADDED_FILES := $(addprefix $(OUT_BIN)/, $(ADDED_FILES))
 ADDED_FILES     := $(addprefix $(SOURCE_ROOT)/, $(ADDED_FILES))
 
-# BINS Name
-BINS := $(addprefix $(OUT_BIN)/, $(SOURCE_C:$(SOURCE_ROOT)/%.c=%))
-BINS += $(addprefix $(OUT_BIN)/, $(SOURCE_CXX:$(SOURCE_ROOT)/%.cpp=%))
+# BIN Name
+BIN   := $(OUT_BIN)/$(MODULE_NAME)
 
 # CreateDirectory
 OUT_DIRS += $(sort $(patsubst %/,%, $(OUT_ROOT) $(OUT_BIN) $(OUT_OBJECT) \
-	$(dir $(BINS) $(OBJECT_C) $(OBJECT_CXX) $(OUT_CONFIG_FILES) $(OUT_ADDED_FILES))))
+	$(dir $(OBJECT_C) $(OBJECT_CXX) $(OUT_CONFIG_FILES) $(OUT_ADDED_FILES))))
 
 ######################################################################
 all: bin
 
 .PHONY: before success
-bin: before $(OBJECT_C) $(OBJECT_CXX) $(BINS) after success
+bin: before $(OUT_DIRS) $(OBJECT_C) $(OBJECT_CXX) $(BIN) after
 
-before: $(OUT_DIRS)
+before:
 
 after: $(OUT_CONFIG_FILES) $(OUT_ADDED_FILES)
-
-success:
-
 
 $(OBJECT_C):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.c
 	$(call cmd_c,$(MODULE_NAME),$<,$@)
@@ -80,15 +79,15 @@ $(OBJECT_CXX):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.cpp
 	$(call cmd_cxx,$(MODULE_NAME),$<,$@)
 -include $(DEPEND_CXX)
 
-$(BINS): $(OUT_BIN)/% : $(OUT_OBJECT)/%.o
+$(BIN): $(OBJECT_C) $(OBJECT_CXX)
 ifneq ($(join $(OBJECT_C),$(OBJECT_CXX)),)
 ifeq ($(OBJECT_CXX),)
-	$(call cmd_bins,$(MODULE_NAME),$<,$@)
+	$(call cmd_bin,$(MODULE_NAME),$^,$@)
 else
-	$(call cmd_cxxbins,$(MODULE_NAME),$<,$@)
+	$(call cmd_cxxbin,$(MODULE_NAME),$^,$@)
 endif
-	$(call cmd_debuginfo,$(MODULE_NAME),$<,$@)
-	$(call cmd_strip,$(MODULE_NAME),$<,$@)
+	$(call cmd_debuginfo,$(MODULE_NAME),$^,$@)
+	$(call cmd_strip,$(MODULE_NAME),$^,$@)
 endif
 
 $(OUT_DIRS):
@@ -107,12 +106,12 @@ install:
 .PHONY: uninstall
 uninstall:
 
-.PHONY: show
+.PHONY: show help
 show: show-common
 	@echo "MODE               = " $(MODE)
 	@echo "MODULE_ROOT        = " $(MODULE_ROOT)
 	@echo "MODULE_NAME        = " $(MODULE_NAME)
-	@echo "BINS               = " $(BINS)
+	@echo "BIN                = " $(BIN)
 	@echo "SOURCE_ROOT        = " $(SOURCE_ROOT)
 	@echo "SOURCE_DIRS        = " $(SOURCE_DIRS)
 	@echo "SOURCE_OMIT        = " $(SOURCE_OMIT)
@@ -132,12 +131,11 @@ show: show-common
 	@echo "CreateResult       = " $(CreateResult)
 	@echo ""
 
-
-.PHONY: help
 help: help-common
-	@echo "multibin.mk : Build executable for every file"
+	@echo "bin.mk : Build executable"
 	@echo ""
 	@echo "    MODULE_ROOT         the root directory of this module"
+	@echo "    MODULE_NAME         the name of this mudule"
 	@echo "    SOURCE_ROOT         source root directory (default MODULE_ROOT)"
 	@echo "    SOURCE_DIRS         source directories (default src)"
 	@echo "    SOURCE_OMIT         ignored files"
@@ -145,11 +143,9 @@ help: help-common
 	@echo "    CONFIG_FILES        files copy to OUT_CONFIG"
 	@echo "    ADDED_FILES         files copy to OUT_BIN"
 	@echo ""
-
 	@echo "    BUILD_VERBOSE       verbose output (MUST before def.mk)"
 	@echo "    BUILD_OUTPUT        output dir (MUST before def.mk)"
 	@echo ""
-
 	@echo "    CFLAGS              gcc -c Flags"
 	@echo "    CPPFLAGS            cpp Flags"
 	@echo "    CXXFLAGS            g++ -c Flags"

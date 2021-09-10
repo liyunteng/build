@@ -20,7 +20,7 @@ unexport MODE MODULE_ROOT MODULE_NAME
 unexport SUBDIRS SUBDIRS_BUILD SUBDIRS_INSTALL SUBDIRS_UNINSTALL
 unexport SUBDIRS_CLEAN SUBDIRS_DISTCLEAN SUBDIRS_SHOW
 
-include $(PROJECT_ROOT)/build/def.mk
+include $(PROJECT_ROOT)/scripts/def.mk
 ######################################################################
 all: subdir
 

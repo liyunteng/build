@@ -2,8 +2,8 @@ MODE := module
 MODULE_ROOT ?= $(shell pwd)
 MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
 
-include $(PROJECT_ROOT)/build/def.mk
-include $(PROJECT_ROOT)/build/cmd.mk
+include $(PROJECT_ROOT)/scripts/def.mk
+include $(PROJECT_ROOT)/scripts/cmd.mk
 OBJOUT := $(OUT_OBJECT)$(dir $(subst $(PROJECT_ROOT),,$(shell pwd)))
 
 ifeq ($(LOCAL_SO), y)
