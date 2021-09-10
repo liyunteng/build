@@ -18,7 +18,7 @@ RMMSG     := "RM"
 DBGMSG    := "DBG"
 MKDIRMSG  := "MKDIR"
 ASMSG     := "AS"
-
+RANLIBMSG := "RANLIB"
 
 ifeq ($(BUILD_ENV),map)
 ifeq ($(ISCLANG),)
@@ -51,6 +51,14 @@ cmd_rm = \
 	$(Q3)[ -d $(2) ] && $(RM) $(2) || exit 0 \
 	$(call cmd_show,$(RMMSG),$(1),$(2))
 
+cmd_as = \
+	$(Q1)$(AS) -c -o $(3) $(2) $(ASFLAGS) \
+	$(call cmd_show,$(ASMSG),$(1),$(3))
+
+cmd_ranlib = \
+	$(Q1)$(RANLIB) $(3) \
+	$(call cmd_show,$(RANLIBMSG),$(1),$(3))
+
 cmd_c = \
 	$(Q1)$(CC) -c -o $(3) $(2) $(CPPFLAGS) $(CFLAGS) -MD -MQ $(3) -MF $(3).d \
 	$(call cmd_show,$(CCMSG),$(1),$(3))
@@ -58,40 +66,6 @@ cmd_c = \
 cmd_cxx = \
 	$(Q1)$(CXX) -c -o $(3) $(2) $(CPPFLAGS) $(CXXFLAGS) -MD -MQ $(3) -MF $(3).d \
 	$(call cmd_show,$(CXXMSG),$(1),$(3))
-
-cmd_as = \
-	$(Q1) $(AS) -c -o $(3) $(2) $(ASFLAGS) \
-	$(call cmd_show,$(ASMSG),$(1),$(3))
-
-ifeq ($(BUILD_ENV),debuginfo)
-cmd_debuginfo = \
-	$(Q2)$(OBJCOPY) --only-keep-debug $(3) $(3).debuginfo; \
-	$(OBJCOPY) --strip-debug $(3); \
-	$(OBJCOPY) --add-gnu-debuglink=$(3).debuginfo $(3) \
-	$(call cmd_show,$(DBGMSG),$(1),$(3).debuginfo)
-else
-cmd_debuginfo =
-endif
-
-ifneq ($(BUILD_ENV),debug)
-cmd_strip = \
-	$(Q2)$(STRIP) $(3) \
-	$(call cmd_show,$(STRIPMSG),$(1),$(3))
-else
-cmd_strip =
-endif
-
-cmd_bin = \
-	$(Q1)$(CC) -o $(3) $(2) $(LDFLAGS) $(LOADLIBES) $(LDLIBS) \
-	$(call cmd_show,$(LDMSG),$(1),$(3))
-
-cmd_cxxbin = \
-	$(Q1)$(CXX) -o $(3) $(2) $(LDFLAGS) $(LOADLIBES) $(LDLIBS) \
-	$(call cmd_show,$(CXXLDMSG),$(1),$(3))
-
-cmd_lib = \
-	$(Q1)$(AR) $(ARFLAGS) $(3) $(2) \
-	$(call cmd_show,$(ARMSG),$(1),$(3))
 
 cmd_cxxlib = \
 	$(Q1)$(AR) $(ARFLAGS) $(3) $(2) \
@@ -105,6 +79,18 @@ cmd_cxxsolib = \
 	$(Q1)$(CXX) -o $(3) $(2) -shared $(LDFLAGS) $(LOADLIBES) $(LDLIBS) \
 	$(call cmd_show,$(CXXLDMSG),$(1),$(3))
 
+cmd_bin = \
+	$(Q1)$(CC) -o $(3) $(2) $(LDFLAGS) $(LOADLIBES) $(LDLIBS) \
+	$(call cmd_show,$(LDMSG),$(1),$(3))
+
+cmd_cxxbin = \
+	$(Q1)$(CXX) -o $(3) $(2) $(LDFLAGS) $(LOADLIBES) $(LDLIBS) \
+	$(call cmd_show,$(CXXLDMSG),$(1),$(3))
+
+cmd_lib = \
+	$(Q1)$(AR) $(ARFLAGS) $(3) $(2) \
+	$(call cmd_show,$(ARMSG),$(1),$(3))
+
 cmd_bins = \
 	$(Q1)$(CC) -o $(3) $(2) $(LDFLAGS) $(LOADLIBES) $(LDLIBS) \
 	$(call cmd_show,$(LDMSG),$(1),$(3))
@@ -112,3 +98,21 @@ cmd_bins = \
 cmd_cxxbins = \
 	$(Q1)$(CXX) -o $(3) $(2) $(LDFLAGS) $(LOADLIBES) $(LDLIBS) \
 	$(call cmd_show,$(CXXLDMSG),$(1),$(3))
+
+ifeq ($(BUILD_ENV),debuginfo)
+cmd_debuginfo = \
+	$(Q2)$(OBJCOPY) --only-keep-debug $(3) $(3).debug; \
+	$(OBJCOPY) --strip-debug $(3); \
+	$(OBJCOPY) --add-gnu-debuglink=$(3).debug $(3) \
+	$(call cmd_show,$(DBGMSG),$(1),$(3).debug)
+else
+cmd_debuginfo =
+endif
+
+ifneq ($(BUILD_ENV),debug)
+cmd_strip = \
+	$(Q2)$(STRIP) -g --strip-unneeded $(3) \
+	$(call cmd_show,$(STRIPMSG),$(1),$(3))
+else
+cmd_strip =
+endif

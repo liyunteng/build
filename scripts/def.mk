@@ -89,6 +89,7 @@ STRIP	    := $(CROSS_COMPILE)llvm-strip
 OBJCOPY	    := $(CROSS_COMPILE)llvm-objcopy
 OBJDUMP	    := $(CROSS_COMPILE)llvm-objdump
 OBJSIZE		:= $(CROSS_COMPILE)llvm-size
+RANLIB      := $(CROSS_COMPILE)llvm-ranlib
 else
 AS		    := $(CROSS_COMPILE)as
 LD		    := $(CROSS_COMPILE)ld
@@ -98,6 +99,7 @@ STRIP	    := $(CROSS_COMPILE)strip
 OBJCOPY	    := $(CROSS_COMPILE)objcopy
 OBJDUMP	    := $(CROSS_COMPILE)objdump
 OBJSIZE		:= $(CROSS_COMPILE)size
+RANLIB      := $(CROSS_COMPILE)ranlib
 endif
 
 CPPFLAGS    ?= -I$(OUT_INCLUDE)
