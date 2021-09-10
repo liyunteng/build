@@ -61,51 +61,51 @@ all: header SUB_MODULE_BUILD $(LIB)
 
 header: $(LOCAL_EXPORTED_FILES)
 $(LOCAL_EXPORTED_FILES): $(OUT_INCLUDE)/% : $(LOCAL_EXPORT_DIR)/%
-	$(Q)$(OBJ_MKDIR)
+	$(Q3)$(OBJ_MKDIR)
 	$(call cmd_cp,$(MODULE_NAME),$<,$@)
 
 SUB_MODULE_BUILD: $(MODULE_y)
-	$(Q)for dir in $(MODULE_y); \
+	$(Q3)for dir in $(MODULE_y); \
 		do $(MAKE) -C $$dir all || exit 1; \
 	done
 
 
 $(OBJOUT)/%.o: %.c
-	$(Q)$(OBJ_MKDIR)
+	$(Q3)$(OBJ_MKDIR)
 	$(call cmd_c,$(MODULE_NAME),$<,$@)
 
 $(OBJOUT)/%.o: %.S
-	$(Q)$(OBJ_MKDIR)
+	$(Q3)$(OBJ_MKDIR)
 	$(call cmd_c,$(MODULE_NAME),$<,$@)
 
 $(OBJOUT)/%.o: %.s
-	$(Q)$(OBJ_MKDIR)
+	$(Q3)$(OBJ_MKDIR)
 	$(call cmd_as,$(MODULE_NAME),$<,$@)
 
 $(OBJOUT)/%.o: %.cpp
-	$(Q)$(OBJ_MKDIR)
+	$(Q3)$(OBJ_MKDIR)
 	$(call cmd_cxx,$(MODULE_NAME),$<,$@)
 
 $(OBJOUT)/%.o: %.cc
-	$(Q)$(OBJ_MKDIR)
+	$(Q3)$(OBJ_MKDIR)
 	$(call cmd_cxx,$(MODULE_NAME),$<,$@)
 
 $(LOCAL_CGCH): %.h.gch : %.h
-	$(Q)$(OBJ_MKDIR)
+	$(Q3)$(OBJ_MKDIR)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $> $^
 
 $(LOCAL_CPPGCH): %.h.gch : %.h
-	$(Q)$(OBJ_MKDIR)
+	$(Q3)$(OBJ_MKDIR)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -x c++-header $> $^
 
 $(LOCAL_OBJS): $(LOCAL_GCH)
 
 $(LIBA): $(LOCAL_OBJS)
-	$(Q)$(OBJ_MKDIR)
+	$(Q3)$(OBJ_MKDIR)
 	$(call cmd_lib,$(MODULE_NAME),$(LOCAL_OBJS),$@)
 
 $(LIBSO): $(LOCAL_OBJS)
-	$(Q)$(OBJ_MKDIR)
+	$(Q3)$(OBJ_MKDIR)
 	$(call cmd_solib,$(MODULE_NAME),$(LOCAL_OBJS),$@)
 
 

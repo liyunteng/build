@@ -19,7 +19,7 @@ endif
 
 # Verbose
 V ?= 0
-BUILD_VERBOSE ?=0
+BUILD_VERBOSE ?= 0
 ifeq ("$(origin V)", "command line")
 	BUILD_VERBOSE = $(V)
 endif
@@ -27,30 +27,25 @@ ifeq ($(BUILD_VERBOSE),0)
     Q1 := @
     Q2 := @
     Q3 := @
-	Q  := @
     MAKEFLAGS += --no-print-directory -s
 else ifeq ($(BUILD_VERBOSE),1)
     Q1 :=
     Q2 := @
     Q3 := @
-	Q  := @
     MAKEFLAGS += --no-print-directory
 else ifeq ($(BUILD_VERBOSE),2)
     Q1 :=
     Q2 :=
     Q3 := @
-	Q  := @
     MAKEFLAGS += --no-print-directory
 else ifeq ($(BUILD_VERBOSE),3)
     Q1 :=
     Q2 :=
     Q3 :=
-	Q  := @
 else
 	Q1 :=
 	Q2 :=
 	Q3 :=
-	Q  :=
 endif
 
 # Output
@@ -146,7 +141,6 @@ show-common:
 	@echo "BUILD_OUTPUT       = " $(BUILD_OUTPUT)
 	@echo "D                  = " $(D)
 	@echo "O                  = " $(O)
-	@echo "Q                  = " $(Q)
 	@echo "Q1                 = " $(Q1)
 	@echo "Q2                 = " $(Q2)
 	@echo "Q3                 = " $(Q3)
@@ -203,11 +197,13 @@ show-common:
 help-common:
 	@echo "make <BUILD_ENV=[release|debug|debuginfo|map]> <CROSS_COMPILE=arm-linux-gnueabi-> <O=/opt/out> <V=[0|1|2|3]> <D=[0|1|2|3]> <show> <help>"
 	@echo ""
-	@echo "    BUILD_ENV           [release|debug|debuginfo|map] default is release"
 	@echo "    CROSS_COMPILE       cross compile toolchain"
-	@echo "    O                   output"
-	@echo "    V                   [0|1|2|3] verbose"
-	@echo "    D                   0 release | 1 debug | 2 gen debuginfo | 3 gen map"
+	@echo "    BUILD_ENV           [release|debug|debuginfo|map] default is release"
+	@echo "    BUILD_VERBOSE       [0 breif | 1 compile message | 2 with debug message | 3 all message] default is 0"
+	@echo "    BUILD_OUTPUT        output default is out"
+	@echo "    D                   [0 release | 1 debug | 2 debuginfo | 3 map] default is 0, same as BUILD_ENV"
+	@echo "    V                   same as BUILD_VERBOSE"
+	@echo "    O                   same as BUILD_OUTPUT"
 	@echo "    show                show current configuration"
 	@echo "    help                show this help"
 	@echo ""
