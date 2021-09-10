@@ -75,25 +75,24 @@ OUT_DIRS += $(sort $(patsubst %/,%, $(OUT_ROOT) $(OUT_LIB) $(OUT_OBJECT) \
 	$(dir $(OBJECT_C) $(OBJECT_CXX) $(OUT_EXPORT_FILES) $(OUT_CONFIG_FILES) $(OUT_ADDED_FILES))))
 
 ######################################################################
-all: library
+all: build
 
-.PHONY: success
+.PHONY: before header after success
 ifeq ($(strip $(LIB_TYPE)),static)
-library: before header $(OBJECT_C) $(OBJECT_CXX) $(LIB)  after success
+build: before header $(OBJECT_C) $(OBJECT_CXX) $(LIB) after success
 else ifeq ($(strip $(LIB_TYPE)),dynamic)
-library: before header $(OBJECT_C) $(OBJECT_CXX) $(SOLIB) after success
+build: before header $(OBJECT_C) $(OBJECT_CXX) $(SOLIB) after success
 else ifeq ($(strip $(LIB_TYPE)),all)
-library: before header $(OBJECT_C) $(OBJECT_CXX) $(LIB) $(SOLIB) after success
+build: before header $(OBJECT_C) $(OBJECT_CXX) $(LIB) $(SOLIB) after success
 endif
 
 before: $(OUT_DIRS)
 
+header: $(OUT_EXPORT_FILES)
+
 after: $(OUT_CONFIG_FILES) $(OUT_ADDED_FILES)
 
 success:
-
-header: $(OUT_EXPORT_FILES)
-
 
 $(OBJECT_C):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.c
 	$(call cmd_c,$(MODULE_NAME),$<,$@)

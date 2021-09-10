@@ -62,14 +62,16 @@ OUT_DIRS += $(sort $(patsubst %/,%, $(OUT_ROOT) $(OUT_BIN) $(OUT_OBJECT) \
 	$(dir $(OBJECT_C) $(OBJECT_CXX) $(OUT_CONFIG_FILES) $(OUT_ADDED_FILES))))
 
 ######################################################################
-all: bin
+all: build
 
-.PHONY: before success
-bin: before $(OUT_DIRS) $(OBJECT_C) $(OBJECT_CXX) $(BIN) after
+.PHONY: before after success
+build: before $(OBJECT_C) $(OBJECT_CXX) $(BIN) after success
 
-before:
+before: $(OUT_DIRS)
 
 after: $(OUT_CONFIG_FILES) $(OUT_ADDED_FILES)
+
+success:
 
 $(OBJECT_C):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.c
 	$(call cmd_c,$(MODULE_NAME),$<,$@)

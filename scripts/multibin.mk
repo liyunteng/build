@@ -60,10 +60,10 @@ OUT_DIRS += $(sort $(patsubst %/,%, $(OUT_ROOT) $(OUT_BIN) $(OUT_OBJECT) \
 	$(dir $(BINS) $(OBJECT_C) $(OBJECT_CXX) $(OUT_CONFIG_FILES) $(OUT_ADDED_FILES))))
 
 ######################################################################
-all: bin
+all: build
 
-.PHONY: before success
-bin: before $(OBJECT_C) $(OBJECT_CXX) $(BINS) after success
+.PHONY: before after success
+build: before $(OBJECT_C) $(OBJECT_CXX) $(BINS) after success
 
 before: $(OUT_DIRS)
 
