@@ -96,7 +96,6 @@ header: $(OUT_EXPORT_FILES)
 
 
 $(OBJECT_C):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.c
-	$(call cmd,c)
 	$(call cmd_c,$(MODULE_NAME),$<,$@)
 -include $(DEPEND_C)
 
