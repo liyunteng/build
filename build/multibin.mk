@@ -38,8 +38,8 @@ DEPEND_C   := $(OBJECT_C:%.o=%.o.d)
 DEPEND_CXX := $(OBJEECT_CXX:%.o=%.o.d)
 
 # Include FileList
-INCLUDE_DIRS ?= include
-CPPFLAGS += $(foreach dir, $(SOURCE_ROOT)/$(INCLUDE_DIRS), -I$(dir))
+INCLUDE_DIRS ?= $(SOURCE_ROOT)/include
+CPPFLAGS += $(foreach dir, $(INCLUDE_DIRS), -I$(dir))
 
 # Config FileList
 CONFIG_FILES ?=
@@ -81,6 +81,7 @@ $(OBJECT_CXX):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.cpp
 -include $(DEPEND_CXX)
 
 $(BINS): $(OUT_BIN)/% : $(OUT_OBJECT)/%.o
+ifneq ($(join $(OBJECT_C),$(OBJECT_CXX)),)
 ifeq ($(OBJECT_CXX),)
 	$(call cmd_bins,$(MODULE_NAME),$<,$@)
 else
@@ -88,6 +89,7 @@ else
 endif
 	$(call cmd_debuginfo,$(MODULE_NAME),$<,$@)
 	$(call cmd_strip,$(MODULE_NAME),$<,$@)
+endif
 
 $(OUT_DIRS):
 	$(call cmd_mkdir,$(MODULE_NAME),$@)

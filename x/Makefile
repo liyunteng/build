@@ -2,6 +2,7 @@ PROJECT_ROOT := $(abspath ..)
 
 CONFIG_FILES += abc.conf def.conf
 ADDED_FILES += ddd afile
+
 ifeq ($(MAKELEVEL),0)
 CALC:=$(PROJECT_ROOT)/calc
 INCLUDE_DIRS += $(CALC)/include

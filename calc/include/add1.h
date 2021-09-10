@@ -3,8 +3,8 @@
  *
  * Date   : 2020/11/21
  */
-#ifndef ADD1_H
-#define ADD1_H
+#ifndef __ADD1_H__
+#define __ADD1_H__
 #ifdef __cplusplus
 extern "C" {
 #endif

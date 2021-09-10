@@ -1,5 +1,5 @@
 PROJECT_ROOT ?= $(abspath ..)
 
-LOCAL_SO = y
+SOURCE_DIRS := src mul
 
-include $(PROJECT_ROOT)/build/module.mk
+include $(PROJECT_ROOT)/build/library.mk
