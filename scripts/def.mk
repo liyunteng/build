@@ -195,7 +195,7 @@ show-common:
 	@echo ""
 
 help-common:
-	@echo "make <BUILD_ENV=[release|debug|debuginfo|map]> <CROSS_COMPILE=arm-linux-gnueabi-> <O=/opt/out> <V=[0|1|2|3]> <D=[0|1|2|3]> <show> <help>"
+	@echo "make <CROSS_COMPILE=arm-linux-gnueabi-> <BUILD_ENV=[release|debug|debuginfo|map]> <BUILD_VERBOSE=[0|1|2|3]> <BUILD_OUTPUT=/opt/out> <D=[0|1|2|3]> <V=[0|1|2|3]> <O=/opt/out> <show> <help>"
 	@echo ""
 	@echo "    CROSS_COMPILE       cross compile toolchain"
 	@echo "    BUILD_ENV           [release|debug|debuginfo|map] default is release"

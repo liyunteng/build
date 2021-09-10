@@ -172,7 +172,7 @@ show: show-common
 
 .PHONY: help
 help: help-common
-	@echo "librarymk : Build Library"
+	@echo "library.mk : Build Library"
 	@echo ""
 	@echo "    MODULE_ROOT         the root directory of this module"
 	@echo "    MODULE_NAME         the name of this mudule"
