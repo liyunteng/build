@@ -23,6 +23,15 @@ PRINT4    := printf "$(COLOR_GREEN)%-6.6s$(COLOR_NORMAL) [%s]  %0.0s%s\n"
 # PRINT4    := printf "$(COLOR_GREEN)%-6.6s$(COLOR_NORMAL) [%s]  %s%0.0s\n"
 PRINT3    := printf "$(COLOR_GREEN)%-6.6s$(COLOR_NORMAL) [%s]  %s\n"
 
+ifeq ($(BUILD_ENV),map)
+ifeq ($(ISCLANG),)
+	LDFLAGS += -Wl,-Map,$@.map
+else
+	LDFLAGS += -Wl,-map,$@.map
+endif
+endif
+
+
 cmd_cp = \
 	$(Q3)$(PRINT4) $(CPMSG) $(1) $(2) $(3); \
 	$(CP) $(2) $(3)

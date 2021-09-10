@@ -117,6 +117,7 @@ ARFLAGS     := rcs
 ifeq ($(ISCLANG),)
 LDFLAGS += -Wl,--build-id
 endif
+
 ifeq ($(BUILD_ENV), release)
 	CFLAGS += -O2 -DNDEBUG
 	CXXFLAGS += -O2 -DNDEBUG
@@ -129,14 +130,6 @@ else ifeq ($(BUILD_ENV), debuginfo)
 else ifeq ($(BUILD_ENV), map)
 	CFLAGS += -g -ggdb
 	CXXFLAGS += -g -ggdb
-endif
-
-ifeq ($(BUILD_ENV),map)
-ifeq ($(ISCLANG),)
-	LDFLAGS += -Wl,-Map,$@.map
-else
-	LDFLAGS += -Wl,-map,$@.map
-endif
 endif
 
 export
