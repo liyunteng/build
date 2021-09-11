@@ -101,10 +101,10 @@ cmd_cxxbins = \
 
 ifeq ($(BUILD_ENV),debuginfo)
 cmd_debuginfo = \
-	$(Q2)$(OBJCOPY) --only-keep-debug $(3) $(3).debug; \
+	$(Q2)$(OBJCOPY) --only-keep-debug $(3) $(3).debuginfo; \
 	$(OBJCOPY) --strip-debug $(3); \
-	$(OBJCOPY) --add-gnu-debuglink=$(3).debug $(3) \
-	$(call cmd_show,$(DBGMSG),$(1),$(3).debug)
+	$(OBJCOPY) --add-gnu-debuglink=$(3).debuginfo $(3) \
+	$(call cmd_show,$(DBGMSG),$(1),$(3).debuginfo)
 else
 cmd_debuginfo =
 endif
