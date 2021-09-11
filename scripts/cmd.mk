@@ -111,8 +111,22 @@ endif
 
 ifneq ($(BUILD_ENV),debug)
 cmd_strip = \
-	$(Q2)$(STRIP) -g --strip-unneeded $(3) \
+	$(Q2)$(STRIP) --strip-all $(3) \
+	$(call cmd_show,$(STRIPMSG),$(1),$(3))
+
+ifeq ($(OS_TYPE),Darwin)
+# Darwin not support --strip-unneeded
+cmd_strip_static = \
+	$(Q2)$(STRIP) --strip-debug $(3) \
 	$(call cmd_show,$(STRIPMSG),$(1),$(3))
 else
-cmd_strip =
+cmd_strip_static = \
+	$(Q2)$(STRIP) --strip-debug --strip-unneeded $(3) \
+	$(call cmd_show,$(STRIPMSG),$(1),$(3))
 endif
+
+else
+cmd_strip =
+cmd_strip_static =
+endif
+

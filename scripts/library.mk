@@ -109,7 +109,7 @@ ifeq ($(OBJECT_CXX),)
 else
 	$(call cmd_cxxlib,$(MODULE_NAME),$^,$@)
 endif
-	$(call cmd_strip,$(MODULE_NAME),$^,$@)
+	$(call cmd_strip_static,$(MODULE_NAME),$^,$@)
 endif
 
 $(SOLIB): $(OBJECT_C) $(OBJECT_CXX)
