@@ -32,7 +32,7 @@ ifeq ($(V),1)
 cmd_show =
 else
 cmd_show = ;\
-	if [[ $$? -eq 0 ]]; then \
+	if [ $$? -eq 0 ]; then \
 		printf "$(COLOR_GREEN)%-6.6s$(COLOR_NORMAL) [%s]  %s\n" $(1) $(2) $(3); \
 	else \
 		printf "$(COLOR_RED)%-6.6s$(COLOR_NORMAL) [%s] %s\n" $(1) $(2) $(3) && exit 1; \
