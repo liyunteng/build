@@ -12,7 +12,7 @@ X :=
 MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
 endif
 
-ifneq ($(X),)
+ifneq ($(strip $(X)),)
 RELATIVE := $(X)/
 else
 RELATIVE :=
@@ -78,9 +78,9 @@ success:
 bins: $(BINS)
 
 $(OUTPUT_BIN)/%: $(OBJECT_FILES)
-ifneq ($(OBJECT_FILES),)
+ifneq ($(strip $(OBJECT_FILES)),)
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
-ifneq ($(SOURCE_CXX_FILES),)
+ifneq ($(strip $(SOURCE_CXX_FILES)),)
 	$(call cmd_cxxbins,$(MODULE_NAME),$<,$@)
 else
 	$(call cmd_bins,$(MODULE_NAME),$<,$@)
@@ -132,7 +132,8 @@ install:
 .PHONY: uninstall
 uninstall:
 
-.PHONY: show
+.PHONY: show showall
+showall: show
 show: show-common
 	@echo "MODE                = " $(MODE)
 	@echo "MODULE_ROOT         = " $(MODULE_ROOT)

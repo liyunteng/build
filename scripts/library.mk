@@ -11,14 +11,14 @@ X :=
 MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
 endif
 
-ifneq ($(X),)
+ifneq ($(strip $(X)),)
 RELATIVE := $(X)/
 else
 RELATIVE :=
 endif
 
 # static/dynamic/all
-LIB_NAME    ?= $(MODULE_NAME)
+LIB_NAME    ?= $(notdir $(MODULE_NAME))
 LIB_TYPE    ?= all
 
 # Source FileList
@@ -28,7 +28,7 @@ SOURCE_OMIT  ?=
 
 SOURCE_C_FILES   = $(foreach dir, $(SOURCE_DIRS), $(wildcard $(dir)/*.c))
 SOURCE_CXX_FILES = $(foreach dir, $(SOURCE_DIRS), $(wildcard $(dir)/*.cpp))
-SOURCE_FILES  ?= $(SOURCE_C_FILES) $(SOURCE_CXX_FILES)
+SOURCE_FILES  += $(SOURCE_C_FILES) $(SOURCE_CXX_FILES)
 SOURCE_FILES  := $(SOURCE_FILES:./%=%)
 ifneq ($(strip $(SOURCE_OMIT)),)
 SOURCE_FILES := $(filter-out $(foreach x,$(SOURCE_OMIT),$(x)), $(SOURCE_FILES))
@@ -81,19 +81,20 @@ DYNAMIC_LIBS ?= lib$(LIB_NAME).so
 STATIC_LIBS := $(addprefix $(OUTPUT_LIB)/, $(STATIC_LIBS))
 DYNAMIC_LIBS := $(addprefix $(OUTPUT_LIB)/, $(DYNAMIC_LIBS))
 
-ifeq ($(LIB_TYPE),dynamic)
+ifeq ($(strip $(LIB_TYPE)),dynamic)
 LIBS ?= $(DYNAMIC_LIBS)
-else ifeq ($(LIB_TYPE),static)
+else ifeq ($(strip $(LIB_TYPE)),static)
 LIBS ?= $(STATIC_LIBS)
 else
 LIBS ?= $(STATIC_LIBS) $(DYNAMIC_LIBS)
 endif
 
-TESTS ?= $(MODULE_NAME)-test
-ifeq ($(TEST_FILES),)
+TESTS ?= $(notdir $(MODULE_NAME))-test
+ifeq ($(strip $(TEST_FILES)),)
 TESTS =
 endif
 TESTS := $(addprefix $(OUTPUT_BIN)/, $(TESTS))
+
 
 ######################################################################
 all: build
@@ -114,23 +115,23 @@ libs: $(STATIC_LIBS) $(DYNAMIC_LIBS)
 test: libs $(TESTS)
 
 $(STATIC_LIBS): $(OBJECT_FILES)
-ifneq ($(OBJECT_FILES),)
+ifneq ($(strip $(OBJECT_FILES)),)
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
-ifneq ($(SOURCE_CXX_FILES),)
+ifneq ($(strip $(SOURCE_CXX_FILES)),)
 	$(call cmd_cxxlib,$(MODULE_NAME),$^,$@)
 else
-	$(call cmd_clib,$(MODULE_NAME),$^,$@)
+	$(call cmd_lib,$(MODULE_NAME),$^,$@)
 endif
 	$(call cmd_strip_static,$(MODULE_NAME),$^,$@)
 endif
 
 $(DYNAMIC_LIBS): $(OBJECT_FILES)
-ifneq ($(OBJECT_FILES),)
+ifneq ($(strip $(OBJECT_FILES)),)
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
-ifneq ($(SOURCE_CXX_FILES),)
+ifneq ($(strip $(SOURCE_CXX_FILES)),)
 	$(call cmd_cxxsolib,$(MODULE_NAME),$^,$@)
 else
-	$(call cmd_csolib,$(MODULE_NAME),$^,$@)
+	$(call cmd_solib,$(MODULE_NAME),$^,$@)
 endif
 	$(call cmd_debuginfo,$(MODULE_NAME),$^,$@)
 	$(call cmd_strip,$(MODULE_NAME),$^,$@)
@@ -138,9 +139,9 @@ endif
 
 $(OUTPUT_BIN)/%: LDFLAGS += -l$(LIB_NAME)
 $(OUTPUT_BIN)/%: $(TEST_OBJECT_FILES)
-ifneq ($(TEST_OBJECT_FILES),)
+ifneq ($(strip $(TEST_OBJECT_FILES)),)
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
-ifneq ($(TEST_CXX_FILES),)
+ifneq ($(strip $(TEST_CXX_FILES)),)
 	$(call cmd_cxxbin,$(MODULE_NAME),$^,$@)
 else
 	$(call cmd_bin,$(MODULE_NAME),$^,$@)
@@ -179,6 +180,7 @@ $(TARGET_FILES) : $(OUTPUT_BIN)/% : %
 
 ifeq ($(MAKECMDGOALS),clean)
 else ifeq ($(MAKECMDGOALS),show)
+else ifeq ($(MAKECMDGOALS),showall)
 else ifeq ($(MAKECMDGOALS),help)
 else ifeq ($(MAKECMDGOALS),install)
 else ifeq ($(MAKECMDGOALS),distclean)
@@ -192,7 +194,8 @@ install:
 .PHONY: uninstall
 uninstall:
 
-.PHONY: show
+.PHONY: show showall
+showall: show
 show: show-common
 	@echo "MODE                = " $(MODE)
 	@echo "MODULE_ROOT         = " $(MODULE_ROOT)

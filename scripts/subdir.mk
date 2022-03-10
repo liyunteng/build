@@ -21,9 +21,9 @@ SUBDIRS_DISTCLEAN := $(addsuffix -distclean, $(SUBDIRS))
 SUBDIRS_SHOW      := $(addsuffix -show, $(SUBDIRS))
 SUBDIRS_HELP      := $(addsuffix -help, $(SUBDIRS))
 
-unexport MODE MODULE_ROOT MODULE_NAME
+unexport MODE MODULE_ROOT MODULE_NAME X
 unexport SUBDIRS SUBDIRS_BUILD SUBDIRS_INSTALL SUBDIRS_UNINSTALL
-unexport SUBDIRS_CLEAN SUBDIRS_DISTCLEAN SUBDIRS_SHOW
+unexport SUBDIRS_CLEAN SUBDIRS_DISTCLEAN SUBDIRS_SHOW SUBDIRS_HELP
 
 ######################################################################
 all: build
@@ -58,8 +58,7 @@ $(SUBDIRS_DISTCLEAN):
 .PHONY: showall $(SUBDIRS_SHOW) show
 showall: $(SUBDIRS_SHOW) show
 $(SUBDIRS_SHOW):
-	$(Q1)$(MAKE) -C $(patsubst %-show,%,$@) show || exit 1
-
+	$(Q1)$(MAKE) -C $(patsubst %-show,%,$@) showall || exit 1
 
 .PHONY: helpall $(SUBDIRS_HELP) help
 helpall: $(SUBDIRS_HELP) help

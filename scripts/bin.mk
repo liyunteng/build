@@ -12,7 +12,7 @@ X :=
 MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
 endif
 
-ifneq ($(X),)
+ifneq ($(strip $(X)),)
 RELATIVE := $(X)/
 else
 RELATIVE :=
@@ -60,8 +60,8 @@ EXPORT_FILES ?=
 TARGET_FILES := $(addprefix $(OUTPUT_BIN)/, $(EXPORT_FILES))
 
 # BIN Name
-BIN   := $(MODULE_NAME)
-ifeq ($(SOURCE_FILES),)
+BIN   := $(notdir $(MODULE_NAME))
+ifeq ($(strip $(SOURCE_FILES)),)
 BIN =
 endif
 BIN := $(addprefix $(OUTPUT_BIN)/, $(BIN))
@@ -81,9 +81,9 @@ success:
 bin: $(BIN)
 
 $(OUTPUT_BIN)/%: $(OBJECT_FILES)
-ifneq ($(OBJECT_FILES),)
+ifneq ($(strip $(OBJECT_FILES)),)
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
-ifneq ($(SOURCE_CXX_FILES),)
+ifneq ($(strip $(SOURCE_CXX_FILES)),)
 	$(call cmd_cxxbin,$(MODULE_NAME),$^,$@)
 else
 	$(call cmd_bin,$(MODULE_NAME),$^,$@)
@@ -136,7 +136,8 @@ install:
 .PHONY: uninstall
 uninstall:
 
-.PHONY: show help
+.PHONY: show help showall
+showall: show
 show: show-common
 	@echo "MODE                = " $(MODE)
 	@echo "MODULE_ROOT         = " $(MODULE_ROOT)
