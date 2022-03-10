@@ -1,25 +1,32 @@
+include $(PROJECT_ROOT)/scripts/def.mk
+include $(PROJECT_ROOT)/scripts/cmd.mk
+
 MODE := multibin
 MODULE_ROOT ?= $(shell pwd)
+
+ifneq ($(BUILD_PWD),$(MODULE_ROOT))
+X := $(MODULE_ROOT:$(BUILD_PWD)/%=%)
+MODULE_NAME ?= $(X)
+else
+X :=
 MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
+endif
 
 # Source FileList
 SOURCE_ROOT  ?= $(MODULE_ROOT)
 SOURCE_DIRS  ?= .
 SOURCE_OMIT  ?=
 
-SOURCE_C_FILES     ?= $(foreach dir, $(SOURCE_DIRS), $(wildcard $(dir)/*.c))
-SOURCE_CXX_FILES   ?= $(foreach dir, $(SOURCE_DIRS), $(wildcard $(dir)/*.cpp))
+SOURCE_C_FILES     ?= $(shell find $(SOURCE_DIRS) -name "*.c")
+SOURCE_CXX_FILES   ?= $(shell find $(SOURCE_DIRS) -name "*.cpp")
 SOURCE_FILES ?= $(SOURCE_C_FILES) $(SOURCE_CXX_FILES)
 SOURCE_FILES := $(SOURCE_FILES:./%=%)
 ifneq ($(strip $(SOURCE_OMIT)),)
 SOURCE_FILES := $(filter-out $(foreach x,$(SOURCE_OMIT),$(x)), $(SOURCE_FILES))
 endif
 
-include $(PROJECT_ROOT)/scripts/def.mk
-include $(PROJECT_ROOT)/scripts/cmd.mk
 
 # object/dep files
-X := $(MODULE_ROOT:$(BUILD_PWD)%=%)
 OBJECT_FILES := $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(SOURCE_FILES)))
 OBJECT_FILES := $(addprefix $(OUTPUT_OBJ)$(X)/, $(OBJECT_FILES))
 DEPEND_FILES := $(OBJECT_FILES:%.o=%.o.d)
@@ -48,7 +55,7 @@ EXPORT_FILE_FILES ?=
 TARGET_FILE_FILES := $(addprefix $(OUTPUT_BIN)/, $(EXPORT_FILE_FILES))
 
 # BINS
-BINS := $(addprefix $(OUT_BIN)/, $(SOURCE_FILE:$(SOURCE_ROOT)/%=%))
+BINS := $(addprefix $(OUTPUT_BIN)/, $(basename $(SOURCE_FILES:$(SOURCE_ROOT)/%=%)))
 
 ######################################################################
 all: build
@@ -68,12 +75,12 @@ $(OUTPUT_BIN)/%: $(OBJECT_FILES)
 ifneq ($(OBJECT_FILES),)
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 ifneq ($(SOURCE_CXX_FILES),)
-	$(call cmd_cxxbin,$(MODULE_NAME),$^,$@)
+	$(call cmd_cxxbins,$(MODULE_NAME),$<,$@)
 else
-	$(call cmd_cbin,$(MODULE_NAME),$^,$@)
+	$(call cmd_bins,$(MODULE_NAME),$<,$@)
 endif
-	$(call cmd_debuginfo,$(MODULE_NAME),$^,$@)
-	$(call cmd_strip,$(MODULE_NAME),$^,$@)
+	$(call cmd_debuginfo,$(MODULE_NAME),$<,$@)
+	$(call cmd_strip,$(MODULE_NAME),$<,$@)
 endif
 
 $(OUTPUT_OBJ)$(X)/%.o : %.c

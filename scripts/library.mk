@@ -1,6 +1,15 @@
+include $(PROJECT_ROOT)/scripts/def.mk
+include $(PROJECT_ROOT)/scripts/cmd.mk
+
 MODE := library
 MODULE_ROOT ?= $(shell pwd)
+ifneq ($(BUILD_PWD),$(MODULE_ROOT))
+X := $(MODULE_ROOT:$(BUILD_PWD)/%=%)
+MODULE_NAME ?= $(X)
+else
+X :=
 MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
+endif
 
 # static/dynamic/all
 LIB_TYPE    ?= all
@@ -24,11 +33,8 @@ TEST_CXX_FILES += $(foreach dir,$(TEST_DIRS),$(wildcard $(dir)/*.cpp))
 TEST_FILES ?= $(TEST_C_FILES) $(TEST_CXX_FILES)
 TEST_FILES := $(TEST_FILES:./%=%)
 
-include $(PROJECT_ROOT)/scripts/def.mk
-include $(PROJECT_ROOT)/scripts/cmd.mk
 
 # object/dep files
-X := $(MODULE_ROOT:$(BUILD_PWD)%=%)
 OBJECT_FILES := $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(SOURCE_FILES)))
 OBJECT_FILES := $(addprefix $(OUTPUT_OBJ)$(X)/, $(OBJECT_FILES))
 DEPEND_FILES := $(OBJECT_FILES:%.o=%.o.d)

@@ -1,6 +1,15 @@
+include $(PROJECT_ROOT)/scripts/def.mk
+
 MODE := subdir
 MODULE_ROOT ?= $(shell pwd)
+
+ifneq ($(BUILD_PWD),$(MODULE_ROOT))
+X := $(MODULE_ROOT:$(BUILD_PWD)/%=%)
+MODULE_NAME ?= $(X)
+else
+X :=
 MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
+endif
 
 SUBDIRS ?=
 
@@ -16,7 +25,6 @@ unexport MODE MODULE_ROOT MODULE_NAME
 unexport SUBDIRS SUBDIRS_BUILD SUBDIRS_INSTALL SUBDIRS_UNINSTALL
 unexport SUBDIRS_CLEAN SUBDIRS_DISTCLEAN SUBDIRS_SHOW
 
-include $(PROJECT_ROOT)/scripts/def.mk
 ######################################################################
 all: build
 

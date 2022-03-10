@@ -1,6 +1,16 @@
+include $(PROJECT_ROOT)/scripts/def.mk
+include $(PROJECT_ROOT)/scripts/cmd.mk
+
 MODE := bin
 MODULE_ROOT  ?= $(shell pwd)
-MODULE_NAME  ?= $(shell basename $(MODULE_ROOT))
+
+ifneq ($(BUILD_PWD),$(MODULE_ROOT))
+X := $(MODULE_ROOT:$(BUILD_PWD)/%=%)
+MODULE_NAME ?= $(X)
+else
+X :=
+MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
+endif
 
 # Source FileList
 SOURCE_ROOT  ?= $(MODULE_ROOT)
@@ -15,11 +25,7 @@ ifneq ($(strip $(SOURCE_OMIT)),)
 SOURCE_FILES := $(filter-out $(foreach x,$(SOURCE_OMIT),$(x)), $(SOURCE_FILES))
 endif
 
-include $(PROJECT_ROOT)/scripts/def.mk
-include $(PROJECT_ROOT)/scripts/cmd.mk
-
 # object/dep files
-X := $(MODULE_ROOT:$(BUILD_PWD)%=%)
 OBJECT_FILES := $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(SOURCE_FILES)))
 OBJECT_FILES := $(addprefix $(OUTPUT_OBJ)$(X)/, $(OBJECT_FILES))
 DEPEND_FILES := $(OBJECT_FILES:%.o=%.o.d)
