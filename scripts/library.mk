@@ -1,21 +1,3 @@
-# MODULE_ROOT:     The root directory of this module
-# MODULE_NAME:     The name of this mudule
-# LIB_TYPE:        Library type [static/dynamic/all]
-# SOURCE_ROOT:     Source Root Directory (default MODULE_ROOT)
-# SOURCE_DIRS:     Source directories (default src)
-# SOURCE_OMIT:     Ignored files
-# INCLUDE_DIRS:    Include directories (default include)
-# EXPORT_DIR:     Export include directories (default include)
-# CONFIG_FILES:    Files copy to OUT_CONFIG
-# ADDED_FILES:     Files copy to OUT_BIN
-# CFLAGS:          gcc -c Flags (added -fPIC)
-# CPPFLAGS:        cpp Flags
-# CXXFLAGS:        g++ -c Flags
-# ARFLAGS:         ar Flags (Default rcs)
-# LDFLAGS:         ld Flags (Added -shared for shared)
-# BUILD_VERBOSE:   verbose output (MUST Before def.mk)
-# BUILD_OUTPUT:    output dir (MUST Before def.mk)
-######################################################################
 MODE := library
 MODULE_ROOT ?= $(shell pwd)
 MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
@@ -28,112 +10,167 @@ SOURCE_ROOT  ?= $(MODULE_ROOT)
 SOURCE_DIRS  ?= src
 SOURCE_OMIT  ?=
 
-SOURCE_C   ?= $(foreach dir, $(SOURCE_DIRS), $(shell find $(abspath $(dir)) -name "*.c"))
-SOURCE_CXX ?= $(foreach dir, $(SOURCE_DIRS), $(shell find $(abspath $(dir)) -name "*.cpp"))
+SOURCE_C_FILES   = $(foreach dir, $(SOURCE_DIRS), $(wildcard $(dir)/*.c))
+SOURCE_CXX_FILES = $(foreach dir, $(SOURCE_DIRS), $(wildcard $(dir)/*.cpp))
+SOURCE_FILES  ?= $(SOURCE_C_FILES) $(SOURCE_CXX_FILES)
+SOURCE_FILES  := $(SOURCE_FILES:./%=%)
 ifneq ($(strip $(SOURCE_OMIT)),)
-SOURCE_OMIT := $(addprefix $(SOURC_ROOT)/, $(SOURCE_OMIT))
-SOURCE_C   := $(filter-out $(SOURCE_OMIT), $(SOURCE_C))
-SOURCE_CXX := $(filter-out $(SOURCE_OMIT), $(SOURCE_CXX))
+SOURCE_FILES := $(filter-out $(foreach x,$(SOURCE_OMIT),$(x)), $(SOURCE_FILES))
 endif
+
+TEST_DIRS  ?= test
+TEST_C_FILES   += $(foreach dir,$(TEST_DIRS),$(wildcard $(dir)/*.c))
+TEST_CXX_FILES += $(foreach dir,$(TEST_DIRS),$(wildcard $(dir)/*.cpp))
+TEST_FILES ?= $(TEST_C_FILES) $(TEST_CXX_FILES)
+TEST_FILES := $(TEST_FILES:./%=%)
 
 include $(PROJECT_ROOT)/scripts/def.mk
 include $(PROJECT_ROOT)/scripts/cmd.mk
-# Object FileList
-OBJECT_C   := $(SOURCE_C:$(SOURCE_ROOT)/%.c=$(OUT_OBJECT)/%.o)
-OBJECT_CXX := $(SOURCE_CXX:$(SOURCE_ROOT)/%.cpp=$(OUT_OBJECT)/%.o)
-DEPEND_C   := $(OBJECT_C:%.o=%.o.d)
-DEPEND_CXX := $(OBJECT_CXX:%.o=%.o.d)
 
-# Include FileList
-INCLUDE_DIRS ?= $(SOURCE_ROOT)/include
-# CPPFLAGS += $(foreach dir, $(SOURCE_ROOT)/$(INCLUDE_DIRS), -I$(dir))
-CPPFLAGS += $(foreach dir, $(INCLUDE_DIRS), -I$(dir))
+# object/dep files
+X := $(MODULE_ROOT:$(BUILD_PWD)%=%)
+OBJECT_FILES := $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(SOURCE_FILES)))
+OBJECT_FILES := $(addprefix $(OUTPUT_OBJ)$(X)/, $(OBJECT_FILES))
+DEPEND_FILES := $(OBJECT_FILES:%.o=%.o.d)
+SOURCE_FILES := $(addprefix $(SOURCE_ROOT)/, $(SOURCE_FILES))
+
+TEST_OBJECT_FILES := $(patsubst %.c,%.o,$(patsubst %.cpp,%.o, $(TEST_FILES)))
+TEST_OBJECT_FILES := $(addprefix $(OUTPUT_OBJ)/, $(TEST_OBJECT_FILES))
+DEPEND_FILES += $(TEST_OBJECT_FILES:%.o=%.o.d)
+TEST_FILES := $(addprefix $(SOURCE_ROOT)/, $(TEST_FILES))
+
+# CPPFLAGS/CFLAGS/CXXFLAGS
+INCLUDES ?= include
+DEFINES  ?=
+CPPFLAGS += $(foreach x,$(INCLUDES), -I$(x))
+CPPFLAGS += $(foreach x,$(DEFINES), -D$(x))
 CFLAGS += -fPIC
+CXXFLAGS += -fPIC
 
-# Config FileList
-CONFIG_FILES  ?=
-OUT_CONFIG_FILES := $(addprefix $(OUT_CONFIG)/, $(CONFIG_FILES))
-CONFIG_FILES     := $(addprefix $(SOURCE_ROOT)/, $(CONFIG_FILES))
+# export header
+EXPORT_HEADER_DIRS  ?= include
+EXPORT_HEADER_FILES ?= $(foreach dir,$(EXPORT_HEADER_DIRS), $(wildcard $(dir)/*))
+EXPORT_HEADER_FILES := $(EXPORT_HEADER_FILES:$(EXPORT_HEADER_DIRS)/%=%)
+TARGET_HEADER_FILES := $(addprefix $(OUTPUT_INC)/, $(EXPORT_HEADER_FILES))
 
-# Added FileList
-ADDED_FILES  ?=
-OUT_ADDED_FILES := $(addprefix $(OUT_BIN)/, $(ADDED_FILES))
-ADDED_FILES     := $(addprefix $(SOURCE_ROOT)/, $(ADDED_FILES))
+# export configs
+EXPORT_CONFIG_FILES ?=
+TARGET_CONFIG_FILES := $(addprefix $(OUTPUT_ETC)/, $(EXPORT_CONFIG_FILES))
 
-# Export dirs
-EXPORT_DIR ?= $(SOURCE_ROOT)/include
-EXPORT_FILES := $(foreach dir, $(EXPORT_DIR), $(shell find $(dir) -type f))
-OUT_EXPORT_FILES := $(EXPORT_FILES:$(EXPORT_DIR)/%=$(OUT_INCLUDE)/%)
-CPPFLAGS += -I$(EXPORT_DIR)
+# export files
+EXPORT_FILE_FILES ?=
+TARGET_FILE_FILES := $(addprefix $(OUTPUT_BIN)/, $(EXPORT_FILE_FILES))
 
 # Lib Name
-LIB   := $(OUT_LIB)/lib$(MODULE_NAME).a
-SOLIB := $(OUT_LIB)/lib$(MODULE_NAME).so
+STATIC_LIBS  ?= lib$(MODULE_NAME).a
+DYNAMIC_LIBS ?= lib$(MODULE_NAME).so
 
-# CreateDirectory
-OUT_DIRS += $(sort $(patsubst %/,%, $(OUT_ROOT) $(OUT_LIB) $(OUT_OBJECT) \
-	$(dir $(OBJECT_C) $(OBJECT_CXX) $(OUT_EXPORT_FILES) $(OUT_CONFIG_FILES) $(OUT_ADDED_FILES))))
+STATIC_LIBS := $(addprefix $(OUTPUT_LIB)/, $(STATIC_LIBS))
+DYNAMIC_LIBS := $(addprefix $(OUTPUT_LIB)/, $(DYNAMIC_LIBS))
+
+ifeq ($(LIB_TYPE),dynamic)
+LIBS ?= $(DYNAMIC_LIBS)
+else ifeq ($(LIB_TYPE),static)
+LIBS ?= $(STATIC_LIBS)
+else
+LIBS ?= $(STATIC_LIBS) $(DYNAMIC_LIBS)
+endif
+
+TESTS ?= $(MODULE_NAME)-test
+ifeq ($(TEST_FILES),)
+TESTS =
+endif
+TESTS := $(addprefix $(OUTPUT_BIN)/, $(TESTS))
 
 ######################################################################
 all: build
 
-.PHONY: before header after success
-ifeq ($(strip $(LIB_TYPE)),static)
-build: before header $(OBJECT_C) $(OBJECT_CXX) $(LIB) after success
-else ifeq ($(strip $(LIB_TYPE)),dynamic)
-build: before header $(OBJECT_C) $(OBJECT_CXX) $(SOLIB) after success
-else ifeq ($(strip $(LIB_TYPE)),all)
-build: before header $(OBJECT_C) $(OBJECT_CXX) $(LIB) $(SOLIB) after success
-endif
+.PHONY: build before header after success libs test
+build: before header libs test after success
 
-before: $(OUT_DIRS)
+before:
 
-header: $(OUT_EXPORT_FILES)
+header: $(TARGET_HEADER_FILES)
 
-after: $(OUT_CONFIG_FILES) $(OUT_ADDED_FILES)
+after: $(TARGET_CONFIG_FILES) $(TARGET_FILE_FILES)
 
 success:
 
-$(OBJECT_C):  $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.c
-	$(call cmd_c,$(MODULE_NAME),$<,$@)
--include $(DEPEND_C)
+libs: $(STATIC_LIBS) $(DYNAMIC_LIBS)
 
-$(OBJECT_CXX): $(OUT_OBJECT)/%.o : $(SOURCE_ROOT)/%.cpp
-	$(call cmd_cxx,$(MODULE_NAME),$<,$@)
--include $(DEPEND_CXX)
+test: libs $(TESTS)
 
-$(LIB): $(OBJECT_C) $(OBJECT_CXX)
-ifneq ($(join $(OBJECT_C),$(OBJECT_CXX)),)
-ifeq ($(OBJECT_CXX),)
-	$(call cmd_lib,$(MODULE_NAME),$^,$@)
-else
+$(STATIC_LIBS): $(OBJECT_FILES)
+ifneq ($(OBJECT_FILES),)
+	$(call cmd_mkdir,$(MODULE_NAME),$@)
+ifneq ($(SOURCE_CXX_FILES),)
 	$(call cmd_cxxlib,$(MODULE_NAME),$^,$@)
+else
+	$(call cmd_clib,$(MODULE_NAME),$^,$@)
 endif
 	$(call cmd_strip_static,$(MODULE_NAME),$^,$@)
 endif
 
-$(SOLIB): $(OBJECT_C) $(OBJECT_CXX)
-ifneq ($(join $(OBJECT_C),$(OBJECT_CXX)),)
-ifeq ($(OBJECT_CXX),)
-	$(call cmd_solib,$(MODULE_NAME),$^,$@)
-else
+$(DYNAMIC_LIBS): $(OBJECT_FILES)
+ifneq ($(OBJECT_FILES),)
+	$(call cmd_mkdir,$(MODULE_NAME),$@)
+ifneq ($(SOURCE_CXX_FILES),)
 	$(call cmd_cxxsolib,$(MODULE_NAME),$^,$@)
+else
+	$(call cmd_csolib,$(MODULE_NAME),$^,$@)
 endif
 	$(call cmd_debuginfo,$(MODULE_NAME),$^,$@)
 	$(call cmd_strip,$(MODULE_NAME),$^,$@)
 endif
 
-$(OUT_DIRS):
+$(OUTPUT_BIN)$(X)/%: $(TEST_OBJECT_FILES)
+ifneq ($(TEST_OBJECT_FILES),)
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
+ifneq ($(TEST_CXX_FILES),)
+	$(call cmd_cxxbin,$(MODULE_NAME),$^,$@)
+else
+	$(call cmd_cbin,$(MODULE_NAME),$^,$@)
+endif
+	$(call cmd_debuginfo,$(MODULE_NAME),$^,$@)
+	$(call cmd_strip,$(MODULE_NAME),$^,$@)
+endif
 
-$(OUT_EXPORT_FILES) : $(OUT_INCLUDE)/% : $(EXPORT_DIR)/%
+$(OUTPUT_OBJ)$(X)/%.o : %.c
+	$(call cmd_mkdir,$(MODULE_NAME),$@)
+	$(call cmd_c,$(MODULE_NAME),$<,$@)
+
+$(OUTPUT_OBJ)$(X)/%.o : %.cpp
+	$(call cmd_mkdir,$(MODULE_NAME),$@)
+	$(call cmd_cxx,$(MODULE_NAME),$<,$@)
+
+$(OUTPUT_OBJ)$(X)/%.o.d: %.c
+	$(call cmd_mkdir,$(MODULE_NAME),$@)
+	$(call cmd_cdep,$(MODULE_NAME),$<,$@,$*)
+
+$(OUTPUT_OBJ)$(X)/%.o.d: %.cpp
+	$(call cmd_mkdir,$(MODULE_NAME),$@)
+	$(call cmd_cxxdep,$(MODULE_NAME),$<,$@,$*)
+
+$(TARGET_HEADER_FILES) : $(OUTPUT_INC)/% : $(EXPORT_HEADER_DIRS)/%
+	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_cp,$(MODULE_NAME),$<,$@)
 
-$(OUT_CONFIG_FILES) : $(OUT_CONFIG)/% : $(SOURCE_ROOT)/%
+$(TARGET_CONFIG_FILES) : $(OUTPUT_ETC)/% : %
+	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_cp,$(MODULE_NAME),$<,$@)
 
-$(OUT_ADDED_FILES) : $(OUT_BIN)/% : %(SOURCE_ROOT)/%
+$(TARGET_FILE_FILES) : $(OUTPUT_BIN)/% : %
+	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_cp,$(MODULE_NAME),$<,$@)
+
+ifeq ($(MAKECMDGOALS),clean)
+else ifeq ($(MAKECMDGOALS),show)
+else ifeq ($(MAKECMDGOALS),help)
+else ifeq ($(MAKECMDGOALS),install)
+else ifeq ($(MAKECMDGOALS),distclean)
+else
+sinclude $(DEPEND_FILES)
+endif
 
 .PHONY: install
 install:
@@ -143,29 +180,29 @@ uninstall:
 
 .PHONY: show
 show: show-common
-	@echo "MODE               = " $(MODE)
-	@echo "MODULE_ROOT        = " $(MODULE_ROOT)
-	@echo "MODULE_NAME        = " $(MODULE_NAME)
-	@echo "LIB_TYPE           = " $(LIB_TYPE)
-	@echo "LIB                = " $(LIB)
-	@echo "SOLIB              = " $(SOLIB)
-	@echo "SOURCE_ROOT        = " $(SOURCE_ROOT)
-	@echo "SOURCE_DIRS        = " $(SOURCE_DIRS)
-	@echo "SOURCE_OMIT        = " $(SOURCE_OMIT)
-	@echo "SOURCE_C           = " $(SOURCE_C)
-	@echo "OBJECT_C           = " $(OBJECT_C)
-	@echo "DPEND_C            = " $(DEPEND_C)
-	@echo "SOURCE_CXX         = " $(SOURCE_CXX)
-	@echo "OBJECT_CXX         = " $(OBJECT_CXX)
-	@echo "DEPEND_CXX         = " $(DEPEND_CXX)
-	@echo "INCLUDE_DIRS       = " $(INCLUDE_DIRS)
-	@echo "CONFIG_FILES       = " $(CONFIG_FILES)
-	@echo "ADDED_FILES        = " $(ADDED_FILES)
-	@echo "OUT_DIRS           = " $(OUT_DIRS)
-	@echo "OUT_EXPORT_FILES   = " $(OUT_EXPORT_FILES)
-	@echo "OUT_CONFIG_FILES   = " $(OUT_CONFIG_FILES)
-	@echo "OUT_ADDED_FILES    = " $(OUT_ADDED_FILES)
-	@echo "CreateResult       = " $(CreateResult)
+	@echo "MODE                = " $(MODE)
+	@echo "MODULE_ROOT         = " $(MODULE_ROOT)
+	@echo "MODULE_NAME         = " $(MODULE_NAME)
+	@echo "LIB_TYPE            = " $(LIB_TYPE)
+	@echo "LIBS                = " $(LIBS)
+	@echo "TESTS               = " $(TESTS)
+	@echo "SOURCE_ROOT         = " $(SOURCE_ROOT)
+	@echo "SOURCE_DIRS         = " $(SOURCE_DIRS)
+	@echo "SOURCE_OMIT         = " $(SOURCE_OMIT)
+	@echo "SOURCE_FILES        = " $(SOURCE_FILES)
+	@echo "OBJECT_FILES        = " $(OBJECT_FILES)
+	@echo "TEST_DIRS           = " $(TEST_DIRS)
+	@echo "TEST_FILES          = " $(TEST_FILES)
+	@echo "TEST_OBJECT_FILES   = " $(TEST_OBJECT_FILES)
+	@echo "DPEND_FILES         = " $(DEPEND_FILES)
+	@echo "INCLUDES            = " $(INCLUDES)
+	@echo "DEFINES             = " $(DEFINES)
+	@echo "EXPORT_HEADER_FILES = " $(EXPORT_HEADER_FILES)
+	@echo "EXPORT_CONFIG_FILES = " $(EXPORT_CONFIG_FILES)
+	@echo "EXPORT_FILE_FILES   = " $(EXPORT_FILE_FILES)
+	@echo "TARGET_HEADER_FILES = " $(TARGET_HEADER_FILES)
+	@echo "TARGET_CONFIG_FILES = " $(TARGET_CONFIG_FILES)
+	@echo "TARGET_FILE_FILES   = " $(TARGET_FILE_FILES)
 	@echo ""
 
 
@@ -179,10 +216,11 @@ help: help-common
 	@echo "    SOURCE_ROOT         source Root Directory (default MODULE_ROOT)"
 	@echo "    SOURCE_DIRS         source directories (default src)"
 	@echo "    SOURCE_OMIT         ignored files"
-	@echo "    INCLUDE_DIRS        include directories (default include)"
-	@echo "    EXPORT_DIR          export include directory (default include)"
-	@echo "    CONFIG_FILES        files copy to OUT_CONFIG"
-	@echo "    ADDED_FILES         files copy to OUT_BIN "
+	@echo "    INCLUDES            include directories (default include)"
+	@echo "    DEFINES             definitions"
+	@echo "    EXPORT_HEADER_DIRS  directory (default include) copy to OUTPUT_INC"
+	@echo "    EXPORT_CONFIG_FIlES files copy to OUTPUT_ETC"
+	@echo "    EXPORT_FILE_FILES   files copy to OUTPUT_BIN "
 	@echo ""
 
 	@echo "    BUILD_VERBOSE       verbose output (MUST Before def.mk)"
@@ -197,7 +235,7 @@ help: help-common
 
 .PHONY: clean
 clean:
-	$(call cmd_rm,$(MODULE_NAME),$(OUT_ROOT))
+	$(call cmd_rm,$(MODULE_NAME),$(OUTPUT_ROOT))
 
 .PHONY: distclean
 distclean: clean

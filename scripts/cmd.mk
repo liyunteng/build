@@ -19,6 +19,8 @@ DBGMSG    := "DBG"
 MKDIRMSG  := "MKDIR"
 ASMSG     := "AS"
 RANLIBMSG := "RANLIB"
+CDEPMSG   := "CDEP"
+CXXDEPMSG := "CXXDEP"
 
 ifeq ($(BUILD_ENV),map)
 ifeq ($(ISCLANG),)
@@ -28,15 +30,15 @@ else
 endif
 endif
 
-ifeq ($(V),1)
-cmd_show =
-else
+ifneq ($(V),-1)
 cmd_show = ;\
 	if [ $$? -eq 0 ]; then \
 		printf "$(COLOR_GREEN)%-6.6s$(COLOR_NORMAL) [%s]  %s\n" $(1) $(2) $(3); \
 	else \
 		printf "$(COLOR_RED)%-6.6s$(COLOR_NORMAL) [%s] %s\n" $(1) $(2) $(3) && exit 1; \
 	fi
+else
+cmd_show =
 endif
 
 cmd_cp = \
@@ -44,8 +46,8 @@ cmd_cp = \
 	$(call cmd_show,$(CPMSG),$(1),$(3))
 
 cmd_mkdir = \
-	$(Q3)$(MKDIR) $(2) \
-	$(call cmd_show,$(MKDIRMSG),$(1),$(2))
+	$(Q3)[ ! -d $(dir $(2)) ] && $(MKDIR) $(dir $(2)) || exit 0 \
+	$(call cmd_show,$(MKDIRMSG),$(1),$(dir $(2)))
 
 cmd_rm = \
 	$(Q3)[ -d $(2) ] && $(RM) $(2) || exit 0 \
@@ -59,12 +61,26 @@ cmd_ranlib = \
 	$(Q1)$(RANLIB) $(3) \
 	$(call cmd_show,$(RANLIBMSG),$(1),$(3))
 
+cmd_cdep = \
+	$(Q3)rm -f $(3); \
+	$(CC) -MM $(CFLAGS) $(CPPFLAGS) $(2) > $(3).$$$$; \
+	sed 's,\($(notdir $(4))\)\.o[ :]*,$(OUTPUT_OBJ)/$(4)\.o $(3): ,g' < $(3).$$$$ > $(3); \
+	rm -rf $(3).$$$$ \
+	$(call cmd_show,$(CDEPMSG),$(1),$(3))
+
+cmd_cxxdep = \
+	$(Q3)rm -f $(3); \
+	$(CXX) -MM $(CXXFLAGS) $(CPPFLAGS) $(2) > $(3).$$$$; \
+	sed 's,\($(notdir $(4))\)\.o[ :]*,$(OUTPUT_OBJ)/$(4)\.o $(3): ,g' < $(3).$$$$ > $(3); \
+	rm -rf $(3).$$$$ \
+	$(call cmd_show,$(CXXDEPMSG),$(1),$(3))
+
 cmd_c = \
-	$(Q1)$(CC) -c -o $(3) $(2) $(CPPFLAGS) $(CFLAGS) -MD -MQ $(3) -MF $(3).d \
+	$(Q1)$(CC) -c -o $(3) $(2) $(CPPFLAGS) $(CFLAGS) \
 	$(call cmd_show,$(CCMSG),$(1),$(3))
 
 cmd_cxx = \
-	$(Q1)$(CXX) -c -o $(3) $(2) $(CPPFLAGS) $(CXXFLAGS) -MD -MQ $(3) -MF $(3).d \
+	$(Q1)$(CXX) -c -o $(3) $(2) $(CPPFLAGS) $(CXXFLAGS) \
 	$(call cmd_show,$(CXXMSG),$(1),$(3))
 
 cmd_cxxlib = \
@@ -129,4 +145,3 @@ else
 cmd_strip =
 cmd_strip_static =
 endif
-

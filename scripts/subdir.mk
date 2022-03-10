@@ -1,15 +1,10 @@
-# MODULE_ROOT:     The root directory of this module
-# MODULE_NAME:     The name of this mudule
-# SUBDIRS:          subdirs
-######################################################################
-
 MODE := subdir
 MODULE_ROOT ?= $(shell pwd)
 MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
 
 SUBDIRS ?=
 
-SUBDIRS_BUILD     := $(SUBDIRS)
+SUBDIRS_BUILD     := $(addsuffix -build, $(SUBDIRS))
 SUBDIRS_INSTALL   := $(addsuffix -install, $(SUBDIRS))
 SUBDIRS_UNINSTALL := $(addsuffix -uninstall, $(SUBDIRS))
 SUBDIRS_CLEAN     := $(addsuffix -clean, $(SUBDIRS))
@@ -28,7 +23,7 @@ all: build
 .PHONY: build $(SUBDIRS_BUILD)
 build : $(SUBDIRS_BUILD)
 $(SUBDIRS_BUILD):
-	$(Q1)$(MAKE) -C $@ all OUT_OBJECT=$(OUT_OBJECT)/$@ || exit 1
+	$(Q1)$(MAKE) -C $(patsubst %-build,%,$@) all || exit 1
 
 .PHONY: install $(SUBDIRS_INSTALL)
 install: $(SUBDIRS_INSTALL)
@@ -43,7 +38,7 @@ $(SUBDIRS_UNINSTALL):
 .PHONY: clean $(SUBDIRS_CLEAN)
 clean: $(SUBDIRS_CLEAN)
 $(SUBDIRS_CLEAN):
-	$(Q1)$(MAKE) -C $(patsubst %-clean,%,$@) clean OUT_OBJECT=$(OUT_OBJECT)/$(@:%-clean=%) || exit 1
+	$(Q1)$(MAKE) -C $(patsubst %-clean,%,$@) clean || exit 1
 
 
 .PHONY: distclean $(SUBDIRS_DISTCLEAN)
@@ -55,13 +50,13 @@ $(SUBDIRS_DISTCLEAN):
 .PHONY: showall $(SUBDIRS_SHOW) show
 showall: $(SUBDIRS_SHOW) show
 $(SUBDIRS_SHOW):
-	$(Q1)$(MAKE) -C $(patsubst %-show,%,$@) show OUT_OBJECT=$(OUT_OBJECT)/$(@:%-show=%) || exit 1
+	$(Q1)$(MAKE) -C $(patsubst %-show,%,$@) show || exit 1
 
 
 .PHONY: helpall $(SUBDIRS_HELP) help
-showall: $(SUBDIRS_HELP) help
+helpall: $(SUBDIRS_HELP) help
 $(SUBDIRS_HELP):
-	$(Q1)$(MAKE) -C $(patsubst %-help,%,$@) help OUT_OBJECT=$(OUT_OBJECT)/$(@:%-help=%) || exit 1
+	$(Q1)$(MAKE) -C $(patsubst %-help,%,$@) help || exit 1
 
 show: show-common
 	@echo "MODE               = " $(MODE)

@@ -58,12 +58,12 @@ ifneq ($(BUILD_OUTPUT),$(BUILD_PWD))
 # MAKEFLAGS += --include-dir=$(BUILD_PWD)
 endif
 
-OUT_ROOT	  ?= $(BUILD_OUTPUT)
-OUT_INCLUDE   ?= $(OUT_ROOT)/include
-OUT_BIN       ?= $(OUT_ROOT)/bin
-OUT_LIB       ?= $(OUT_ROOT)/lib
-OUT_OBJECT    ?= $(OUT_ROOT)/obj
-OUT_CONFIG    ?= $(OUT_ROOT)/etc
+OUTPUT_ROOT	  ?= $(BUILD_OUTPUT)
+OUTPUT_INC    ?= $(OUTPUT_ROOT)/include
+OUTPUT_BIN    ?= $(OUTPUT_ROOT)/bin
+OUTPUT_LIB    ?= $(OUTPUT_ROOT)/lib
+OUTPUT_OBJ    ?= $(OUTPUT_ROOT)/obj
+OUTPUT_ETC    ?= $(OUTPUT_ROOT)/etc
 
 # Tools
 SHELL       := /bin/sh
@@ -74,15 +74,14 @@ MKDIR       := mkdir -p
 
 # Compiler
 # ******************************
-CC		    := $(CROSS_COMPILE)cc
-CXX         := $(CROSS_COMPILE)c++
-CPP		    := $(CC) -E
-
 ISCLANG := $(findstring clang,$(shell $(CC) --version))
 
 ifneq ($(ISCLANG),)
+CC		    := $(CROSS_COMPILE)clang
+CXX         := $(CROSS_COMPILE)clang++
+CPP		    := $(CC) -E
 AS          := $(CROSS_COMPILE)llvm-as
-LD		    := $(CROSS_COMPILE)llvm-l
+LD		    := $(CROSS_COMPILE)llvm-link
 AR		    := $(CROSS_COMPILE)llvm-ar
 NM		    := $(CROSS_COMPILE)llvm-nm
 STRIP	    := $(CROSS_COMPILE)llvm-strip
@@ -91,6 +90,9 @@ OBJDUMP	    := $(CROSS_COMPILE)llvm-objdump
 OBJSIZE		:= $(CROSS_COMPILE)llvm-size
 RANLIB      := $(CROSS_COMPILE)llvm-ranlib
 else
+CC		    := $(CROSS_COMPILE)gcc
+CXX         := $(CROSS_COMPILE)g++
+CPP		    := $(CC) -E
 AS		    := $(CROSS_COMPILE)as
 LD		    := $(CROSS_COMPILE)ld
 AR		    := $(CROSS_COMPILE)ar
@@ -102,7 +104,7 @@ OBJSIZE		:= $(CROSS_COMPILE)size
 RANLIB      := $(CROSS_COMPILE)ranlib
 endif
 
-CPPFLAGS    ?= -I$(OUT_INCLUDE)
+CPPFLAGS    ?=
 CFLAGS      ?= -Wall -fstack-protector -Wmissing-prototypes -Wstrict-prototypes
 CXXFLAGS    ?= -Wall -fstack-protector
 ASFLAGS     ?= -D__ASSEMBLY__ -fno-PIE
@@ -129,6 +131,8 @@ else ifeq ($(BUILD_ENV), map)
 	CXXFLAGS += -g -ggdb
 endif
 
+CPPFLAGS += -I$(OUTPUT_INC)
+LDFLAGS += -L$(OUTPUT_LIB) -Wl,-rpath=$(OUTPUT_LIB)
 export
 endif
 
@@ -164,12 +168,12 @@ show-common:
 	@echo "VPATH              = " $(VPATH)
 	@echo ""
 
-	@echo "OUT_ROOT           = " $(OUT_ROOT)
-	@echo "OUT_INCLUDE        = " $(OUT_INCLUDE)
-	@echo "OUT_BIN            = " $(OUT_BIN)
-	@echo "OUT_LIB            = " $(OUT_LIB)
-	@echo "OUT_OBJECT         = " $(OUT_OBJECT)
-	@echo "OUT_CONFIG         = " $(OUT_CONFIG)
+	@echo "OUTPUT_ROOT        = " $(OUTPUT_ROOT)
+	@echo "OUTPUT_INC         = " $(OUTPUT_INC)
+	@echo "OUTPUT_BIN         = " $(OUTPUT_BIN)
+	@echo "OUTPUT_LIB         = " $(OUTPUT_LIB)
+	@echo "OUTPUT_OBJ         = " $(OUTPUT_OBJ)
+	@echo "OUTPUT_ETC         = " $(OUTPUT_ETC)
 	@echo ""
 
 	@echo "CROSS_COMPILE      = " $(CROSS_COMPILE)
