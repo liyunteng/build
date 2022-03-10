@@ -5,13 +5,20 @@ MODE := library
 MODULE_ROOT ?= $(shell pwd)
 ifneq ($(BUILD_PWD),$(MODULE_ROOT))
 X := $(MODULE_ROOT:$(BUILD_PWD)/%=%)
-MODULE_NAME ?= $(X)
+MODULE_NAME ?=  $(X)
 else
 X :=
 MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
 endif
 
+ifneq ($(X),)
+RELATIVE := $(X)/
+else
+RELATIVE :=
+endif
+
 # static/dynamic/all
+LIB_NAME    ?= $(MODULE_NAME)
 LIB_TYPE    ?= all
 
 # Source FileList
@@ -36,12 +43,12 @@ TEST_FILES := $(TEST_FILES:./%=%)
 
 # object/dep files
 OBJECT_FILES := $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(SOURCE_FILES)))
-OBJECT_FILES := $(addprefix $(OUTPUT_OBJ)$(X)/, $(OBJECT_FILES))
+OBJECT_FILES := $(addprefix $(OUTPUT_OBJ)/$(RELATIVE), $(OBJECT_FILES))
 DEPEND_FILES := $(OBJECT_FILES:%.o=%.o.d)
 SOURCE_FILES := $(addprefix $(SOURCE_ROOT)/, $(SOURCE_FILES))
 
 TEST_OBJECT_FILES := $(patsubst %.c,%.o,$(patsubst %.cpp,%.o, $(TEST_FILES)))
-TEST_OBJECT_FILES := $(addprefix $(OUTPUT_OBJ)/, $(TEST_OBJECT_FILES))
+TEST_OBJECT_FILES := $(addprefix $(OUTPUT_OBJ)/$(RELATIVE), $(TEST_OBJECT_FILES))
 DEPEND_FILES += $(TEST_OBJECT_FILES:%.o=%.o.d)
 TEST_FILES := $(addprefix $(SOURCE_ROOT)/, $(TEST_FILES))
 
@@ -64,12 +71,12 @@ EXPORT_CONFIG_FILES ?=
 TARGET_CONFIG_FILES := $(addprefix $(OUTPUT_ETC)/, $(EXPORT_CONFIG_FILES))
 
 # export files
-EXPORT_FILE_FILES ?=
-TARGET_FILE_FILES := $(addprefix $(OUTPUT_BIN)/, $(EXPORT_FILE_FILES))
+EXPORT_FILES ?=
+TARGET_FILES := $(addprefix $(OUTPUT_BIN)/, $(EXPORT_FILES))
 
 # Lib Name
-STATIC_LIBS  ?= lib$(MODULE_NAME).a
-DYNAMIC_LIBS ?= lib$(MODULE_NAME).so
+STATIC_LIBS  ?= lib$(LIB_NAME).a
+DYNAMIC_LIBS ?= lib$(LIB_NAME).so
 
 STATIC_LIBS := $(addprefix $(OUTPUT_LIB)/, $(STATIC_LIBS))
 DYNAMIC_LIBS := $(addprefix $(OUTPUT_LIB)/, $(DYNAMIC_LIBS))
@@ -98,7 +105,7 @@ before:
 
 header: $(TARGET_HEADER_FILES)
 
-after: $(TARGET_CONFIG_FILES) $(TARGET_FILE_FILES)
+after: $(TARGET_CONFIG_FILES) $(TARGET_FILES)
 
 success:
 
@@ -129,31 +136,32 @@ endif
 	$(call cmd_strip,$(MODULE_NAME),$^,$@)
 endif
 
-$(OUTPUT_BIN)$(X)/%: $(TEST_OBJECT_FILES)
+$(OUTPUT_BIN)/%: LDFLAGS += -l$(LIB_NAME)
+$(OUTPUT_BIN)/%: $(TEST_OBJECT_FILES)
 ifneq ($(TEST_OBJECT_FILES),)
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 ifneq ($(TEST_CXX_FILES),)
 	$(call cmd_cxxbin,$(MODULE_NAME),$^,$@)
 else
-	$(call cmd_cbin,$(MODULE_NAME),$^,$@)
+	$(call cmd_bin,$(MODULE_NAME),$^,$@)
 endif
 	$(call cmd_debuginfo,$(MODULE_NAME),$^,$@)
 	$(call cmd_strip,$(MODULE_NAME),$^,$@)
 endif
 
-$(OUTPUT_OBJ)$(X)/%.o : %.c
+$(OUTPUT_OBJ)/$(RELATIVE)%.o : %.c
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_c,$(MODULE_NAME),$<,$@)
 
-$(OUTPUT_OBJ)$(X)/%.o : %.cpp
+$(OUTPUT_OBJ)/$(RELATIVE)%.o : %.cpp
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_cxx,$(MODULE_NAME),$<,$@)
 
-$(OUTPUT_OBJ)$(X)/%.o.d: %.c
+$(OUTPUT_OBJ)/$(RELATIVE)%.o.d: %.c
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_cdep,$(MODULE_NAME),$<,$@,$*)
 
-$(OUTPUT_OBJ)$(X)/%.o.d: %.cpp
+$(OUTPUT_OBJ)/$(RELATIVE)%.o.d: %.cpp
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_cxxdep,$(MODULE_NAME),$<,$@,$*)
 
@@ -165,7 +173,7 @@ $(TARGET_CONFIG_FILES) : $(OUTPUT_ETC)/% : %
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_cp,$(MODULE_NAME),$<,$@)
 
-$(TARGET_FILE_FILES) : $(OUTPUT_BIN)/% : %
+$(TARGET_FILES) : $(OUTPUT_BIN)/% : %
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_cp,$(MODULE_NAME),$<,$@)
 
@@ -190,6 +198,7 @@ show: show-common
 	@echo "MODULE_ROOT         = " $(MODULE_ROOT)
 	@echo "MODULE_NAME         = " $(MODULE_NAME)
 	@echo "LIB_TYPE            = " $(LIB_TYPE)
+	@echo "LIB_NAME            = " $(LIB_NAME)
 	@echo "LIBS                = " $(LIBS)
 	@echo "TESTS               = " $(TESTS)
 	@echo "SOURCE_ROOT         = " $(SOURCE_ROOT)
@@ -205,10 +214,10 @@ show: show-common
 	@echo "DEFINES             = " $(DEFINES)
 	@echo "EXPORT_HEADER_FILES = " $(EXPORT_HEADER_FILES)
 	@echo "EXPORT_CONFIG_FILES = " $(EXPORT_CONFIG_FILES)
-	@echo "EXPORT_FILE_FILES   = " $(EXPORT_FILE_FILES)
+	@echo "EXPORT_FILES        = " $(EXPORT_FILES)
 	@echo "TARGET_HEADER_FILES = " $(TARGET_HEADER_FILES)
 	@echo "TARGET_CONFIG_FILES = " $(TARGET_CONFIG_FILES)
-	@echo "TARGET_FILE_FILES   = " $(TARGET_FILE_FILES)
+	@echo "TARGET_FILES        = " $(TARGET_FILES)
 	@echo ""
 
 
@@ -219,6 +228,7 @@ help: help-common
 	@echo "    MODULE_ROOT         the root directory of this module"
 	@echo "    MODULE_NAME         the name of this mudule"
 	@echo "    LIB_TYPE            library type [static/dynamic/all]"
+	@echo "    LIB_NAME            library name"
 	@echo "    SOURCE_ROOT         source Root Directory (default MODULE_ROOT)"
 	@echo "    SOURCE_DIRS         source directories (default src)"
 	@echo "    SOURCE_OMIT         ignored files"

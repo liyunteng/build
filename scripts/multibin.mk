@@ -12,6 +12,12 @@ X :=
 MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
 endif
 
+ifneq ($(X),)
+RELATIVE := $(X)/
+else
+RELATIVE :=
+endif
+
 # Source FileList
 SOURCE_ROOT  ?= $(MODULE_ROOT)
 SOURCE_DIRS  ?= .
@@ -28,7 +34,7 @@ endif
 
 # object/dep files
 OBJECT_FILES := $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(SOURCE_FILES)))
-OBJECT_FILES := $(addprefix $(OUTPUT_OBJ)$(X)/, $(OBJECT_FILES))
+OBJECT_FILES := $(addprefix $(OUTPUT_OBJ)/$(RELATIVE), $(OBJECT_FILES))
 DEPEND_FILES := $(OBJECT_FILES:%.o=%.o.d)
 SOURCE_FILES := $(addprefix $(SOURCE_ROOT)/, $(SOURCE_FILES))
 
@@ -51,8 +57,8 @@ EXPORT_CONFIG_FILES ?=
 TARGET_CONFIG_FILES := $(addprefix $(OUTPUT_ETC)/, $(EXPORT_CONFIG_FILES))
 
 # export files
-EXPORT_FILE_FILES ?=
-TARGET_FILE_FILES := $(addprefix $(OUTPUT_BIN)/, $(EXPORT_FILE_FILES))
+EXPORT_FILES ?=
+TARGET_FILES := $(addprefix $(OUTPUT_BIN)/, $(EXPORT_FILES))
 
 # BINS
 BINS := $(addprefix $(OUTPUT_BIN)/, $(basename $(SOURCE_FILES:$(SOURCE_ROOT)/%=%)))
@@ -65,7 +71,7 @@ build: before bins after success
 
 before: $(TARGET_HEADER_FILES)
 
-after: $(TARGET_CONFIG_FILES) $(TARGET_FILE_FILES)
+after: $(TARGET_CONFIG_FILES) $(TARGET_FILES)
 
 success:
 
@@ -83,19 +89,19 @@ endif
 	$(call cmd_strip,$(MODULE_NAME),$<,$@)
 endif
 
-$(OUTPUT_OBJ)$(X)/%.o : %.c
+$(OUTPUT_OBJ)/$(RELATIVE)%.o : %.c
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_c,$(MODULE_NAME),$<,$@)
 
-$(OUTPUT_OBJ)$(X)/%.o : %.cpp
+$(OUTPUT_OBJ)/$(RELATIVE)%.o : %.cpp
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_cxx,$(MODULE_NAME),$<,$@)
 
-$(OUTPUT_OBJ)$(X)/%.o.d: %.c
+$(OUTPUT_OBJ)/$(RELATIVE)%.o.d: %.c
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_cdep,$(MODULE_NAME),$<,$@,$*)
 
-$(OUTPUT_OBJ)$(X)/%.o.d: %.cpp
+$(OUTPUT_OBJ)/$(RELATIVE)%.o.d: %.cpp
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_cxxdep,$(MODULE_NAME),$<,$@,$*)
 
@@ -107,7 +113,7 @@ $(TARGET_CONFIG_FILES) : $(OUTPUT_ETC)/% : %
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_cp,$(MODULE_NAME),$<,$@)
 
-$(TARGET_FILE_FILES) : $(OUTPUT_BIN)/% : %
+$(TARGET_FILES) : $(OUTPUT_BIN)/% : %
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_cp,$(MODULE_NAME),$<,$@)
 
@@ -142,10 +148,10 @@ show: show-common
 	@echo "DEFINES             = " $(DEFINES)
 	@echo "EXPORT_HEADER_FILES = " $(EXPORT_HEADER_FILES)
 	@echo "EXPORT_CONFIG_FILES = " $(EXPORT_CONFIG_FILES)
-	@echo "EXPORT_FILE_FILES   = " $(EXPORT_FILE_FILES)
+	@echo "EXPORT_FILES        = " $(EXPORT_FILES)
 	@echo "TAREGE_HEADER_FILES = " $(TARGET_HEADER_FILES)
 	@echo "TARGET_CONFIG_FILES = " $(TARGET_CONFIG_FILES)
-	@echo "TARGET_FILE_FILES   = " $(TARGET_FILE_FILES)
+	@echo "TARGET_FILES        = " $(TARGET_FILES)
 	@echo ""
 
 
