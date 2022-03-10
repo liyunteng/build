@@ -117,12 +117,9 @@ $(TARGET_FILES) : $(OUTPUT_BIN)/% : %
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_cp,$(MODULE_NAME),$<,$@)
 
-ifeq ($(MAKECMDGOALS),clean)
-else ifeq ($(MAKECMDGOALS),show)
-else ifeq ($(MAKECMDGOALS),help)
-else ifeq ($(MAKECMDGOALS),install)
-else ifeq ($(MAKECMDGOALS),distclean)
-else
+ifeq ($(MAKECMDGOALS),build)
+sinclude $(DEPEND_FILES)
+else ifeq ($(MAKECMDGOALS),all)
 sinclude $(DEPEND_FILES)
 endif
 
