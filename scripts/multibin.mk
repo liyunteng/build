@@ -13,9 +13,7 @@ MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
 endif
 
 ifneq ($(strip $(X)),)
-RELATIVE := $(X)/
-else
-RELATIVE :=
+OUTPUT_OBJ := $(OUTPUT_OBJ)/$(X)
 endif
 
 # Source FileList
@@ -34,7 +32,7 @@ endif
 
 # object/dep files
 OBJECT_FILES := $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(SOURCE_FILES)))
-OBJECT_FILES := $(addprefix $(OUTPUT_OBJ)/$(RELATIVE), $(OBJECT_FILES))
+OBJECT_FILES := $(addprefix $(OUTPUT_OBJ)/, $(OBJECT_FILES))
 DEPEND_FILES := $(OBJECT_FILES:%.o=%.o.d)
 SOURCE_FILES := $(addprefix $(SOURCE_ROOT)/, $(SOURCE_FILES))
 
@@ -93,19 +91,19 @@ endif
 	$(call cmd_strip,$(MODULE_NAME),$<,$@)
 endif
 
-$(OUTPUT_OBJ)/$(RELATIVE)%.o : %.c
+$(OUTPUT_OBJ)/%.o : %.c
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_c,$(MODULE_NAME),$<,$@)
 
-$(OUTPUT_OBJ)/$(RELATIVE)%.o : %.cpp
+$(OUTPUT_OBJ)/%.o : %.cpp
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_cxx,$(MODULE_NAME),$<,$@)
 
-$(OUTPUT_OBJ)/$(RELATIVE)%.o.d: %.c
+$(OUTPUT_OBJ)/%.o.d: %.c
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_cdep,$(MODULE_NAME),$<,$@,$*)
 
-$(OUTPUT_OBJ)/$(RELATIVE)%.o.d: %.cpp
+$(OUTPUT_OBJ)/%.o.d: %.cpp
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_cxxdep,$(MODULE_NAME),$<,$@,$*)
 

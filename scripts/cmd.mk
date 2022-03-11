@@ -145,3 +145,18 @@ else
 cmd_strip =
 cmd_strip_static =
 endif
+
+
+define cmd_build
+	$(call cmd_mkdir,$(MODULE_NAME),$@)
+	$(call cmd_bin,$(MODULE_NAME),$^,$@)
+	$(call cmd_debuginfo,$(MODULE_NAME),$^,$@)
+	$(call cmd_strip,$(MODULE_NAME),$^,$@)
+endef
+
+define cmd_build_cxx
+	$(call cmd_mkdir,$(MODULE_NAME),$@)
+	$(call cmd_cxxbin,$(MODULE_NAME),$^,$@)
+	$(call cmd_debuginfo,$(MODULE_NAME),$^,$@)
+	$(call cmd_strip,$(MODULE_NAME),$^,$@)
+endef
