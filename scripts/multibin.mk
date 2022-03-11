@@ -47,17 +47,21 @@ CFLAGS += -fPIC
 CXXFLAGS += -fPIC
 
 # export header
-EXPORT_HEADER_DIRS  ?= include
-EXPORT_HEADER_FILES ?= $(foreach dir,$(EXPORT_HEADER_DIRS), $(wildcard $(dir)/*))
-EXPORT_HEADER_FILES := $(EXPORT_HEADER_FILES:$(EXPORT_HEADER_DIRS)/%=%)
+EXPORT_HEADER_DIR   ?= include
+EXPORT_HEADER_FILES ?= $(wildcard $(EXPORT_HEADER_FILES)/*)
+EXPORT_HEADER_FILES := $(EXPORT_HEADER_FILES:$(EXPORT_HEADER_DIR)/%=%)
 TARGET_HEADER_FILES := $(addprefix $(OUTPUT_INC)/, $(EXPORT_HEADER_FILES))
 
 # export configs
+EXPORT_CONFIG_DIR   ?= test
 EXPORT_CONFIG_FILES ?=
+EXPORT_CONFIG_FILES := $(EXPORT_CONFIG_FILES:$(EXPORT_CONFIG_DIR)/%=%)
 TARGET_CONFIG_FILES := $(addprefix $(OUTPUT_ETC)/, $(EXPORT_CONFIG_FILES))
 
 # export files
+EXPORT_FILES_DIR ?= test
 EXPORT_FILES ?=
+EXPORT_FILES := $(EXPORT_FILES:$(EXPORT_FILES_DIR)/%=%)
 TARGET_FILES := $(addprefix $(OUTPUT_BIN)/, $(EXPORT_FILES))
 
 # BINS
@@ -105,17 +109,17 @@ $(OUTPUT_OBJ)/$(RELATIVE)%.o.d: %.cpp
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_cxxdep,$(MODULE_NAME),$<,$@,$*)
 
-$(TARGET_HEADER_FILES) : $(OUTPUT_INC)/% : $(EXPORT_HEADER_DIRS)/%
+$(TARGET_HEADER_FILES) : $(OUTPUT_INC)/% : $(EXPORT_HEADER_DIR)/%
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
-	$(call cmd_cp,$(MODULE_NAME),$<,$@)
+	$(call cmd_cp,$(MODULE_NAME),$^,$@)
 
-$(TARGET_CONFIG_FILES) : $(OUTPUT_ETC)/% : %
+$(TARGET_CONFIG_FILES) : $(OUTPUT_ETC)/% : $(EXPORT_CONFIG_DIR)/%
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
-	$(call cmd_cp,$(MODULE_NAME),$<,$@)
+	$(call cmd_cp,$(MODULE_NAME),$^,$@)
 
-$(TARGET_FILES) : $(OUTPUT_BIN)/% : %
+$(TARGET_FILES) : $(OUTPUT_BIN)/% : $(EXPORT_FILES_DIR)/%
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
-	$(call cmd_cp,$(MODULE_NAME),$<,$@)
+	$(call cmd_cp,$(MODULE_NAME),$^,$@)
 
 ifeq ($(MAKECMDGOALS),build)
 sinclude $(DEPEND_FILES)
