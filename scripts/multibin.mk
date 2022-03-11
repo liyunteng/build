@@ -48,7 +48,7 @@ CXXFLAGS += -fPIC
 
 # export header
 EXPORT_HEADER_DIR   ?= include
-EXPORT_HEADER_FILES ?= $(wildcard $(EXPORT_HEADER_FILES)/*)
+EXPORT_HEADER_FILES ?= $(wildcard $(EXPORT_HEADER_DIR)/*)
 EXPORT_HEADER_FILES := $(EXPORT_HEADER_FILES:$(EXPORT_HEADER_DIR)/%=%)
 TARGET_HEADER_FILES := $(addprefix $(OUTPUT_INC)/, $(EXPORT_HEADER_FILES))
 
@@ -167,9 +167,9 @@ help: help-common
 	@echo "    SOURCE_OMIT         ignored files"
 	@echo "    INCLUDES            include directories (default include)"
 	@echo "    DEFINES             definitions"
-	@echo "    EXPORT_HEADER_DIRS  directory (default include) copy to OUTPUT_INC"
+	@echo "    EXPORT_HEADER_FILES files copy to OUTPUT_INC"
 	@echo "    EXPORT_CONFIG_FILES files copy to OUTPUT_ETC"
-	@echo "    EXPORT_FILE_FILES   files copy to OUTPUT_BIN"
+	@echo "    EXPORT_FILES        files copy to OUTPUT_BIN"
 	@echo ""
 
 	@echo "    BUILD_VERBOSE       verbose output (MUST before def.mk)"
