@@ -3,6 +3,7 @@ include $(PROJECT_ROOT)/scripts/cmd.mk
 
 MODE := library
 MODULE_ROOT ?= $(shell pwd)
+
 ifneq ($(BUILD_PWD),$(MODULE_ROOT))
 X := $(MODULE_ROOT:$(BUILD_PWD)/%=%)
 MODULE_NAME ?=  $(X)

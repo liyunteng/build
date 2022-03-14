@@ -11,6 +11,10 @@ X :=
 MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
 endif
 
+ifneq ($(strip $(X)),)
+OUTPUT_OBJ := $(OUTPUT_OBJ)/$(X)
+endif
+
 SUBDIRS ?=
 
 SUBDIRS_BUILD     := $(addsuffix -build, $(SUBDIRS))
