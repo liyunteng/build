@@ -119,9 +119,11 @@ $(TARGET_FILES) : $(OUTPUT_BIN)/% : $(EXPORT_FILES_DIR)/%
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_cp,$(MODULE_NAME),$^,$@)
 
-ifeq ($(MAKECMDGOALS),build)
+ifeq ($(MAKECMDGOALS),all)
 sinclude $(DEPEND_FILES)
-else ifeq ($(MAKECMDGOALS),all)
+else ifeq ($(MAKECMDGOALS),build)
+sinclude $(DEPEND_FILES)
+else ifeq ($(MAKECMDGOALS),)
 sinclude $(DEPEND_FILES)
 endif
 
@@ -155,7 +157,8 @@ show: show-common
 	@echo ""
 
 
-.PHONY: help
+.PHONY: help helpall
+helpall: help
 help: help-common
 	@echo "multibin.mk : Build executable for every file"
 	@echo ""

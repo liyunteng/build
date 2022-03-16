@@ -17,7 +17,7 @@ endif
 
 SUBDIRS ?=
 
-SUBDIRS_BUILD     := $(addsuffix -build, $(SUBDIRS))
+SUBDIRS_BUILD     := $(SUBDIRS)
 SUBDIRS_INSTALL   := $(addsuffix -install, $(SUBDIRS))
 SUBDIRS_UNINSTALL := $(addsuffix -uninstall, $(SUBDIRS))
 SUBDIRS_CLEAN     := $(addsuffix -clean, $(SUBDIRS))
@@ -35,7 +35,7 @@ all: build
 .PHONY: build $(SUBDIRS_BUILD)
 build : $(SUBDIRS_BUILD)
 $(SUBDIRS_BUILD):
-	$(Q1)$(MAKE) -C $(patsubst %-build,%,$@) all || exit 1
+	$(Q1)$(MAKE) -C $@ all || exit 1
 
 .PHONY: install $(SUBDIRS_INSTALL)
 install: $(SUBDIRS_INSTALL)
