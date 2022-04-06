@@ -79,7 +79,7 @@ success:
 
 bins: $(BINS)
 
-$(OUTPUT_BIN)/%: $(OBJECT_FILES)
+$(BINS): $(OUTPUT_BIN)/% : $(OBJECT_FILES)
 ifneq ($(strip $(OBJECT_FILES)),)
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 ifneq ($(strip $(SOURCE_CXX_FILES)),)
@@ -99,13 +99,13 @@ $(OUTPUT_OBJ)/%.o : %.cpp
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_cxx,$(MODULE_NAME),$<,$@)
 
-$(OUTPUT_OBJ)/%.o.d: %.c
-	$(call cmd_mkdir,$(MODULE_NAME),$@)
-	$(call cmd_cdep,$(MODULE_NAME),$<,$@,$*)
+# $(OUTPUT_OBJ)/%.o.d: %.c
+#   $(call cmd_mkdir,$(MODULE_NAME),$@)
+#   $(call cmd_cdep,$(MODULE_NAME),$<,$@,$*)
 
-$(OUTPUT_OBJ)/%.o.d: %.cpp
-	$(call cmd_mkdir,$(MODULE_NAME),$@)
-	$(call cmd_cxxdep,$(MODULE_NAME),$<,$@,$*)
+# $(OUTPUT_OBJ)/%.o.d: %.cpp
+#   $(call cmd_mkdir,$(MODULE_NAME),$@)
+#   $(call cmd_cxxdep,$(MODULE_NAME),$<,$@,$*)
 
 $(TARGET_HEADER_FILES) : $(OUTPUT_INC)/% : $(EXPORT_HEADER_DIR)/%
 	$(call cmd_mkdir,$(MODULE_NAME),$@)

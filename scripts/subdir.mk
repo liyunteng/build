@@ -12,7 +12,7 @@ MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
 endif
 
 ifneq ($(strip $(X)),)
-OUTPUT_OBJ := $(OUTPUT_OBJ)/$(X)
+# OUTPUT_OBJ := $(OUTPUT_OBJ)/$(X)
 endif
 
 SUBDIRS ?=

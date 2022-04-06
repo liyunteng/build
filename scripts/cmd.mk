@@ -19,8 +19,8 @@ DBGMSG    := "DBG"
 MKDIRMSG  := "MKDIR"
 ASMSG     := "AS"
 RANLIBMSG := "RANLIB"
-CDEPMSG   := "CDEP"
-CXXDEPMSG := "CXXDEP"
+# CDEPMSG   := "CDEP"
+# CXXDEPMSG := "CXXDEP"
 
 ifeq ($(BUILD_ENV),map)
 ifeq ($(ISCLANG),)
@@ -61,26 +61,26 @@ cmd_ranlib = \
 	$(Q1)$(RANLIB) $(3) \
 	$(call cmd_show,$(RANLIBMSG),$(1),$(3))
 
-cmd_cdep = \
-	$(Q3)rm -f $(3); \
-	$(CC) -MM $(CFLAGS) $(CPPFLAGS) $(2) > $(3).$$$$; \
-	sed 's,\($(notdir $(4))\)\.o[ :]*,$(OUTPUT_OBJ)/$(4)\.o $(3): ,g' < $(3).$$$$ > $(3); \
-	rm -rf $(3).$$$$ \
-	$(call cmd_show,$(CDEPMSG),$(1),$(3))
+# cmd_cdep = \
+#   $(Q3)rm -f $(3); \
+#   $(CC) -MM $(CFLAGS) $(CPPFLAGS) $(2) > $(3).$$$$; \
+#   sed 's,\($(notdir $(4))\)\.o[ :]*,$(OUTPUT_OBJ)/$(4)\.o $(3): ,g' < $(3).$$$$ > $(3); \
+#   rm -rf $(3).$$$$ \
+#   $(call cmd_show,$(CDEPMSG),$(1),$(3))
 
-cmd_cxxdep = \
-	$(Q3)rm -f $(3); \
-	$(CXX) -MM $(CXXFLAGS) $(CPPFLAGS) $(2) > $(3).$$$$; \
-	sed 's,\($(notdir $(4))\)\.o[ :]*,$(OUTPUT_OBJ)/$(4)\.o $(3): ,g' < $(3).$$$$ > $(3); \
-	rm -rf $(3).$$$$ \
-	$(call cmd_show,$(CXXDEPMSG),$(1),$(3))
+# cmd_cxxdep = \
+#   $(Q3)rm -f $(3); \
+#   $(CXX) -MM $(CXXFLAGS) $(CPPFLAGS) $(2) > $(3).$$$$; \
+#   sed 's,\($(notdir $(4))\)\.o[ :]*,$(OUTPUT_OBJ)/$(4)\.o $(3): ,g' < $(3).$$$$ > $(3); \
+#   rm -rf $(3).$$$$ \
+#   $(call cmd_show,$(CXXDEPMSG),$(1),$(3))
 
 cmd_c = \
-	$(Q1)$(CC) -c -o $(3) $(2) $(CPPFLAGS) $(CFLAGS) \
+	$(Q1)$(CC) -c -o $(3) $(2) $(CPPFLAGS) $(CFLAGS) -MD -MT $(3) -MF $(3).d \
 	$(call cmd_show,$(CCMSG),$(1),$(3))
 
 cmd_cxx = \
-	$(Q1)$(CXX) -c -o $(3) $(2) $(CPPFLAGS) $(CXXFLAGS) \
+	$(Q1)$(CXX) -c -o $(3) $(2) $(CPPFLAGS) $(CXXFLAGS) -MD -MT $(3) -MF $(3).d \
 	$(call cmd_show,$(CXXMSG),$(1),$(3))
 
 cmd_cxxlib = \
