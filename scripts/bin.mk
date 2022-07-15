@@ -62,7 +62,7 @@ EXPORT_FILES := $(EXPORT_FILES:$(EXPORT_FILES_DIR)/%=%)
 TARGET_FILES := $(addprefix $(OUTPUT_BIN)/, $(EXPORT_FILES))
 
 # BIN Name
-BIN   := $(notdir $(MODULE_NAME))
+BIN   ?= $(notdir $(MODULE_NAME))
 ifeq ($(strip $(SOURCE_FILES)),)
 BIN =
 endif
@@ -170,11 +170,15 @@ help: help-common
 	@echo "    SOURCE_ROOT         source root directory (default MODULE_ROOT)"
 	@echo "    SOURCE_DIRS         source directories (default src)"
 	@echo "    SOURCE_OMIT         ignored files"
+	@echo "    SOURCE_C_FILES      binary c source files"
+	@echo "    SOURCE_CXX_FILES    binary cpp source files"
+	@echo "    SOURCE_FILES        source files"
 	@echo "    INCLUDES            include directories (default include)"
 	@echo "    DEFINES             definitions"
 	@echo "    EXPORT_HEADER_FILES files copy to OUTPUT_INC"
 	@echo "    EXPORT_CONFIG_FILES files copy to OUTPUT_ETC"
 	@echo "    EXPORT_FILES        files copy to OUTPUT_BIN"
+	@echo "    BIN                 the target binary"
 	@echo ""
 	@echo "    BUILD_VERBOSE       verbose output (MUST before def.mk)"
 	@echo "    BUILD_OUTPUT        output dir (MUST before def.mk)"

@@ -21,6 +21,7 @@ SOURCE_ROOT  ?= $(MODULE_ROOT)
 SOURCE_DIRS  ?= .
 SOURCE_OMIT  ?=
 
+
 SOURCE_C_FILES     ?= $(shell find $(SOURCE_DIRS) -name "*.c")
 SOURCE_CXX_FILES   ?= $(shell find $(SOURCE_DIRS) -name "*.cpp")
 SOURCE_FILES ?= $(SOURCE_C_FILES) $(SOURCE_CXX_FILES)
@@ -166,6 +167,9 @@ help: help-common
 	@echo "    SOURCE_ROOT         source root directory (default MODULE_ROOT)"
 	@echo "    SOURCE_DIRS         source directories (default src)"
 	@echo "    SOURCE_OMIT         ignored files"
+	@echo "    SOURCE_C_FILES      binary c source files"
+	@echo "    SOURCE_CXX_FILES    binary cpp source files"
+	@echo "    SOURCE_FILES        source files"
 	@echo "    INCLUDES            include directories (default include)"
 	@echo "    DEFINES             definitions"
 	@echo "    EXPORT_HEADER_FILES files copy to OUTPUT_INC"

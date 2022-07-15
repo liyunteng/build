@@ -25,17 +25,17 @@ SOURCE_ROOT  ?= $(MODULE_ROOT)
 SOURCE_DIRS  ?= src
 SOURCE_OMIT  ?=
 
-SOURCE_C_FILES   = $(foreach dir, $(SOURCE_DIRS), $(wildcard $(dir)/*.c))
-SOURCE_CXX_FILES = $(foreach dir, $(SOURCE_DIRS), $(wildcard $(dir)/*.cpp))
-SOURCE_FILES  += $(SOURCE_C_FILES) $(SOURCE_CXX_FILES)
+SOURCE_C_FILES   ?= $(foreach dir, $(SOURCE_DIRS), $(wildcard $(dir)/*.c))
+SOURCE_CXX_FILES ?= $(foreach dir, $(SOURCE_DIRS), $(wildcard $(dir)/*.cpp))
+SOURCE_FILES  ?= $(SOURCE_C_FILES) $(SOURCE_CXX_FILES)
 SOURCE_FILES  := $(SOURCE_FILES:./%=%)
 ifneq ($(strip $(SOURCE_OMIT)),)
 SOURCE_FILES := $(filter-out $(foreach x,$(SOURCE_OMIT),$(x)), $(SOURCE_FILES))
 endif
 
 TEST_DIRS  ?= test
-TEST_C_FILES   += $(foreach dir,$(TEST_DIRS),$(wildcard $(dir)/*.c))
-TEST_CXX_FILES += $(foreach dir,$(TEST_DIRS),$(wildcard $(dir)/*.cpp))
+TEST_C_FILES   ?= $(foreach dir,$(TEST_DIRS),$(wildcard $(dir)/*.c))
+TEST_CXX_FILES ?= $(foreach dir,$(TEST_DIRS),$(wildcard $(dir)/*.cpp))
 TEST_FILES ?= $(TEST_C_FILES) $(TEST_CXX_FILES)
 TEST_FILES := $(TEST_FILES:./%=%)
 
@@ -240,11 +240,20 @@ help: help-common
 	@echo "    SOURCE_ROOT         source Root Directory (default MODULE_ROOT)"
 	@echo "    SOURCE_DIRS         source directories (default src)"
 	@echo "    SOURCE_OMIT         ignored files"
+	@echo "    SOURCE_C_FILES      library c source files"
+	@echo "    SOURCE_CXX_FILES    library cpp source files"
+	@echo "    SOURCE_FILES        source files"
+	@echo "    TEST_DIRS           test source directory (default test)"
+	@echo "    TEST_C_FILES        test c source files"
+	@echo "    TEST_CXX_FILES      test cpp source files"
+	@echo "    TEST_FILES          test source files"
 	@echo "    INCLUDES            include directories (default include)"
 	@echo "    DEFINES             definitions"
 	@echo "    EXPORT_HEADER_FILES files copy to OUTPUT_INC"
 	@echo "    EXPORT_CONFIG_FIlES files copy to OUTPUT_ETC"
-	@echo "    EXPORT_FILES        files copy to OUTPUT_BIN "
+	@echo "    EXPORT_FILES        files copy to OUTPUT_BIN"
+	@echo "    STATIC_LIBS         static library name (default lib$(LIB_NAME).a)"
+	@echo "    DYNAMIC_LIBS        dynamic library name (default lib$(LIB_NAME).so)"
 	@echo ""
 
 	@echo "    BUILD_VERBOSE       verbose output (MUST Before def.mk)"
