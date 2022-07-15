@@ -66,13 +66,13 @@ EXPORT_HEADER_FILES := $(EXPORT_HEADER_FILES:$(EXPORT_HEADER_DIR)/%=%)
 TARGET_HEADER_FILES := $(addprefix $(OUTPUT_INC)/, $(EXPORT_HEADER_FILES))
 
 # export configs
-EXPORT_CONFIG_DIR   ?= test
+EXPORT_CONFIG_DIR   ?= .
 EXPORT_CONFIG_FILES ?=
 EXPORT_CONFIG_FILES := $(EXPORT_CONFIG_FILES:$(EXPORT_CONFIG_DIR)/%=%)
 TARGET_CONFIG_FILES := $(addprefix $(OUTPUT_ETC)/, $(EXPORT_CONFIG_FILES))
 
 # export files
-EXPORT_FILES_DIR ?= test
+EXPORT_FILES_DIR ?= .
 EXPORT_FILES ?=
 EXPORT_FILES := $(EXPORT_FILES:$(EXPORT_FILES_DIR)/%=%)
 TARGET_FILES := $(addprefix $(OUTPUT_BIN)/, $(EXPORT_FILES))
@@ -249,6 +249,9 @@ help: help-common
 	@echo "    TEST_FILES          test source files"
 	@echo "    INCLUDES            include directories (default include)"
 	@echo "    DEFINES             definitions"
+	@echo "    EXPORT_HEADER_DIR   EXPORT_HEADER_FILES's directory (default include)"
+	@echo "    EXPORT_CONFIG_DIR   EXPORT_CONFIG_FILES's directory"
+	@echo "    EXPORT_FILES_DIR    EXPORT_FILES's directory"
 	@echo "    EXPORT_HEADER_FILES files copy to OUTPUT_INC"
 	@echo "    EXPORT_CONFIG_FIlES files copy to OUTPUT_ETC"
 	@echo "    EXPORT_FILES        files copy to OUTPUT_BIN"
