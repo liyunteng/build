@@ -74,9 +74,9 @@ MKDIR       := mkdir -p
 
 # Compiler
 # ******************************
-ISCLANG := $(findstring clang,$(shell $(CC) --version))
+CLANG ?= $(findstring clang,$(shell $(CC) --version))
 
-ifneq ($(ISCLANG),)
+ifneq ($(CLANG),)
 CC		    := $(CROSS_COMPILE)clang
 CXX         := $(CROSS_COMPILE)clang++
 CPP		    := $(CC) -E
@@ -113,7 +113,7 @@ LOADLIBES   ?=
 LDLIBS      ?=
 ARFLAGS     := rcs
 
-ifeq ($(ISCLANG),)
+ifeq ($(CLANG),)
 LDFLAGS += -Wl,--build-id
 endif
 
