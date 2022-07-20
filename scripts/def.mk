@@ -131,8 +131,10 @@ else ifeq ($(BUILD_ENV), map)
 	CXXFLAGS += -g -ggdb
 endif
 
+
 CPPFLAGS += -I$(OUTPUT_INC)
-LDFLAGS += -L$(OUTPUT_LIB) -Wl,-rpath=$(OUTPUT_LIB)
+LDFLAGS += -L$(OUTPUT_LIB) -Wl,-rpath,$(OUTPUT_LIB)
+
 export
 endif
 
