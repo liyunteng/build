@@ -77,32 +77,29 @@ MKDIR       := mkdir -p
 CLANG ?= $(findstring clang,$(shell $(CC) --version))
 
 ifneq ($(CLANG),)
-CC		    := $(CROSS_COMPILE)clang
-CXX         := $(CROSS_COMPILE)clang++
-CPP		    := $(CC) -E
-AS          := $(CROSS_COMPILE)llvm-as
-LD		    := $(CROSS_COMPILE)llvm-link
-AR		    := $(CROSS_COMPILE)llvm-ar
-NM		    := $(CROSS_COMPILE)llvm-nm
-STRIP	    := $(CROSS_COMPILE)llvm-strip
-OBJCOPY	    := $(CROSS_COMPILE)llvm-objcopy
-OBJDUMP	    := $(CROSS_COMPILE)llvm-objdump
-OBJSIZE		:= $(CROSS_COMPILE)llvm-size
-RANLIB      := $(CROSS_COMPILE)llvm-ranlib
+CC          := clang
+CXX         := clang++
+CPP         := $(CC) -E
+
+AR          := llvm-ar
+STRIP       := llvm-strip
+OBJCOPY     := llvm-objcopy
+OBJDUMP     := llvm-objdump
+OBJSIZE     := llvm-size
 else
-CC		    := $(CROSS_COMPILE)gcc
+CC          := $(CROSS_COMPILE)gcc
 CXX         := $(CROSS_COMPILE)g++
-CPP		    := $(CC) -E
-AS		    := $(CROSS_COMPILE)as
-LD		    := $(CROSS_COMPILE)ld
-AR		    := $(CROSS_COMPILE)ar
-NM		    := $(CROSS_COMPILE)nm
-STRIP	    := $(CROSS_COMPILE)strip
-OBJCOPY	    := $(CROSS_COMPILE)objcopy
-OBJDUMP	    := $(CROSS_COMPILE)objdump
-OBJSIZE		:= $(CROSS_COMPILE)size
+CPP         := $(CC) -E
+
+AR          := $(CROSS_COMPILE)ar
+STRIP       := $(CROSS_COMPILE)strip
+OBJCOPY     := $(CROSS_COMPILE)objcopy
+OBJDUMP     := $(CROSS_COMPILE)objdump
+OBJSIZE     := $(CROSS_COMPILE)size
+NM          := $(CROSS_COMPILE)nm
 RANLIB      := $(CROSS_COMPILE)ranlib
 endif
+AS		    := $(CROSS_COMPILE)as
 
 CPPFLAGS    ?=
 CFLAGS      ?= -Wall -fstack-protector -Wmissing-prototypes -Wstrict-prototypes
