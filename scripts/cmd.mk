@@ -23,11 +23,7 @@ RANLIBMSG := "RANLIB"
 # CXXDEPMSG := "CXXDEP"
 
 ifeq ($(BUILD_ENV),map)
-ifeq ($(CLANG),)
-	LDFLAGS += -Wl,-Map,$@.map
-else
-	LDFLAGS += -Wl,-map,$@.map
-endif
+LDFLAGS += -Wl,-Map,$@.map
 endif
 
 ifeq ($(V),0)
