@@ -23,7 +23,12 @@ RANLIBMSG := "RANLIB"
 # CXXDEPMSG := "CXXDEP"
 
 ifeq ($(BUILD_ENV),map)
+ifeq ($(OS_TYPE),Darwin)
+# Darwin not support -Map
+LDFLAGS += -Wl,-map,$@.map
+else
 LDFLAGS += -Wl,-Map,$@.map
+endif
 endif
 
 ifeq ($(V),0)
