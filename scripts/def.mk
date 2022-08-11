@@ -78,44 +78,55 @@ MKDIR       := mkdir -p
 
 # Compiler
 # ******************************
-CLANG ?= $(findstring clang,$(shell $(CC) --version))
+ifeq ($(LLVM),1)
+CC          = clang
+CXX         = clang++
+CPP         = $(CC) -E
 
-ifneq ($(CLANG),)
-CC          := clang
-CXX         := clang++
-CPP         := $(CC) -E
-
-AR          := llvm-ar
-STRIP       := llvm-strip
-OBJCOPY     := llvm-objcopy
-OBJDUMP     := llvm-objdump
-OBJSIZE     := llvm-size
+LD          = ld.lld
+AR          = llvm-ar
+NM          = llvm-nm
+STRIP       = llvm-strip
+OBJCOPY     = llvm-objcopy
+OBJDUMP     = llvm-objdump
+READELF     = llvm-readelf
+OBJSIZE     = llvm-size
 else
-CC          := $(CROSS_COMPILE)gcc
-CXX         := $(CROSS_COMPILE)g++
-CPP         := $(CC) -E
+CC          = $(CROSS_COMPILE)gcc
+CXX         = $(CROSS_COMPILE)g++
+CPP         = $(CC) -E
 
-AR          := $(CROSS_COMPILE)ar
-STRIP       := $(CROSS_COMPILE)strip
-OBJCOPY     := $(CROSS_COMPILE)objcopy
-OBJDUMP     := $(CROSS_COMPILE)objdump
-OBJSIZE     := $(CROSS_COMPILE)size
-NM          := $(CROSS_COMPILE)nm
-RANLIB      := $(CROSS_COMPILE)ranlib
+LD          = $(CROSS_COMPILE)ld
+AR          = $(CROSS_COMPILE)ar
+NM          = $(CROSS_COMPILE)nm
+STRIP       = $(CROSS_COMPILE)strip
+OBJCOPY     = $(CROSS_COMPILE)objcopy
+OBJDUMP     = $(CROSS_COMPILE)objdump
+READELF     = $(CROSS_COMPILE)readelf
+OBJSIZE     = $(CROSS_COMPILE)size
+RANLIB      = $(CROSS_COMPILE)ranlib
 endif
-AS		    := $(CROSS_COMPILE)as
+AS		    = $(CROSS_COMPILE)as
 
+ifneq ($(shell $(CC) --version > /dev/null 2>&1; echo -n $$?),0)
+$(error $(CC) not found, check your PATH)
+endif
+
+# Flags
 CPPFLAGS    ?=
 CFLAGS      ?= -Wall -fstack-protector -Wmissing-prototypes -Wstrict-prototypes
 CXXFLAGS    ?= -Wall -fstack-protector
 ASFLAGS     ?= -D__ASSEMBLY__ -fno-PIE
-LDFLAGS     ?=
+LDFLAGS     ?= -Wl,--build-id
 LOADLIBES   ?=
 LDLIBS      ?=
 ARFLAGS     := rcs
 
-ifeq ($(CLANG),)
-LDFLAGS += -Wl,--build-id
+ifneq ($(CROSS_COMPILE),)
+ifeq ($(LLVM),1)
+	CFLAGS += --target=$(CROSS_COMPILE)
+	CXXFLAGS += --target=$(CROSS_COMPILE)
+endif
 endif
 
 ifeq ($(BUILD_ENV), release)
@@ -131,12 +142,6 @@ else ifeq ($(BUILD_ENV), map)
 	CFLAGS += -g -ggdb
 	CXXFLAGS += -g -ggdb
 endif
-
-ifneq ($(VERSION),)
-	CFLAGS += -DVERSION=\"$(VERSION)\"
-	CXXFLAGS += -DVERSION=\"$(VERSION)\"
-endif
-
 
 CPPFLAGS += -I$(OUTPUT_INC)
 LDFLAGS += -L$(OUTPUT_LIB) -Wl,-rpath,$(OUTPUT_LIB)
@@ -209,12 +214,15 @@ show-common:
 	@echo ""
 
 help-common:
-	@echo "make <CROSS_COMPILE=arm-linux-gnueabi-> <BUILD_ENV=[release|debug|debuginfo|map]> <BUILD_VERBOSE=[0|1|2|3]> <BUILD_OUTPUT=/opt/out> <D=[0|1|2|3]> <V=[0|1|2|3]> <O=/opt/out> <show> <help>"
+	@echo "make <CROSS_COMPILE=arm-linux-gnueabi-> <BUILD_ENV=[release|debug|debuginfo|map]> <BUILD_VERBOSE=[0|1|2|3]> <BUILD_OUTPUT=/opt/out> <BUILD_VERSION=1> <VERSION=xxx> <LLVM=[0|1]> <D=[0|1|2|3]> <V=[0|1|2|3]> <O=/opt/out> <show> <help>"
 	@echo ""
 	@echo "    CROSS_COMPILE       cross compile toolchain"
 	@echo "    BUILD_ENV           [release|debug|debuginfo|map] default is release"
 	@echo "    BUILD_VERBOSE       [0 breif | 1 compile message | 2 with debug message | 3 all message] default is 0"
 	@echo "    BUILD_OUTPUT        output default is out"
+	@echo "    BUILD_VERSION       build version.c from version.ver"
+	@echo "    VERSION             -DVERSION=xxx to CFLAGS and CXXFLAGS"
+	@echo "    LLVM                use clang/clang++"
 	@echo "    D                   [0 release | 1 debug | 2 debuginfo | 3 map] default is 0, same as BUILD_ENV"
 	@echo "    V                   same as BUILD_VERBOSE"
 	@echo "    O                   same as BUILD_OUTPUT"

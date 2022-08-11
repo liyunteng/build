@@ -6,21 +6,37 @@ COLOR_PURPLE := \033[1;35m
 COLOR_CYAN   := \033[1;36m
 COLOR_NORMAL := \033[0;00m
 
+ifeq ($(CROSS_COMPILE),)
 CCMSG     := "CC"
 CXXMSG    := "CXX"
 LDMSG     := "LD"
-CXXLDMSG  := "CXXLD"
+CXXLDMSG  := "XLD"
 ARMSG     := "AR"
-CXXARMSG  := "CXXAR"
+CXXARMSG  := "XAR"
 STRIPMSG  := "STRIP"
-CPMSG     := "COPY"
-RMMSG     := "RM"
-DBGMSG    := "DBG"
-MKDIRMSG  := "MKDIR"
 ASMSG     := "AS"
+DBGMSG    := "DBG"
 RANLIBMSG := "RANLIB"
 # CDEPMSG   := "CDEP"
 # CXXDEPMSG := "CXXDEP"
+else
+CCMSG     := "CROSS-CC"
+CXXMSG    := "CROSS-CXX"
+LDMSG     := "CROSS-LD"
+CXXLDMSG  := "CROSS-XLD"
+ARMSG     := "CROSS-AR"
+CXXARMSG  := "CROSS-XAR"
+STRIPMSG  := "CROSS-STRIP"
+ASMSG     := "CROSS-AS"
+DBGMSG    := "CROSS-DBG"
+RANLIBMSG := "CROSS-RANLIB"
+# CDEPMSG   := "CROSS-CDEP"
+# CXXDEPMSG := "CROSS-CXXDEP"
+endif
+
+CPMSG     := "COPY"
+RMMSG     := "RM"
+MKDIRMSG  := "MKDIR"
 
 ifeq ($(BUILD_ENV),map)
 ifeq ($(OS_TYPE),Darwin)
@@ -31,12 +47,13 @@ LDFLAGS += -Wl,-Map,$@.map
 endif
 endif
 
+# printf "$(COLOR_GREEN)%-6.6s$(COLOR_NORMAL) [%s]  %s\n" $(1) $(2) $(3);
 ifeq ($(V),0)
 cmd_show = ;\
 	if [ $$? -eq 0 ]; then \
-		printf "$(COLOR_GREEN)%-6.6s$(COLOR_NORMAL) [%s]  %s\n" $(1) $(2) $(3); \
+		printf "$(COLOR_GREEN)%-12.12s$(COLOR_NORMAL) [%s] %s\n" $(1) $(2) $(3); \
 	else \
-		printf "$(COLOR_RED)%-6.6s$(COLOR_NORMAL) [%s] %s\n" $(1) $(2) $(3) && exit 1; \
+		printf "$(COLOR_RED)%-12.12s$(COLOR_NORMAL) [%s] %s\n" $(1) $(2) $(3) && exit 1; \
 	fi
 else
 cmd_show =
@@ -47,8 +64,8 @@ cmd_cp = \
 	$(call cmd_show,$(CPMSG),$(1),$(3))
 
 cmd_mkdir = \
-	$(Q3)[ ! -d $(dir $(2)) ] && $(MKDIR) $(dir $(2)) || exit 0 \
-	$(call cmd_show,$(MKDIRMSG),$(1),$(dir $(2)))
+	$(Q3)[ ! -d $(dir $(2)) ] && $(MKDIR) $(dir $(2)) || exit 0
+	# $(call cmd_show,$(MKDIRMSG),$(1),$(dir $(2)))
 
 cmd_rm = \
 	$(Q3)[ -d $(2) ] && $(RM) $(2) || exit 0 \
@@ -89,7 +106,7 @@ cmd_cxxlib = \
 	$(call cmd_show,$(CXXARMSG),$(1),$(3))
 
 cmd_solib = \
-	$(Q1)$(CC) -o $(3) $(2) -shared $(LDFLAGS) $(LOADLIBES) $(LDLIBS)\
+	$(Q1)$(CC) -o $(3) $(2) -shared $(LDFLAGS) $(LOADLIBES) $(LDLIBS) \
 	$(call cmd_show,$(LDMSG),$(1),$(3))
 
 cmd_cxxsolib = \

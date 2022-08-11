@@ -1,4 +1,5 @@
 include $(PROJECT_ROOT)/scripts/def.mk
+include $(PROJECT_ROOT)/scripts/cmd.mk
 
 MODE := subdir
 MODULE_ROOT ?= $(shell pwd)
@@ -14,6 +15,18 @@ endif
 ifneq ($(strip $(X)),)
 # OUTPUT_OBJ := $(OUTPUT_OBJ)/$(X)
 endif
+
+ifeq ($(BUILD_VERSION),1)
+	VERSIONOBJ = $(OUTPUT_OBJ)/version.o
+endif
+
+ifneq ($(VERSION),)
+ifneq ($(origin VERSION), environment)
+	CFLAGS += -DVERSION=\"$(VERSION)\"
+	CXXFLAGS += -DVERSION=\"$(VERSION)\"
+endif
+endif
+
 
 SUBDIRS ?=
 
@@ -48,13 +61,18 @@ $(SUBDIRS_UNINSTALL):
 	$(Q1)$(MAKE) -C $(patsubst %-uninstall,%,$@) uninstall || exit 1
 
 .PHONY: clean $(SUBDIRS_CLEAN)
-clean: $(SUBDIRS_CLEAN)
+clean:
+	$(call cmd_rm,$(MODULE_NAME),$(OUTPUT_ROOT))
+
+# clean: $(SUBDIRS_CLEAN)
 $(SUBDIRS_CLEAN):
 	$(Q1)$(MAKE) -C $(patsubst %-clean,%,$@) clean || exit 1
 
 
 .PHONY: distclean $(SUBDIRS_DISTCLEAN)
-distclean: $(SUBDIRS_DISTCLEAN) clean
+distclean: clean
+		
+# distclean: $(SUBDIRS_DISTCLEAN) clean
 $(SUBDIRS_DISTCLEAN):
 	$(Q1)$(MAKE) -C $(patsubst %-distclean,%,$@) distclean || exit 1
 

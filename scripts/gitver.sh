@@ -1,18 +1,18 @@
 #!/bin/sh
 
-tags=$(git describe --always --tags)
-verbose=$(git log --pretty=format:"%H | %s | %ad" --date=iso8601-strict -n 1)
-branch=$(git symbolic-ref HEAD 2> /dev/null | cut -b 12-)
-date=$(date -Iseconds)
-# if [ "master" = $branch ]
+build_version=$(git describe --always --tags)
+build_verbose=$(git log --pretty=format:"%H | %s | %ad" --date=iso8601-strict -n 1)
+build_branch=$(git symbolic-ref HEAD 2> /dev/null | cut -b 12-)
+build_date=$(date -Iseconds)
+# if [ "master" = ${build_branch}]
 # then
-#     branch=""
+#     build_branch=""
 # else
-#     branch="-dev"
+#     build_branch="-dev"
 # fi
 
-echo "Version:" "$tags"
-echo "Branch:" "$branch"
-echo "Verbose:" "$verbose"
-echo "Date:" "$date"
-sed -e "s/@VERSION@/$tags/" -e "s/@BRANCH@@/$branch/" -e "s/@VERBOSE@/$verbose/" -e "s/@DATE@/$date/" "$1" > "$2"
+echo "Build Version: ${build_version}"
+echo "Build Branch: ${build_branch}"
+echo "Build Date: ${build_date}"
+echo "Build Verbose: ${build_verbose}"
+sed -e "s/@VERSION@/${build_version}/" -e "s/@BRANCH@/${build_branch}/" -e "s/@DATE@/${build_date}/"  -e "s/@VERBOSE@/${build_verbose}/" "$1" > "$2"

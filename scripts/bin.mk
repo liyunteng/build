@@ -20,6 +20,13 @@ ifeq ($(BUILD_VERSION),1)
 	VERSIONOBJ = $(OUTPUT_OBJ)/version.o
 endif
 
+ifneq ($(VERSION),)
+ifneq ($(origin VERSION), environment)
+	CFLAGS += -DVERSION=\"$(VERSION)\"
+	CXXFLAGS += -DVERSION=\"$(VERSION)\"
+endif
+endif
+
 # Source FileList
 SOURCE_ROOT  ?= $(MODULE_ROOT)
 SOURCE_DIRS  ?= src
