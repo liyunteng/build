@@ -17,6 +17,10 @@ $(error Invalid D=$(D) D=[0|1|2|3])
 endif
 endif
 
+# Version
+VERSION ?=
+BUILD_VERSION ?= 0
+
 # Verbose
 V ?= 0
 BUILD_VERBOSE ?= 0
@@ -126,6 +130,11 @@ else ifeq ($(BUILD_ENV), debuginfo)
 else ifeq ($(BUILD_ENV), map)
 	CFLAGS += -g -ggdb
 	CXXFLAGS += -g -ggdb
+endif
+
+ifneq ($(VERSION),)
+	CFLAGS += -DVERSION=\"$(VERSION)\"
+	CXXFLAGS += -DVERSION=\"$(VERSION)\"
 endif
 
 

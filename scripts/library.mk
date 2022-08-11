@@ -20,6 +20,10 @@ endif
 LIB_NAME    ?= $(notdir $(MODULE_NAME))
 LIB_TYPE    ?= all
 
+ifeq ($(BUILD_VERSION),1)
+	VERSIONOBJ = $(OUTPUT_OBJ)/version.o
+endif
+
 # Source FileList
 SOURCE_ROOT  ?= $(MODULE_ROOT)
 SOURCE_DIRS  ?= src
@@ -54,8 +58,8 @@ TEST_FILES := $(addprefix $(SOURCE_ROOT)/, $(TEST_FILES))
 # CPPFLAGS/CFLAGS/CXXFLAGS
 INCLUDES ?= include
 DEFINES  ?=
-CPPFLAGS += $(foreach x,$(INCLUDES), -I$(x))
-CPPFLAGS += $(foreach x,$(DEFINES), -D$(x))
+CPPFLAGS += $(addprefix -I, $(INCLUDES))
+CPPFLAGS += $(addprefix -D, $(DEFINES))
 CFLAGS += -fPIC
 CXXFLAGS += -fPIC
 
@@ -113,11 +117,11 @@ after: $(TARGET_CONFIG_FILES) $(TARGET_FILES)
 
 success:
 
-libs: $(STATIC_LIBS) $(DYNAMIC_LIBS)
+libs: $(VERSIONOBJ) $(STATIC_LIBS) $(DYNAMIC_LIBS)
 
 test: libs $(TESTS)
 
-$(STATIC_LIBS): $(OBJECT_FILES)
+$(STATIC_LIBS): $(OBJECT_FILES) $(VERSIONOBJ)
 ifneq ($(strip $(OBJECT_FILES)),)
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 ifneq ($(strip $(SOURCE_CXX_FILES)),)
@@ -128,7 +132,7 @@ endif
 	$(call cmd_strip_static,$(MODULE_NAME),$^,$@)
 endif
 
-$(DYNAMIC_LIBS): $(OBJECT_FILES)
+$(DYNAMIC_LIBS): $(OBJECT_FILES) $(VERSIONOBJ)
 ifneq ($(strip $(OBJECT_FILES)),)
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 ifneq ($(strip $(SOURCE_CXX_FILES)),)
@@ -142,7 +146,7 @@ endif
 
 $(TESTS): LDFLAGS += -l$(LIB_NAME)
 ifeq ($(words $(TESTS)),1)
-$(TESTS): $(OUTPUT_BIN)/%: $(TEST_OBJECT_FILES)
+$(TESTS): $(OUTPUT_BIN)/%: $(TEST_OBJECT_FILES) $(VERSIONOBJ)
 ifneq ($(strip $(TEST_OBJECT_FILES)),)
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 ifneq ($(strip $(TEST_CXX_FILES)),)
@@ -163,6 +167,13 @@ $(OUTPUT_OBJ)/%.o : %.c
 $(OUTPUT_OBJ)/%.o : %.cpp
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_cxx,$(MODULE_NAME),$<,$@)
+
+$(VERSIONOBJ): $(PROJECT_ROOT)/scripts/version.ver 
+	$(call cmd_mkdir,$(MODULE_NAME),$@)
+	$(Q2)$(PROJECT_ROOT)/scripts/gitver.sh $< $(OUTPUT_OBJ)/version.c
+	$(call cmd_c,${MODULE_NAME},$(OUTPUT_OBJ)/version.c,$@)
+
+
 
 # $(OUTPUT_OBJ)/%.o.d: %.c
 #   $(call cmd_mkdir,$(MODULE_NAME),$@)

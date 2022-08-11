@@ -147,7 +147,6 @@ cmd_strip =
 cmd_strip_static =
 endif
 
-
 define cmd_build
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_bin,$(MODULE_NAME),$^,$@)

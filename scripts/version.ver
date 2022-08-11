@@ -1,0 +1,4 @@
+const char* const build_version="@VERSION@";
+const char* const build_branch="@BRANCH@";
+const char* const build_verbose="@VERBOSE@";
+const char* const build_date="@DATE@";

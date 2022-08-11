@@ -16,6 +16,10 @@ ifneq ($(strip $(X)),)
 OUTPUT_OBJ := $(OUTPUT_OBJ)/$(X)
 endif
 
+ifeq ($(BUILD_VERSION),1)
+	VERSIONOBJ = $(OUTPUT_OBJ)/version.o
+endif
+
 # Source FileList
 SOURCE_ROOT  ?= $(MODULE_ROOT)
 SOURCE_DIRS  ?= src
@@ -38,8 +42,8 @@ SOURCE_FILES := $(addprefix $(SOURCE_ROOT)/, $(SOURCE_FILES))
 # CPPFLAGS/CFLAGS/CXXFLAGS
 INCLUDES ?= include
 DEFINES  ?=
-CPPFLAGS += $(foreach x,$(INCLUDES), -I$(x))
-CPPFLAGS += $(foreach x,$(DEFINES), -D$(x))
+CPPFLAGS += $(addprefix -I, $(INCLUDES))
+CPPFLAGS += $(addprefix -D, $(DEFINES))
 CFLAGS += -fPIC
 CXXFLAGS += -fPIC
 
@@ -80,9 +84,9 @@ success:
 
 after: $(TARGET_CONFIG_FILES) $(TARGET_FILES)
 
-bin: $(BIN)
+bin: $(VERSIONOBJ) $(BIN)
 
-$(BIN): $(OUTPUT_BIN)/% : $(OBJECT_FILES)
+$(BIN): $(OUTPUT_BIN)/% : $(OBJECT_FILES) $(VERSIONOBJ)
 ifneq ($(strip $(OBJECT_FILES)),)
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 ifneq ($(strip $(SOURCE_CXX_FILES)),)
@@ -101,6 +105,11 @@ $(OUTPUT_OBJ)/%.o : %.c
 $(OUTPUT_OBJ)/%.o : %.cpp
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_cxx,$(MODULE_NAME),$<,$@)
+
+$(VERSIONOBJ): $(PROJECT_ROOT)/scripts/version.ver 
+	$(call cmd_mkdir,$(MODULE_NAME),$@)
+	$(Q2)$(PROJECT_ROOT)/scripts/gitver.sh $< $(OUTPUT_OBJ)/version.c
+	$(call cmd_c,${MODULE_NAME},$(OUTPUT_OBJ)/version.c,$@)
 
 # $(OUTPUT_OBJ)/%.o.d: %.c
 #   $(call cmd_mkdir,$(MODULE_NAME),$@)
