@@ -108,7 +108,7 @@ RANLIB      = $(CROSS_COMPILE)ranlib
 endif
 AS		    = $(CROSS_COMPILE)as
 
-ifneq ($(shell $(CC) --version > /dev/null 2>&1; echo -n $$?),0)
+ifneq ($(shell $(CC) --version > /dev/null 2>&1; echo $$?),0)
 $(error $(CC) not found, check your PATH)
 endif
 
@@ -117,7 +117,7 @@ CPPFLAGS    ?=
 CFLAGS      ?= -Wall -fstack-protector -Wmissing-prototypes -Wstrict-prototypes
 CXXFLAGS    ?= -Wall -fstack-protector
 ASFLAGS     ?= -D__ASSEMBLY__ -fno-PIE
-LDFLAGS     ?= -Wl,--build-id
+LDFLAGS     ?=
 LOADLIBES   ?=
 LDLIBS      ?=
 ARFLAGS     := rcs
@@ -143,6 +143,11 @@ else ifeq ($(BUILD_ENV), map)
 	CXXFLAGS += -g -ggdb
 endif
 
+# MacOS clang not support --build-id
+ifneq ($(OS_TYPE), Darwin)
+LDFLAGS += -Wl,--build-id
+endif
+
 CPPFLAGS += -I$(OUTPUT_INC)
 LDFLAGS += -L$(OUTPUT_LIB) -Wl,-rpath,$(OUTPUT_LIB)
 
@@ -158,6 +163,9 @@ show-common:
 	@echo "BUILD_VERBOSE      = " $(BUILD_VERBOSE)
 	@echo "BUILD_PWD          = " $(BUILD_PWD)
 	@echo "BUILD_OUTPUT       = " $(BUILD_OUTPUT)
+	@echo "BUILD_VERSION      = " $(BUILD_VERSION)
+	@echo "VERSION            = " $(VERSION)
+	@echo "LLVM               = " $(LLVM)
 	@echo "D                  = " $(D)
 	@echo "O                  = " $(O)
 	@echo "Q1                 = " $(Q1)
