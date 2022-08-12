@@ -3,8 +3,14 @@ include $(PROJECT_ROOT)/scripts/cmd.mk
 
 MODE := library
 MODULE_ROOT := $(BUILD_PWD)
+
+ifeq ($(MODULE_ROOT),$(BUILD_ROOT))
+MODULE_PATH :=
+MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
+else
 MODULE_PATH := $(MODULE_ROOT:$(BUILD_ROOT)/%=%)
 MODULE_NAME ?= $(MODULE_PATH)
+endif
 
 ifneq ($(strip $(MODULE_PATH)),)
 OUTPUT_OBJ := $(OUTPUT_OBJ)/$(MODULE_PATH)
