@@ -71,7 +71,7 @@ $(SUBDIRS_CLEAN):
 
 .PHONY: distclean $(SUBDIRS_DISTCLEAN)
 distclean: clean
-		
+
 # distclean: $(SUBDIRS_DISTCLEAN) clean
 $(SUBDIRS_DISTCLEAN):
 	$(Q1)$(MAKE) -C $(patsubst %-distclean,%,$@) distclean || exit 1

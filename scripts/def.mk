@@ -1,4 +1,4 @@
-ifeq ($(MAKELEVEL),0)
+# ifeq ($(MAKELEVEL),0)
 
 # Env
 D ?= 0
@@ -53,7 +53,7 @@ else
 endif
 
 # Output
-BUILD_PWD    := $(abspath $(CURDIR))
+BUILD_PWD    = $(abspath $(CURDIR))
 BUILD_OUTPUT ?= $(abspath $(CURDIR))/out
 ifeq ("$(origin O)", "command line")
     BUILD_OUTPUT = $(abspath $(O))
@@ -152,8 +152,9 @@ CPPFLAGS += -I$(OUTPUT_INC)
 LDFLAGS += -L$(OUTPUT_LIB) -Wl,-rpath,$(OUTPUT_LIB)
 
 export
-endif
+# endif
 
+######################################################################
 
 default: all
 .PHONY: show-common help-common
