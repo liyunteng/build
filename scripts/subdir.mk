@@ -2,19 +2,13 @@ include $(PROJECT_ROOT)/scripts/def.mk
 include $(PROJECT_ROOT)/scripts/cmd.mk
 
 MODE := subdir
-MODULE_ROOT ?= $(shell pwd)
-
-ifneq ($(BUILD_PWD),$(MODULE_ROOT))
-X := $(MODULE_ROOT:$(BUILD_PWD)/%=%)
-MODULE_NAME ?= $(X)
-else
-X :=
+MODULE_ROOT := $(BUILD_PWD)
+MODULE_PATH := $(MODULE_ROOT:$(BUILD_ROOT)/%=%)
 MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
-endif
 
-ifneq ($(strip $(X)),)
-# OUTPUT_OBJ := $(OUTPUT_OBJ)/$(X)
-endif
+# ifneq ($(strip $(MODULE_PATH)),)
+# OUTPUT_OBJ := $(OUTPUT_OBJ)/$(MODULE_PATH)
+# endif
 
 ifeq ($(BUILD_VERSION),1)
 	VERSIONOBJ = $(OUTPUT_OBJ)/version.o
@@ -90,6 +84,7 @@ $(SUBDIRS_HELP):
 show: show-common
 	@echo "MODE               = " $(MODE)
 	@echo "MODULE_ROOT        = " $(MODULE_ROOT)
+	@echo "MODULE_PATH        = " $(MODULE_PATH)
 	@echo "MODULE_NAME        = " $(MODULE_NAME)
 	@echo "SUBDIRS            = " $(SUBDIRS)
 	@echo ""
@@ -98,7 +93,6 @@ show: show-common
 help: help-common
 	@echo "subdir.mk : Build Sub Directories"
 	@echo ""
-	@echo "    MODULE_ROOT         the root directory of this module"
 	@echo "    MODULE_NAME         the name of this mudule"
 	@echo "    SUBDIRS             subdirs"
 	@echo ""

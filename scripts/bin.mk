@@ -2,18 +2,12 @@ include $(PROJECT_ROOT)/scripts/def.mk
 include $(PROJECT_ROOT)/scripts/cmd.mk
 
 MODE := bin
-MODULE_ROOT  ?= $(shell pwd)
+MODULE_ROOT := $(BUILD_PWD)
+MODULE_PATH := $(MODULE_ROOT:$(BUILD_ROOT)/%=%)
+MODULE_NAME ?= $(MODULE_PATH)
 
-ifneq ($(BUILD_PWD),$(MODULE_ROOT))
-X := $(MODULE_ROOT:$(BUILD_PWD)/%=%)
-MODULE_NAME ?= $(X)
-else
-X :=
-MODULE_NAME ?= $(shell basename $(MODULE_ROOT))
-endif
-
-ifneq ($(strip $(X)),)
-OUTPUT_OBJ := $(OUTPUT_OBJ)/$(X)
+ifneq ($(strip $(MODULE_PATH)),)
+OUTPUT_OBJ := $(OUTPUT_OBJ)/$(MODULE_PATH)
 endif
 
 ifeq ($(BUILD_VERSION),1)
@@ -113,7 +107,7 @@ $(OUTPUT_OBJ)/%.o : %.cpp
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_cxx,$(MODULE_NAME),$<,$@)
 
-$(VERSIONOBJ): $(PROJECT_ROOT)/scripts/version.ver 
+$(VERSIONOBJ): $(PROJECT_ROOT)/scripts/version.ver
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(Q2)$(PROJECT_ROOT)/scripts/gitver.sh $< $(OUTPUT_OBJ)/version.c
 	$(call cmd_c,${MODULE_NAME},$(OUTPUT_OBJ)/version.c,$@)
@@ -158,6 +152,7 @@ showall: show
 show: show-common
 	@echo "MODE                = " $(MODE)
 	@echo "MODULE_ROOT         = " $(MODULE_ROOT)
+	@echo "MODULE_PATH         = " $(MODULE_PATH)
 	@echo "MODULE_NAME         = " $(MODULE_NAME)
 	@echo "BIN                 = " $(BIN)
 	@echo "SOURCE_ROOT         = " $(SOURCE_ROOT)
@@ -181,7 +176,6 @@ helpall: help
 help: help-common
 	@echo "bin.mk : Build executable"
 	@echo ""
-	@echo "    MODULE_ROOT         the root directory of this module"
 	@echo "    MODULE_NAME         the name of this mudule"
 	@echo "    SOURCE_ROOT         source root directory (default MODULE_ROOT)"
 	@echo "    SOURCE_DIRS         source directories (default src)"

@@ -1,4 +1,6 @@
-# ifeq ($(MAKELEVEL),0)
+ifeq ($(MAKELEVEL),0)
+BUILD_ROOT := $(abspath $(CURDIR))
+endif
 
 # Env
 D ?= 0
@@ -152,7 +154,6 @@ CPPFLAGS += -I$(OUTPUT_INC)
 LDFLAGS += -L$(OUTPUT_LIB) -Wl,-rpath,$(OUTPUT_LIB)
 
 export
-# endif
 
 ######################################################################
 
@@ -162,6 +163,7 @@ show-common:
 	@echo "=============== $(CURDIR) ==============="
 	@echo "BUILD_ENV          = " $(BUILD_ENV)
 	@echo "BUILD_VERBOSE      = " $(BUILD_VERBOSE)
+	@echo "BUILD_ROOT         = " $(BUILD_ROOT)
 	@echo "BUILD_PWD          = " $(BUILD_PWD)
 	@echo "BUILD_OUTPUT       = " $(BUILD_OUTPUT)
 	@echo "BUILD_VERSION      = " $(BUILD_VERSION)
