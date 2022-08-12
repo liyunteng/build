@@ -89,19 +89,19 @@ EXPORT_FILES := $(EXPORT_FILES:$(EXPORT_FILES_DIR)/%=%)
 TARGET_FILES := $(addprefix $(OUTPUT_BIN)/, $(EXPORT_FILES))
 
 # Lib Name
-STATIC_LIBS  ?= lib$(LIB_NAME).a
-DYNAMIC_LIBS ?= lib$(LIB_NAME).so
-
-STATIC_LIBS := $(addprefix $(OUTPUT_LIB)/, $(STATIC_LIBS))
-DYNAMIC_LIBS := $(addprefix $(OUTPUT_LIB)/, $(DYNAMIC_LIBS))
-
 ifeq ($(strip $(LIB_TYPE)),dynamic)
-LIBS ?= $(DYNAMIC_LIBS)
+DYNAMIC_LIBS ?= lib$(LIB_NAME).so
+DYNAMIC_LIBS := $(addprefix $(OUTPUT_LIB)/, $(DYNAMIC_LIBS))
 else ifeq ($(strip $(LIB_TYPE)),static)
-LIBS ?= $(STATIC_LIBS)
+STATIC_LIBS  ?= lib$(LIB_NAME).a
+STATIC_LIBS := $(addprefix $(OUTPUT_LIB)/, $(STATIC_LIBS))
 else
-LIBS ?= $(STATIC_LIBS) $(DYNAMIC_LIBS)
+DYNAMIC_LIBS ?= lib$(LIB_NAME).so
+DYNAMIC_LIBS := $(addprefix $(OUTPUT_LIB)/, $(DYNAMIC_LIBS))
+STATIC_LIBS  ?= lib$(LIB_NAME).a
+STATIC_LIBS := $(addprefix $(OUTPUT_LIB)/, $(STATIC_LIBS))
 endif
+LIBS := $(STATIC_LIBS) $(DYNAMIC_LIBS)
 
 TESTS ?= $(notdir $(MODULE_NAME))-test
 ifeq ($(strip $(TEST_FILES)),)
