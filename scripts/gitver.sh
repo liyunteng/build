@@ -1,6 +1,6 @@
 #!/bin/sh
 
-build_version=$(git describe --always --tags)
+build_version=$(git describe --always --tags --dirty=-dev)
 build_verbose=$(git log --pretty=format:"%H | %s | %ad" --date=iso8601-strict -n 1)
 build_branch=$(git symbolic-ref HEAD 2> /dev/null | cut -b 12-)
 build_date=$(date -Iseconds)
