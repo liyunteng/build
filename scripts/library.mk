@@ -67,8 +67,10 @@ INCLUDES ?= include
 DEFINES  ?=
 CPPFLAGS += $(addprefix -I, $(INCLUDES))
 CPPFLAGS += $(addprefix -D, $(DEFINES))
+ifneq ($(LIB_TYPE),static)
 CFLAGS += -fPIC
 CXXFLAGS += -fPIC
+endif
 
 # export header
 EXPORT_HEADER_DIR   ?= include

@@ -51,8 +51,8 @@ INCLUDES ?= include
 DEFINES  ?=
 CPPFLAGS += $(addprefix -I, $(INCLUDES))
 CPPFLAGS += $(addprefix -D, $(DEFINES))
-CFLAGS += -fPIC
-CXXFLAGS += -fPIC
+# CFLAGS += -fPIC
+# CXXFLAGS += -fPIC
 
 # export header
 EXPORT_HEADER_DIR   ?= include
