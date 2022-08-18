@@ -1,8 +1,8 @@
 #!/bin/sh
 
-build_version=$(git describe --always --tags --dirty=-dev)
+build_version=$(git describe --always --tags --long --dirty=-dev)
 build_verbose=$(git log --pretty=format:"%H | %s | %ad" --date=iso8601-strict -n 1)
-build_branch=$(git symbolic-ref HEAD 2> /dev/null | cut -b 12-)
+build_branch=$(git symbolic-ref --short HEAD 2> /dev/null)
 build_date=$(date -Iseconds)
 # if [ "master" = ${build_branch}]
 # then
