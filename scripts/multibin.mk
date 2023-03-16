@@ -72,16 +72,20 @@ BINS := $(addprefix $(OUTPUT_BIN)/, $(basename $(SOURCE_FILES:$(SOURCE_ROOT)/%=%
 ######################################################################
 all: build
 
-.PHONY: build before after success bins
-build: before bins after success
+.PHONY: build before version header bins after success
+build: before version header bins after success
 
-before: $(TARGET_HEADER_FILES)
+before:
+
+version: $(VERSIONOBJ)
+
+header: $(TARGET_HEADER_FILES)
 
 after: $(TARGET_CONFIG_FILES) $(TARGET_FILES)
 
 success:
 
-bins: $(VERSIONOBJ) $(BINS)
+bins: version header $(BINS)
 
 $(BINS): $(OUTPUT_BIN)/% : $(OBJECT_FILES) $(VERSIONOBJ)
 ifneq ($(strip $(OBJECT_FILES)),)
@@ -103,7 +107,7 @@ $(OUTPUT_OBJ)/%.o : %.cpp
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_cxx,$(MODULE_NAME),$<,$@)
 
-$(VERSIONOBJ): $(PROJECT_ROOT)/scripts/version.ver
+$(VERSIONOBJ): $(PROJECT_ROOT)/scripts/version.ver $(SOURCE_FILES)
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(Q2)$(PROJECT_ROOT)/scripts/gitver.sh $< $(OUTPUT_OBJ)/version.c
 	$(call cmd_c,${MODULE_NAME},$(OUTPUT_OBJ)/version.c,$@)

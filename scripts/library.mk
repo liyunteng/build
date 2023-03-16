@@ -115,10 +115,12 @@ TESTS := $(addprefix $(OUTPUT_BIN)/, $(TESTS))
 ######################################################################
 all: build
 
-.PHONY: build before header after success libs test
-build: before header libs test after success
+.PHONY: build before version header libs test after success
+build: before version header libs test after success
 
 before:
+
+version: $(VERSIONOBJ)
 
 header: $(TARGET_HEADER_FILES)
 
@@ -126,7 +128,7 @@ after: $(TARGET_CONFIG_FILES) $(TARGET_FILES)
 
 success:
 
-libs: $(VERSIONOBJ) $(STATIC_LIBS) $(DYNAMIC_LIBS)
+libs: version header $(STATIC_LIBS) $(DYNAMIC_LIBS)
 
 test: libs $(TESTS)
 
@@ -177,7 +179,7 @@ $(OUTPUT_OBJ)/%.o : %.cpp
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(call cmd_cxx,$(MODULE_NAME),$<,$@)
 
-$(VERSIONOBJ): $(PROJECT_ROOT)/scripts/version.ver
+$(VERSIONOBJ): $(PROJECT_ROOT)/scripts/version.ver $(SOURCE_FILES) $(TEST_FILES)
 	$(call cmd_mkdir,$(MODULE_NAME),$@)
 	$(Q2)$(PROJECT_ROOT)/scripts/gitver.sh $< $(OUTPUT_OBJ)/version.c
 	$(call cmd_c,${MODULE_NAME},$(OUTPUT_OBJ)/version.c,$@)

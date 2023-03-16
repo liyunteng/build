@@ -115,9 +115,10 @@ $(error $(CC) not found, check your PATH)
 endif
 
 # Flags
+CFLAGS      ?=
 CPPFLAGS    ?=
-CFLAGS      ?= -Wall -fstack-protector -Wmissing-prototypes -Wstrict-prototypes
-CXXFLAGS    ?= -Wall -fstack-protector
+# CFLAGS      ?= -Wall -fstack-protector -Wmissing-prototypes -Wstrict-prototypes
+# CXXFLAGS    ?= -Wall -fstack-protector
 ASFLAGS     ?= -D__ASSEMBLY__ -fno-PIE
 LDFLAGS     ?=
 LOADLIBES   ?=
@@ -132,8 +133,8 @@ endif
 endif
 
 ifeq ($(BUILD_ENV), release)
-	CFLAGS += -O2 -DNDEBUG
-	CXXFLAGS += -O2 -DNDEBUG
+	# CFLAGS += -O2 -DNDEBUG
+	# CXXFLAGS += -O2 -DNDEBUG
 else ifeq ($(BUILD_ENV), debug)
 	CFLAGS += -g -ggdb
 	CXXFLAGS += -g -ggdb
