@@ -85,7 +85,8 @@ CC          = clang
 CXX         = clang++
 CPP         = $(CC) -E
 
-LD          = ld.lld
+# LD          = ld.lld
+LD          = llvm-link
 AR          = llvm-ar
 NM          = llvm-nm
 STRIP       = llvm-strip
@@ -110,25 +111,22 @@ RANLIB      = $(CROSS_COMPILE)ranlib
 endif
 AS		    = $(CROSS_COMPILE)as
 
-ifneq ($(shell $(CC) --version > /dev/null 2>&1; echo $$?),0)
-$(error $(CC) not found, check your PATH)
-endif
-
 # Flags
 CFLAGS      ?=
-CPPFLAGS    ?=
+CXXFLAGS    ?=
 # CFLAGS      ?= -Wall -fstack-protector -Wmissing-prototypes -Wstrict-prototypes
 # CXXFLAGS    ?= -Wall -fstack-protector
+CPPFLAGS    ?=
 ASFLAGS     ?= -D__ASSEMBLY__ -fno-PIE
 LDFLAGS     ?=
 LOADLIBES   ?=
 LDLIBS      ?=
 ARFLAGS     := rcs
 
-ifneq ($(CROSS_COMPILE),)
 ifeq ($(LLVM),1)
-	CFLAGS += --target=$(CROSS_COMPILE)
-	CXXFLAGS += --target=$(CROSS_COMPILE)
+ifneq ($(LLVM_TARGET),)
+	CFLAGS += --target=$(LLVM_TARGET)
+	CXXFLAGS += --target=$(LLVM_TARGET)
 endif
 endif
 
@@ -170,6 +168,7 @@ show-common:
 	@echo "BUILD_VERSION      = " $(BUILD_VERSION)
 	@echo "VERSION            = " $(VERSION)
 	@echo "LLVM               = " $(LLVM)
+	@echo "LLVM_TARGET        = " $(LLVM_TARGET)
 	@echo "D                  = " $(D)
 	@echo "O                  = " $(O)
 	@echo "Q1                 = " $(Q1)
@@ -226,7 +225,11 @@ show-common:
 	@echo ""
 
 help-common:
-	@echo "make <CROSS_COMPILE=arm-linux-gnueabi-> <BUILD_ENV=[release|debug|debuginfo|map]> <BUILD_VERBOSE=[0|1|2|3]> <BUILD_OUTPUT=/opt/out> <BUILD_VERSION=1> <VERSION=xxx> <LLVM=[0|1]> <D=[0|1|2|3]> <V=[0|1|2|3]> <O=/opt/out> <show> <help>"
+	@echo "make <BUILD_ENV=[release|debug|debuginfo|map]> <BUILD_VERBOSE=[0|1|2|3]>"
+	@echo "     <BUILD_VERSION=1> <VERSION=xxx>"
+	@echo "     <CROSS_COMPILE=arm-linux-gnueabi-> <LLVM=[0|1]> <LLVM_TARGET=xxx>"
+	@echo "     <D=[0|1|2|3]> <V=[0|1|2|3]> <O=/opt/out> <show> <help>"
+
 	@echo ""
 	@echo "    CROSS_COMPILE       cross compile toolchain"
 	@echo "    BUILD_ENV           [release|debug|debuginfo|map] default is release"
@@ -235,6 +238,7 @@ help-common:
 	@echo "    BUILD_VERSION       build version.c from version.ver"
 	@echo "    VERSION             -DVERSION=xxx to CFLAGS and CXXFLAGS"
 	@echo "    LLVM                use clang/clang++"
+	@echo "    LLVM_TARGET         llvm cross compile target"
 	@echo "    D                   [0 release | 1 debug | 2 debuginfo | 3 map] default is 0, same as BUILD_ENV"
 	@echo "    V                   same as BUILD_VERBOSE"
 	@echo "    O                   same as BUILD_OUTPUT"

@@ -144,19 +144,38 @@ cmd_debuginfo =
 endif
 
 ifneq ($(BUILD_ENV),debug)
+
+ifeq ($(LLVM), 1)
 cmd_strip = \
 	$(Q2)$(STRIP) --strip-all $(3) \
 	$(call cmd_show,$(STRIPMSG),$(1),$(3))
 
-ifeq ($(OS_TYPE),Darwin)
-# Darwin not support --strip-unneeded
+# clang not support --strip-unneeded
 cmd_strip_static = \
 	$(Q2)$(STRIP) --strip-debug $(3) \
 	$(call cmd_show,$(STRIPMSG),$(1),$(3))
 else
+
+ifeq ($(OS_TYPE),Darwin)
+# macos strip argument diffrent with linux
+cmd_strip = \
+	$(Q2)$(STRIP) -u -r -arch all $(3) \
+	$(call cmd_show,$(STRIPMSG),$(1),$(3))
+
+cmd_strip_static = \
+	$(Q2)$(STRIP) -u -r -arch all $(3) \
+	$(call cmd_show,$(STRIPMSG),$(1),$(3))
+
+else
+
+cmd_strip = \
+	$(Q2)$(STRIP) --strip-all $(3) \
+	$(call cmd_show,$(STRIPMSG),$(1),$(3))
+
 cmd_strip_static = \
 	$(Q2)$(STRIP) --strip-debug --strip-unneeded $(3) \
 	$(call cmd_show,$(STRIPMSG),$(1),$(3))
+endif
 endif
 
 else
@@ -177,3 +196,4 @@ define cmd_build_cxx
 	$(call cmd_debuginfo,$(MODULE_NAME),$^,$@)
 	$(call cmd_strip,$(MODULE_NAME),$^,$@)
 endef
+
